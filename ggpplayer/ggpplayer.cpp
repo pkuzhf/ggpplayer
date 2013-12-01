@@ -15,7 +15,7 @@ using namespace std;
 
 int main() {
 	Reader r;
-	r.scanGDLFile("C:\\Users\\Hunter\\Desktop\\ggpplayer\\gdl\\tic_tac_toe.txt");
+	r.scanGDLFile("gdl\\tic_tac_toe.txt");
 	Relations rs;
 	r.getRelations(rs);
 	for(int i=0;i<rs.size();i++)
