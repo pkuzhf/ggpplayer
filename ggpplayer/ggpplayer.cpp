@@ -18,8 +18,6 @@ int main() {
 	r.scanGDLFile("gdl\\tic_tac_toe.txt");
 	Relations rs;
 	r.getRelations(rs);
-	for(int i=0;i<rs.size();i++)
-		cerr<<"content:  "<<rs.at(i).content_<<endl;
 	State initstate;
 	Prover p(rs);
 	p.getInitState(initstate);
@@ -32,22 +30,22 @@ int main() {
 		if(p.askTerminal(initstate)) {
 			break;
 		}
-		Relations rs_legal,rs_legal_oplayer,rs_legal_xplayer;
+		Relations rs_legal, rs_legal_oplayer, rs_legal_xplayer;
 		//p.askLegalActions(rs_legal,initstate);
-		p.askLegalActions(rs_legal_oplayer,*(rs_role.begin()),initstate);
-		p.askLegalActions(rs_legal_xplayer,*(++rs_role.begin()),initstate);
+		p.askLegalActions(rs_legal_oplayer, *(rs_role.begin()), initstate);
+		p.askLegalActions(rs_legal_xplayer, *(++rs_role.begin()), initstate);
 		Relations does;
-		Relation does_oplayer=*rs_legal_oplayer.begin();
-		does_oplayer.content_="does";
-		does_oplayer.type_=RelationType::r_does;
-		Relation does_xplayer=*rs_legal_xplayer.begin();
-		does_xplayer.content_="does";
-		does_xplayer.type_=RelationType::r_does;
+		Relation does_oplayer = *rs_legal_oplayer.begin();
+		does_oplayer.content_ = "does";
+		does_oplayer.type_ = RelationType::r_does;
+		Relation does_xplayer = *rs_legal_xplayer.begin();
+		does_xplayer.content_ = "does";
+		does_xplayer.type_ = RelationType::r_does;
 		does.push_back(does_xplayer);
 		does.push_back(does_oplayer);
 		nextstate.clear();
-		p.askNextState(nextstate,initstate,does);
-		initstate=nextstate;
+		p.askNextState(nextstate, initstate,does);
+		initstate = nextstate;
 	}
 	return 0;
 }

@@ -147,10 +147,7 @@ Relations Prover::generateNewRelations(const State &currentstate, Relation &deri
 	return rs;
 }
 
-Relations Prover::getLegalActions(State &state, string &role) {
-	Relations rs;
-	return rs;
-}
+
 
 string Prover::buildNode(string s, int i){
 	char number[10];
@@ -158,27 +155,26 @@ string Prover::buildNode(string s, int i){
 	return s + '[' + number + ']';
 }
 
-void Prover::findVarDomainInSingleInstance(Relation condition, map<string, set<string>> &var_values) {  // bug : 
-	if(dg_.node_instances_.find(condition.content_)!=dg_.node_instances_.end()){
-		for(int k=0;k<dg_.node_instances_.at(condition.content_).size();k++){
+void Prover::findVarDomainInSingleInstance(Relation condition, map<string, set<string>> &var_values) {  
+	if(dg_.node_instances_.find(condition.content_) != dg_.node_instances_.end()){
+		for(int k = 0;k < dg_.node_instances_.at(condition.content_).size(); k++){
 			Relation r;
-			Reader::getRelation(dg_.node_instances_.at(condition.content_).at(k),r,RelationType::r_other);
+			Reader::getRelation(dg_.node_instances_.at(condition.content_).at(k), r,RelationType::r_other);
 			map<string, string> var_value_temp;
-			if(r.matches(condition,var_value_temp)){
-				for(map<string, string>::iterator it=var_value_temp.begin();it!=var_value_temp.end();it++){
+			if(r.matches(condition, var_value_temp)){
+				for(map<string, string>::iterator it = var_value_temp.begin(); it != var_value_temp.end(); it++){
 					var_values[it->first].insert(it->second);
 				}
 			}
 		}
 	}
 	else if(condition.isLogic()){  
-		for(int i=0;i<condition.items_.size();i++){
-			findVarDomainInSingleInstance(condition.items_[i],var_values);
+		for(int i = 0; i < condition.items_.size(); i++){
+			findVarDomainInSingleInstance(condition.items_[i], var_values);
 		}
 	}
 	else {
-		// bug 
-		int t=-1;
+	
 	}
 }
 
@@ -267,20 +263,6 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 						if (condition.findVariables().size() != 0) {
 							contain_variables = true;
 							findVarDomainInSingleInstance(condition, var_values);
-							/*if(condition.type_!=RelationType::r_distinct){
-							for(int k=0;k<dg_.node_instances_.at(condition.content_).size();k++){
-							Relation r;
-							Reader::getRelation(dg_.node_instances_.at(condition.content_).at(k),r,RelationType::r_other);
-							map<string, string> var_value_temp;
-							if(r.matches(condition,var_value_temp)){
-							for(map<string, string>::iterator it=var_value_temp.begin();it!=var_value_temp.end();it++){
-							var_values[it->first].insert(it->second);
-							}
-							}
-							}
-							}
-							*/
-
 						}
 					}
 					if (contain_variables) {
@@ -356,12 +338,6 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 			}
 		}
 	}
-	//
-	if(instance.compare("goal xplayer 50")==0){
-		int tt =1;
-	}
-	//
-
 	if (result) {
 		true_instances.insert(instance);
 		false_instances.clear();
@@ -373,27 +349,24 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 }
 
 bool Prover::askRole(Relations &rs){
-	vector<string>::iterator i;
-	for(i=dg_.node_instances_.at("role").begin();i!=dg_.node_instances_.at("role").end();i++){
+	for(vector<string>::iterator i = dg_.node_instances_.at("role").begin(); i != dg_.node_instances_.at("role").end(); i++){
 		string content = "(" ;
-		content+= i->data() ;
-		content+=  ")";
+		content += i->data() ;
+		content +=  ")";
 		Relation r;
-		Reader::getRelation(content , r, RelationType::r_other);
+		Reader::getRelation(content, r, RelationType::r_other);
 		rs.push_back(r);
 	}
 	return true;
 }
 bool Prover::askTerminal(const State & state){
-	vector<string>::iterator i;
-	for(i=dg_.node_instances_.at("terminal").begin();i!=dg_.node_instances_.at("terminal").end();i++){
-		string s=i->data();
-		set<string> true_instances,false_instances,validating_instances;
-		State::iterator i;
-		for(i=state.begin();i!=state.end();i++){
-			true_instances.insert(i->toString());
+	for(vector<string>::iterator i = dg_.node_instances_.at("terminal").begin(); i != dg_.node_instances_.at("terminal").end(); i++){
+		string s = i->data();
+		set<string> true_instances, false_instances, validating_instances;
+		for(State::iterator j = state.begin(); j != state.end(); j++){
+			true_instances.insert(j->toString());
 		}
-		if(validateInstance(s,true_instances,false_instances,validating_instances)){
+		if(validateInstance(s, true_instances, false_instances, validating_instances)){
 			return true;	
 		}
 	}
@@ -401,17 +374,15 @@ bool Prover::askTerminal(const State & state){
 }
 
 
-bool Prover::askGoal(Relations &rs,const State & state ){
-	vector<string>::iterator i;
-	for(i=dg_.node_instances_.at("goal").begin();i!=dg_.node_instances_.at("goal").end();i++){
+bool Prover::askGoal(Relations &rs, const State & state ){
+	for(vector<string>::iterator i = dg_.node_instances_.at("goal").begin(); i!=dg_.node_instances_.at("goal").end(); i++){
 		Relation r;
-		string s=i->data();
-		set<string> true_instances,false_instances,validating_instances;
-		State::iterator j;
-		for(j=state.begin();j!=state.end();j++){
+		string s = i->data();
+		set<string> true_instances, false_instances, validating_instances;
+		for(State::iterator j = state.begin(); j!=state.end(); j++){
 			true_instances.insert(j->toString());
 		}
-		if(validateInstance(s,true_instances,false_instances,validating_instances)){
+		if(validateInstance(s, true_instances, false_instances, validating_instances)){
 			Reader::getRelation(s , r, RelationType::r_other);
 			rs.push_back(r);	
 		}
@@ -419,17 +390,15 @@ bool Prover::askGoal(Relations &rs,const State & state ){
 	return true;
 }
 
-bool Prover::askLegalActions(Relations &rs,const State state ){
-	vector<string>::iterator i;
-	for(i=dg_.node_instances_.at("legal").begin();i!=dg_.node_instances_.at("legal").end();i++){
+bool Prover::askLegalActions(Relations &rs, const State state ){
+	for(vector<string>::iterator i = dg_.node_instances_.at("legal").begin(); i != dg_.node_instances_.at("legal").end(); i++){
 		Relation r;
 		string s=i->data();
-		set<string> true_instances,false_instances,validating_instances;
-		State::iterator j;
-		for(j=state.begin();j!=state.end();j++){
+		set<string> true_instances, false_instances, validating_instances;
+		for(State::iterator j = state.begin(); j != state.end(); j++){
 			true_instances.insert(j->toString());
 		}
-		if(validateInstance(s,true_instances,false_instances,validating_instances)){
+		if(validateInstance(s, true_instances, false_instances, validating_instances)){
 			Reader::getRelation(s , r, RelationType::r_other);
 			rs.push_back(r);	
 		}
@@ -437,12 +406,12 @@ bool Prover::askLegalActions(Relations &rs,const State state ){
 	return true;
 }
 
-bool Prover::askLegalActions(Relations &rs,Relation role,const State state ){
-	Prover::askLegalActions(rs, state );
+bool Prover::askLegalActions(Relations &rs, Relation role, const State state ){
+	Prover::askLegalActions(rs, state);
 	Relations::iterator i = rs.begin() ; 
-	while(i!=rs.end()){
-		if(i->items_[0].content_!=role.items_[0].content_){
-			i=rs.erase(i);
+	while(i != rs.end()){
+		if(i->items_[0].content_ != role.items_[0].content_){
+			i = rs.erase(i);
 		}
 		else {
 			i++;
@@ -451,22 +420,20 @@ bool Prover::askLegalActions(Relations &rs,Relation role,const State state ){
 	return true;
 }
 
-bool Prover::askNextState(State &nextstate,const State state,const Relations does){
-	vector<string>::iterator i;
-	for(i=dg_.node_instances_.at("next").begin();i!=dg_.node_instances_.at("next").end();i++){
+bool Prover::askNextState(State &nextstate, const State state, const Relations does){
+	for(vector<string>::iterator i = dg_.node_instances_.at("next").begin(); i != dg_.node_instances_.at("next").end(); i++){
 		Relation r;
-		string s=i->data();
-		set<string> true_instances,false_instances,validating_instances;
-		for(State::iterator j=state.begin();j!=state.end();j++){
+		string s = i->data();
+		set<string> true_instances, false_instances, validating_instances;
+		for(State::iterator j = state.begin();j != state.end();j++){
 			true_instances.insert(j->toString());
 		}
-		for(int j=0;j<does.size();j++){
+		for(int j = 0;j<does.size();j++){
 			true_instances.insert(does[j].toString());
 		}
-		if(validateInstance(s,true_instances,false_instances,validating_instances)){
-			s=s.substr(s.find(' ')+1);
+		if(validateInstance(s, true_instances, false_instances, validating_instances)){
+			s = s.substr(s.find(' ') + 1);
 			Reader::getRelation(s , r, RelationType::r_other);
-	//		r=r.items_[0];
 			nextstate.insert(r);
 		}
 	}

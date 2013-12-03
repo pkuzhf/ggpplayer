@@ -16,7 +16,6 @@ public:
 	bool getInitState(State &initstate);
 	bool getNextState(const State &currentstate, State &nextstate);
 	Relations generateNewRelations(const State &currentstate, Relation & deviration);
-	Relations getLegalActions(State &state, string &role);
 
 	bool askRole(Relations &rs);
 	bool askGoal(Relations &rs,const State & state);
