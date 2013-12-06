@@ -12,17 +12,25 @@ using namespace std;
 
 class Prover {
 public:
-	Prover(Relations relations);
-	bool getInitState(State &initstate);
-	bool getNextState(const State &currentstate, State &nextstate);
-	Relations generateNewRelations(const State &currentstate, Relation & deviration);
+	map<Relation, int> keyrelation_num_;
+	vector<Relation> keyrelations_;
 
-	bool askRole(Relations &rs);
-	bool askGoal(Relations &rs,const State & state);
-	bool askTerminal(const State & state);
-	bool askLegalActions(Relations &rs,Relation role,const State state );
-	bool askLegalActions(Relations &rs,const State state );
-	bool askNextState(State &nextstate,const State state,const Relations does);
+	map<Relation, int> legalaction_num_;
+	vector<Relation> legalactions_;
+
+	map<Relation, int> role_num_;
+	vector<Relation> roles_;
+
+	Prover(Relations relations);
+	string getInitState();
+	
+
+	int askRole(Relation &role);  // 返回role在所有玩家中的编号 
+	bool askGoal(Relations &rs, const State &state);
+	bool askTerminal(const string & state);
+	string askLegalActions(int role, const string &state);
+	string askLegalActions(const string &state);
+	string askNextState(const string &currentstate, const string &does);
 	
 
 private:

@@ -38,3 +38,16 @@ vector<string> Tools::removeVectorDuplicates(vector<string> v) {
 	}
 	return res;
 }
+/*
+Relations Tools::removeRelationVectorDuplicates(Relations v) {
+	set<Relation> s;
+	Relations res;
+	for (int i = 0; i < v.size(); ++i) {
+		s.insert(v[i]);
+	}
+	for (set<Relation>::iterator i = s.begin(); i != s.end(); ++i) {
+		res.push_back(*i);
+	}
+	return res;
+}
+*/

@@ -1,4 +1,4 @@
-#include <iostream>
+#include <iostream><
 #include <fstream>
 #include <vector>
 #include <set>
@@ -10,6 +10,25 @@
 
 using namespace std;
 
+
+bool Relation::operator<(const Relation &r) const{
+	if (content_.compare(r.content_) < 0) {
+		return true;
+	}else if(content_.compare(r.content_) > 0){
+		return false;
+	}
+	for (int i = 0; i < items_.size() && i < r.items_.size() ; ++i){
+		if(items_[i] < r.items_[i]) {
+			return true;
+		}else if(r.items_[i] < items_[i]){
+			return false;
+		}
+	}
+	if(items_.size() < r.items_.size()){
+		return true;
+	}
+	return false;
+}
 
 bool Relation::matches(const Relation &r, map<string, string> &var_value) const {
 	if (items_.size() != r.items_.size()) {
@@ -94,10 +113,6 @@ Relations Relation::findProposions() {
 		}
 	}
 	return rs;
-}
-
-bool Relation::operator<(const Relation &r) const{
-	return content_ < r.content_;
 }
 
 string Relation::toString() const {

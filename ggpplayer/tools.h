@@ -68,6 +68,7 @@ class Tools {
 public:
 	static set<string> stringIntersect(set<string> s1, set<string> s2);
 	static vector<string> removeVectorDuplicates(vector<string> v);
+	static Relations removeRelationVectorDuplicates(Relations v);
 };
 
 #endif
