@@ -74,18 +74,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cache.cpp" />
     <ClCompile Include="domaingraph.cpp" />
     <ClCompile Include="ggpplayer.cpp" />
     <ClCompile Include="prover.cpp" />
     <ClCompile Include="reader.cpp" />
     <ClCompile Include="relation.cpp" />
+    <ClCompile Include="statemachine.cpp" />
     <ClCompile Include="tools.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cache.h" />
     <ClInclude Include="domaingraph.h" />
     <ClInclude Include="prover.h" />
     <ClInclude Include="reader.h" />
     <ClInclude Include="relation.h" />
+    <ClInclude Include="statemachine.h" />
     <ClInclude Include="tools.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
