@@ -16,20 +16,19 @@ using namespace std;
 
 
 typedef string State;// TODO
-typedef Relation Role;
-typedef Relations Roles;
-typedef string Move;
-typedef string Moves;// 应该是数组形式吧？
-typedef Relations Goals;
+typedef int Role;
+typedef vector<int> Roles;
+typedef vector<int> Moves;
+typedef vector<int> Goals;
 
 class StateMachine {
 public:
 	StateMachine(Relations description);
-	Goals getGoal(const State &state);// TODO
+	bool getGoal(Goal &result, const State &state);
 	bool isTerminal(const State &state);
 	State getInitialState();
-	Moves getLegalMoves(const State &state, Role role);
-	Moves getLegalMoves(const State &state);//TODO
+	bool getLegalMoves(Moves &moves, const State &state, Role role);
+	//bool getLegalMoves(Moves &moves, const State &state);
 	State getNextState(const State &state, const Moves &moves);
 
 private:
