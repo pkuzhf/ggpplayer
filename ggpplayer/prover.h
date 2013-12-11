@@ -26,7 +26,7 @@ public:
 	
 
 	int askRole(Relation &role);  // 返回role在所有玩家中的编号 
-	bool askGoal(Relations &rs, const State &state);
+	bool askGoal(vector<int> &result, const string &state);
 	bool askTerminal(const string & state);
 	string askLegalActions(int role, const string &state);
 	string askLegalActions(const string &state);

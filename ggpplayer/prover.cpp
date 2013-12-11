@@ -304,17 +304,19 @@ bool Prover::askTerminal(const string & state){
 }
 
 
-bool Prover::askGoal(Relations &rs, const State & state ){
-	for(vector<string>::iterator i = dg_.node_instances_.at("goal").begin(); i!=dg_.node_instances_.at("goal").end(); i++){
+bool Prover::askGoal(vector<int> &result, const string & state ){
+	set<string> true_instances, false_instances, validating_instances;
+	for(int j = 0; j < state.size(); ++j){
+		if(state[j] == '1'){
+			true_instances.insert(keyrelations_[j]);
+		}
+	}
+	for(int i = 0; i < dg_.node_instances_["goal"].size(); ++i){
 		Relation r;
 		string s = i->data();
-		set<string> true_instances, false_instances, validating_instances;
-		for(State::iterator j = state.begin(); j!=state.end(); j++){
-			true_instances.insert(j->toString());
-		}
 		if(validateInstance(s, true_instances, false_instances, validating_instances)){
-			Reader::getRelation(s , r, RelationType::r_other);
-			rs.push_back(r);	
+			Reader.getRelation(s,r,RelationType::r_other);
+			result[role_num_[r.items_[0].toString()]] = atoi(r.items_[1].toString().c_str());
 		}
 	}
 	return true;
@@ -370,7 +372,7 @@ string Prover::askNextState(const string &currentstate, const string &does){
 		r.content_ = "next";
 		r.type_ = RelationType::r_next;
 		r.items_.push_back(keyrelations_[i]);
-		
+
 		if(validateInstance(r.toString(), true_instances, false_instances, validating_instances)){
 			rtn += '1';
 		}else {
