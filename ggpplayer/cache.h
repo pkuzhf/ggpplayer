@@ -13,24 +13,18 @@
 
 using namespace std;
 
-typedef string State;
-typedef Relation Role;
-typedef Relations Roles;
-typedef string Move;
-typedef string Moves;// 应该是数组形式吧？
-typedef Relations Goals;
 
 class Data {
 public:
 	vector<int> goals_;				// 每个玩家的得分..按照顺序排列
-	map<Role, Moves> legalActions_;	// 每个玩家可能的走法
-	map<Moves, State> nextState_;	// 每组move(对每个玩家)->nextState
+	map<int, string> legalActions_;	// 每个玩家可能的走法
+	map<string, string> nextState_;	// 每组move(对每个玩家)->nextState
 	int terminal_;					// 是否结束0不知道，-1结束，1没结束
 	Data();
 };
 
 struct Node {
-	State key_;
+	string key_;
 	Data data_;
 	Node *prev_, *next_;
 };
@@ -43,7 +37,7 @@ struct Node {
  */
 class Cache{
 private:						
-	map<State, Node*> map_;			// 整个映射的表
+	map<string, Node*> map_;		// 整个映射的表
     vector<Node*> free_entries_;	// 存储可用结点的地址
     Node *head_, *tail_;			// 头尾结点进行管理
     Node *entries_;					// 双向链表中的结点
@@ -51,9 +45,9 @@ private:
 public:
     Cache(int size);
     ~Cache();
-    bool put(State key, Data data);
-    Data *get(State key);
-	bool containsKey(State key);
+    bool put(string key, Data data);
+    Data *get(string key);
+	bool containsKey(string key);
 	bool isEmpty();
 	void show();// debug使用
 

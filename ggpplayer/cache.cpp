@@ -34,7 +34,7 @@ Cache::~Cache() {
 	delete[] entries_;
 }
 
-bool Cache::put(State key, Data data) {
+bool Cache::put(string key, Data data) {
 	Node *node;
 	if (free_entries_.empty()) {// 可用结点为空，即cache已满,删除
 		node = tail_->prev_;// 替换链表的最后一个结点
@@ -51,8 +51,8 @@ bool Cache::put(State key, Data data) {
 	return true;
 }
 
-Data *Cache::get(State key) {
-	map<State, Node*>::iterator i = map_.find(key);
+Data *Cache::get(string key) {
+	map<string, Node*>::iterator i = map_.find(key);
 	if (i != map_.end()) {
 		Node *node = i->second;
 		detach(node);
@@ -63,7 +63,7 @@ Data *Cache::get(State key) {
 	}
 }
 
-bool Cache::containsKey(State key) {
+bool Cache::containsKey(string key) {
 	return map_[key] != NULL;
 }
 

@@ -4,6 +4,7 @@
 #include <set>
 #include <map>
 #include <string>
+#include <time.h>
 
 #include "statemachine.h"
 #include "prover.h"
@@ -13,17 +14,14 @@ using namespace std;
 
 StateMachine::StateMachine(Relations description):prover_(description),cache_(cache_size_) {
 	initial_state_ = prover_.getInitState();
-	roles_ = prover_.roles_;
+	role_n_ = prover_.roles_.size();
 }
 
-// TODO:
-Goals StateMachine::getGoal(const State &state) {
-	Goals goals;
-	//prover_.askGoal(goals, state);// 传string还是state，需要转？
-	return goals;
+bool StateMachine::getGoal(Goals &result, const string &state) {
+	return prover_.askGoal(result, state);
 }
 
-bool StateMachine::isTerminal(const State &state) {
+bool StateMachine::isTerminal(const string &state) {
 	Data *data = cache_.get(state);
 	if (data == NULL) {
 		data = new Data();
@@ -43,50 +41,68 @@ bool StateMachine::isTerminal(const State &state) {
 	return data->terminal_ == 1;
 }
 
-State StateMachine::getInitialState() {
+string StateMachine::getInitialState() {
 	return initial_state_;
 }
 
 
-Moves StateMachine::getLegalMoves(const State &state, Role role) {
-	Moves ret;
+bool StateMachine::getLegalMoves(Moves &moves, const string &state, Role role) {
+	string ret;
 	Data *data = cache_.get(state);
 	if (data == NULL) {
 		data = new Data();
-		ret = prover_.askLegalActions(prover_.askRole(role), state);
-		data->legalActions_.insert(pair<Role, Moves>(role, ret));
+		ret = prover_.askLegalActions(role, state);
+		data->legalActions_.insert(pair<Role, string>(role, ret));
 		cache_.put(state, *data);// TODO
 	} else {
-		map<Role, Moves>::iterator i = (data->legalActions_).find(role);
+		map<Role, string>::iterator i = (data->legalActions_).find(role);
 		if (i == data->legalActions_.end()) {
-			ret = prover_.askLegalActions(prover_.askRole(role), state);
+			ret = prover_.askLegalActions(role, state);
+			data->legalActions_.insert(pair<Role, string>(role, ret));
 		} else {
 			ret = i->second;
 		}
 	}
-	return ret;
+	for (int i = 0; i < ret.size(); ++i) {
+		if (ret[i] == '1')
+			moves.push_back(i);
+	}
+	return true;
 }
 
-// TODO
+/*
 Moves StateMachine::getLegalMoves(const State &state) {
 	return prover_.askLegalActions(state);
 }
+*/
 
-State StateMachine::getNextState(const State &state, const Move &moves) {
-	State ret;
+string StateMachine::getNextState(const string &state, const Moves &moves) {
+	string ret;
+	string moveString(prover_.legalactions_.size(), '0');
+	for (int i = 0; i < moves.size(); ++i) {
+		moveString[moves[i]] = '1';
+	}
 	Data *data = cache_.get(state);
 	if (data == NULL) {
 		data = new Data();
-		ret = prover_.askNextState(state, moves);
-		data->nextState_.insert(pair<Moves, State>(moves, ret));
+		ret = prover_.askNextState(state, moveString);
+		data->nextState_.insert(pair<string, string>(moveString, ret));
 		cache_.put(state, *data);// TODO
 	} else {
-		map<Moves, State>::iterator i = (data->nextState_).find(moves);
+		map<string, string>::iterator i = (data->nextState_).find(ret);
 		if (i == data->nextState_.end()) {
-			ret = prover_.askNextState(state, moves);
+			ret = prover_.askNextState(state, moveString);
+			data->nextState_.insert(pair<string, string>(moveString, ret));
 		} else {
 			ret = i->second;
 		}
 	}
 	return ret;
+}
+
+int StateMachine::getRandomMove(const string &state, Role role) {
+	Moves moves;
+	getLegalMoves(moves, state, role);
+	srand((unsigned)time(NULL));  
+	return moves[rand() % moves.size()];
 }
