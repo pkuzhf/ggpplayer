@@ -22,7 +22,7 @@ typedef vector<int> Goals;
 class StateMachine {
 public:
 	StateMachine(Relations description);
-	bool getGoal(Goals &result, const string &state);
+	bool getGoals(Goals &result, const string &state);
 	bool isTerminal(const string &state);
 	string getInitialState();
 	bool getLegalMoves(Moves &moves, const string &state, Role role);

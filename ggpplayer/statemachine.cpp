@@ -8,16 +8,18 @@
 
 #include "statemachine.h"
 #include "prover.h"
+#include "reader.h"
 #include "tools.h"
 
 using namespace std;
 
-StateMachine::StateMachine(Relations description):prover_(description),cache_(cache_size_) {
+
+StateMachine::StateMachine(Relations description):prover_(description), cache_(cache_size_) {
 	initial_state_ = prover_.getInitState();
 	role_n_ = prover_.roles_.size();
 }
 
-bool StateMachine::getGoal(Goals &result, const string &state) {
+bool StateMachine::getGoals(Goals &result, const string &state) {
 	return prover_.askGoal(result, state);
 }
 

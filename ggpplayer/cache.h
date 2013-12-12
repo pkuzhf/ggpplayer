@@ -16,10 +16,9 @@ using namespace std;
 
 class Data {
 public:
-	vector<int> goals_;				// 每个玩家的得分..按照顺序排列
 	map<int, string> legalActions_;	// 每个玩家可能的走法
 	map<string, string> nextState_;	// 每组move(对每个玩家)->nextState
-	int terminal_;					// 是否结束0不知道，-1结束，1没结束
+	int terminal_;					// 是否结束0不知道，1结束，-1没结束
 	Data();
 };
 

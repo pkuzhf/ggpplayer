@@ -87,7 +87,20 @@ void Cache::attach(Node* node) {
 void Cache::show() {
 	int n = 0;
 	for (Node *i = head_->next_; i != tail_; i = i->next_) {
-		cout << "node " << ++n << " : ";
-		// TODO：输出结点内存储的信息
+		cout << "[node " << ++n << " ]:";
+		cout << "	key: " << i->key_ << endl;
+		cout << "	legalActions:(role(int), moves(string))" << endl;
+		for(map<int, string>::const_iterator iter = i->data_.legalActions_.begin(); iter != i->data_.legalActions_.end(); ++iter)
+			cout << "		(" << iter->first << ", " << iter->second << ")" << endl;
+		cout << "	nextState:(moves(string), state(string))" << endl;
+		for(map<string, string>::const_iterator iter = i->data_.nextState_.begin(); iter != i->data_.nextState_.end(); ++iter)
+			cout << "		(" << iter->first << ", " << iter->second << ")" << endl;
+		cout << "	terminal:";
+		if (i->data_.terminal_ == 0)
+			cout << "Can't know" << endl;
+		else if (i->data_.terminal_ == 1)
+			cout << "terminal" << endl;
+		else
+			cout << "continue" << endl;
 	}
 }
