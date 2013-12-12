@@ -1,3 +1,4 @@
+#define CHECK_STATEMACHINE
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -10,10 +11,14 @@
 #include "prover.h"
 #include "domaingraph.h"
 #include "tools.h"
+#include "statemachine.h"
 
 using namespace std;
 
 int main() {
+
+#ifdef CHECK_PROVER
+	
 	Reader r;
 	r.scanGDLFile("gdl\\tic_tac_toe.txt");
 	Relations rs;
@@ -39,6 +44,28 @@ int main() {
 		}
 		
 	}
+#endif
+
+#ifdef CHECK_STATEMACHINE
 	
+	Reader r;
+	r.scanGDLFile("gdl\\tic_tac_toe.txt");
+	Relations rs;
+	r.getRelations(rs);
+	StateMachine machine(rs);
+
+	string state = machine.getInitialState();
+	cout << state << endl;
+	while (!machine.isTerminal(state)) {
+		Moves moves;
+		for (int i = 0; i < machine.getRoleSum(); ++i) {
+			moves.push_back(machine.getRandomMove(state, i));
+		}
+		state = machine.getNextState(state, moves);
+		cout << state << endl;
+	}
+
+#endif
+
 	return 0;
 }

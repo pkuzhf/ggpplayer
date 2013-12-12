@@ -21,6 +21,8 @@ typedef vector<int> Goals;
 
 class StateMachine {
 public:
+
+public:
 	StateMachine(Relations description);
 	bool getGoals(Goals &result, const string &state);
 	bool isTerminal(const string &state);
@@ -29,6 +31,7 @@ public:
 	//bool getLegalMoves(Moves &moves, const State &state);
 	string getNextState(const string &state, const Moves &moves);
 	int getRandomMove(const string &state, Role role);
+	int getRoleSum();
 
 private:
 	static const int cache_size_ = 1000;//Ö»±£´æ1000¸östate

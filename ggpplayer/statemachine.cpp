@@ -108,3 +108,7 @@ int StateMachine::getRandomMove(const string &state, Role role) {
 	srand((unsigned)time(NULL));  
 	return moves[rand() % moves.size()];
 }
+
+int StateMachine::getRoleSum() {
+	return role_n_;
+}
