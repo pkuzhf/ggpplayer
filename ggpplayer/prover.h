@@ -33,7 +33,6 @@ public:
 
 private:
 	Relations relations_;
-	Relations derivations_;
 	DomainGraph dg_;
 	bool validateInstance(string instance, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances);
 	void findVarDomainInSingleInstance(Relation r, map<string, set<string>> &var_values);

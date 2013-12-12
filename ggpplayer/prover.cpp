@@ -15,13 +15,7 @@ using namespace std;
 
 
 
-Prover::Prover(Relations relations) : relations_(relations) {
-	for (int i = 0; i < relations.size(); ++i) {
-		if (relations[i].type_ == RelationType::r_derivation) {
-			derivations_.push_back(relations[i]);
-		}
-	}
-}
+Prover::Prover(Relations relations) : relations_(relations) {}
 
 
 string Prover::getInitState() {
@@ -60,8 +54,9 @@ string Prover::getInitState() {
 	}
 	for( int i = 0; i < roles_.size(); ++i){
 		role_num_[roles_[i]] = i;
-	}// get roles_num map
+	}// get roles_num maap
 
+	cout << "map and vector ok~"<<endl;
 
 	string rtn;
 	set<string> true_instance, false_instance, valideting_instance;
@@ -77,6 +72,9 @@ string Prover::getInitState() {
 			rtn += '0';
 		}
 	}
+
+	cout << "init_state ok"<<endl;
+	
 	return rtn;
 }
 
@@ -115,6 +113,8 @@ void Prover::findVarDomainInSingleInstance(Relation condition, map<string, set<s
 
 
 bool Prover::validateInstance(string instance, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances){
+
+	cerr<<instance<<endl;
 	if (true_instances.find(instance) != true_instances.end()) {
 		return true;
 	}
@@ -131,7 +131,7 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 	Reader::getRelation(instance, r, RelationType::r_other);
 
 	//
-	if(instance.compare("open")==0){
+	if(instance.compare("line red")==0){
 		int tt =1;
 	}
 	//
@@ -222,12 +222,12 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 						}
 						do {
 							map<string, string> var_value_enum;
-							for (int j = 0; j < vars.size(); ++j) {
-								var_value_enum[vars[j]] = values[j][idx[j]];
+							for (int k = 0; k < vars.size(); ++k) {
+								var_value_enum[vars[k]] = values[k][idx[k]];
 							}
 							condition_satisfy = true;
-							for (int j = 1; j < relations_[i].items_.size(); ++j) {
-								Relation condition = relations_[i].items_[j];
+							for (int k = 1; k < relations_[i].items_.size(); ++k) {
+								Relation condition = relations_[i].items_[k];
 								condition.replaceVariables(var_value);
 								condition.replaceVariables(var_value_enum);
 								if (!validateInstance(condition.toString(), true_instances, false_instances, validating_instances)) {
@@ -249,6 +249,11 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 								break;
 							}
 						} while (true);
+					
+						if(instance == "line red"){
+							int t=1;
+						}
+
 					} else {
 						condition_satisfy = true;
 						for (int j = 1; j < relations_[i].items_.size(); ++j) {

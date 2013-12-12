@@ -20,13 +20,16 @@ int main() {
 #ifdef CHECK_PROVER
 	
 	Reader r;
-	r.scanGDLFile("gdl\\tic_tac_toe.txt");
+	r.scanGDLFile("gdl\\connect_four.txt");
 	Relations rs;
 	r.getRelations(rs);
 	Prover prover(rs);
 	
 	string state = prover.getInitState();
 	while(!prover.askTerminal(state)){
+		
+		cout<<"step on"<<endl;
+
 		string does1 = prover.askLegalActions(0, state);
 		string does2 = prover.askLegalActions(1, state);
 		string does;

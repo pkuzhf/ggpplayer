@@ -24,22 +24,36 @@ void DomainGraph::removeNodesByType(Relation &r, RelationType type) {
 	}
 }
 
-void DomainGraph::buildGraph(Relations rs) {	
+void DomainGraph::buildGraph(Relations rs) {
+
+	cout<<"buildGraphBySingleRelation"<<endl;
+
 	for (int i = 0; i < rs.size(); ++i) {
 		//removeNodesByType(rs[i], RelationType::r_distinct);
 		buildGraphBySingleRelation(rs[i]);
+	}
+	if (node_num_.find("does[0]") != node_num_.end() && node_num_.find("legal[0]") != node_num_.end()) {
+		edges_[node_num_["does[0]"]].insert(node_num_["legal[0]"]);
 	}
 	if (node_num_.find("does[1]") != node_num_.end() && node_num_.find("legal[1]") != node_num_.end()) {
 		edges_[node_num_["does[1]"]].insert(node_num_["legal[1]"]);
 	}
 
+	cout<<"buildMaximalInstancesForNode"<<endl;
+
 	for (int i = 0; i < nodes_.size(); ++i) {
 		set<string> path;
 		buildMaximalInstancesForNode(nodes_[i], path);
 	}
+
+	cout<<"removeNodesByType"<<endl;
+
 	for (int i = 0; i < rs.size(); ++i) {
 		removeNodesByType(rs[i], RelationType::r_not);
 	}
+
+	cout<<"validating_instances"<<endl;
+
 	set<string> true_instances;
 	set<string> false_instances;
 	for (int i = 0; i < nodes_.size(); ++i) {
@@ -248,6 +262,7 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 		}
 	} else if (r.type_ == RelationType::r_does) {
 		r.content_ = "legal";
+		r.type_ = RelationType::r_legal;
 		if (validateInstance(r.toString(), true_instances, false_instances, validating_instances, rs)) {
 			result = true;
 		} else {
