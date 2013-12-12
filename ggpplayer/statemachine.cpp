@@ -20,7 +20,8 @@ StateMachine::StateMachine(Relations description):prover_(description), cache_(c
 }
 
 bool StateMachine::getGoals(Goals &result, const string &state) {
-	return prover_.askGoal(result, state);
+	prover_.askGoal(result, state);
+	return true;
 }
 
 bool StateMachine::isTerminal(const string &state) {
