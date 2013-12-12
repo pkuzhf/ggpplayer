@@ -49,12 +49,14 @@ int main() {
 #ifdef CHECK_STATEMACHINE
 	
 	Reader r;
-	r.scanGDLFile("gdl\\tic_tac_toe.txt");
+	//r.scanGDLFile("gdl\\tic_tac_toe.txt");
+	r.scanGDLFile("gdl\\lights_out.txt");
 	Relations rs;
 	r.getRelations(rs);
 	StateMachine machine(rs);
 
 	string state = machine.getInitialState();
+	cout << "state:" << endl;
 	cout << state << endl;
 	while (!machine.isTerminal(state)) {
 		Moves moves;
@@ -63,6 +65,12 @@ int main() {
 		}
 		state = machine.getNextState(state, moves);
 		cout << state << endl;
+	}
+	Goals goals;
+	machine.getGoals(goals, state);
+	cout << "score:" << endl;
+	for (int i = 0; i < machine.getRoleSum(); ++i) {
+		cout << "player" << i << ":" << goals[i] << endl;
 	}
 
 #endif

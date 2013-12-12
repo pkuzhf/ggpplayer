@@ -305,6 +305,7 @@ bool Prover::askTerminal(const string & state){
 
 
 bool Prover::askGoal(vector<int> &result, const string & state ){
+	result.resize(roles_.size());
 	set<string> true_instances, false_instances, validating_instances;
 	for(int j = 0; j < state.size(); ++j){
 		if(state[j] == '1'){
