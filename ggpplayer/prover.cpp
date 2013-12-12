@@ -308,15 +308,15 @@ bool Prover::askGoal(vector<int> &result, const string & state ){
 	set<string> true_instances, false_instances, validating_instances;
 	for(int j = 0; j < state.size(); ++j){
 		if(state[j] == '1'){
-			true_instances.insert(keyrelations_[j]);
+			true_instances.insert(keyrelations_[j].toString());
 		}
 	}
 	for(int i = 0; i < dg_.node_instances_["goal"].size(); ++i){
 		Relation r;
-		string s = i->data();
+		string s = dg_.node_instances_.at("goal").at(i);
 		if(validateInstance(s, true_instances, false_instances, validating_instances)){
-			Reader.getRelation(s,r,RelationType::r_other);
-			result[role_num_[r.items_[0].toString()]] = atoi(r.items_[1].toString().c_str());
+			Reader::getRelation(s, r, RelationType::r_other);
+			result[role_num_.at(r.items_[0])] = atoi(r.items_[1].toString().c_str());
 		}
 	}
 	return true;
