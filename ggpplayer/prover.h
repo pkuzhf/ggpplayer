@@ -23,8 +23,6 @@ public:
 
 	Prover(Relations relations);
 	string getInitState();
-	
-
 	int askRole(Relation &role);  // 返回role在所有玩家中的编号 
 	bool askGoal(vector<int> &result, const string &state);
 	bool askTerminal(const string & state);
