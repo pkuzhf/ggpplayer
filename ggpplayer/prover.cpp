@@ -74,7 +74,7 @@ string Prover::getInitState() {
 	}
 
 	cout << "init_state ok"<<endl;
-	
+
 	return rtn;
 }
 
@@ -111,10 +111,22 @@ void Prover::findVarDomainInSingleInstance(Relation condition, map<string, set<s
 	}
 }
 
+bool Prover::contain_var(Relation r, string var){
+	if(r.content_ == var) {
+		return true;
+	}
+	for(int i = 0; i < r.items_.size(); ++i){
+		if(contain_var(r.items_[i], var)){
+			return true;	
+		}
+	}
+	return false;
+}
+
 
 bool Prover::validateInstance(string instance, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances){
 
-	cerr<<instance<<endl;
+	//cerr<<instance<<endl;
 	if (true_instances.find(instance) != true_instances.end()) {
 		return true;
 	}
@@ -220,7 +232,13 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 						if (none_value_var) {																
 							break;
 						}
+						
+						if(conditions_satisfied(relations_[i],var_value, vars, values, 1, true_instances, false_instances, validating_instances)){
+							condition_satisfy = true;
+						}
+						/*
 						do {
+
 							map<string, string> var_value_enum;
 							for (int k = 0; k < vars.size(); ++k) {
 								var_value_enum[vars[k]] = values[k][idx[k]];
@@ -249,7 +267,7 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 								break;
 							}
 						} while (true);
-					
+						*/
 						if(instance == "line red"){
 							int t=1;
 						}
@@ -264,7 +282,8 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 								break;
 							}
 						}
-					}				
+					}		
+					
 					if (condition_satisfy) {
 						result = true;
 						break;
@@ -286,6 +305,58 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 	}
 	validating_instances.erase(instance);
 	return result;
+}
+
+bool Prover::conditions_satisfied(Relation relation, map<string, string> var_value, vector<string> vars, vector<vector<string>> values, int condition_count, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances){
+	if(condition_count == relation.items_.size()){
+		return true;
+	}
+	vector<int> var_idx;
+	for(int i = 0; i < vars.size(); ++i){
+		if(contain_var(relation.items_[condition_count], vars[i])){
+			var_idx.push_back(i);
+		}
+	}
+	vector<int> idx;
+	for(int i = 0; i < var_idx.size(); ++i){
+		idx.push_back(0);
+	}
+
+	do {
+		map<string, string> var_value_enum;
+		for (int k = 0; k < var_idx.size(); ++k) {
+			var_value_enum[vars[var_idx[k]]] = values[var_idx[k]][idx[k]];
+		}
+		Relation r = relation.items_[condition_count];
+		r.replaceVariables(var_value);
+		r.replaceVariables(var_value_enum);
+		if (validateInstance(r.toString(), true_instances, false_instances, validating_instances)) {
+			vector<vector<string>> new_values = values;
+			for(int k = 0; k < var_idx.size(); ++k){
+				new_values[var_idx[k]].clear();
+				new_values[var_idx[k]].push_back(values[var_idx[k]][idx[k]]);
+			}
+			if(conditions_satisfied(relation, var_value, vars, new_values, condition_count + 1, true_instances, false_instances, validating_instances)){
+				return true;
+			}
+		}
+		
+		
+		int k = 0;
+		while (k < var_idx.size() && idx[k] == values[var_idx[k]].size() - 1) {
+			idx[k] = 0;			
+			++k;
+		}
+		if (k < var_idx.size()) {
+			++idx[k];
+		} else {
+			break;
+		}
+	} while (true);
+
+
+
+	return false;
 }
 
 int Prover::askRole(Relation &role){

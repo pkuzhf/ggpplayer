@@ -1,4 +1,4 @@
-#define CHECK_STATEMACHINE
+#define CHECK_PROVER
 #include <iostream>
 #include <fstream>
 #include <vector>
