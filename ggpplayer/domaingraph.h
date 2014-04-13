@@ -20,7 +20,7 @@ public:
 	void buildGraph(Relations rs);
 
 private:
-	void removeNodesByType(Relation &r, RelationType type);
+	void removeNodesByType(Relation r, RelationType type);
 	void buildGraphBySingleRelation(Relation r);
 	void addNode(string node);
 	void findVariableNode(Relation r, map<string, set<int>> &m);

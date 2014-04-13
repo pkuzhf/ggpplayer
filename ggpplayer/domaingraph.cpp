@@ -12,7 +12,7 @@
 
 using namespace std;
 
-void DomainGraph::removeNodesByType(Relation &r, RelationType type) {
+void DomainGraph::removeNodesByType(Relation r, RelationType type) {
 	vector<Relation>::iterator i = r.items_.begin();
 	while (i != r.items_.end()) {
 		if (i->type_ == type) {			
@@ -30,6 +30,7 @@ void DomainGraph::buildGraph(Relations rs) {
 
 	for (int i = 0; i < rs.size(); ++i) {
 		//removeNodesByType(rs[i], RelationType::r_distinct);
+
 		buildGraphBySingleRelation(rs[i]);
 	}
 	if (node_num_.find("does[0]") != node_num_.end() && node_num_.find("legal[0]") != node_num_.end()) {
@@ -43,7 +44,7 @@ void DomainGraph::buildGraph(Relations rs) {
 
 	for (int i = 0; i < nodes_.size(); ++i) {
 		set<string> path;
-		buildMaximalInstancesForNode(nodes_[i], path);
+		buildMaximalInstancesForNode(nodes_[i], path); 
 	}
 
 	cout<<"removeNodesByType"<<endl;
@@ -72,6 +73,7 @@ void DomainGraph::buildGraph(Relations rs) {
 			}
 		}
 	}
+
 	for (int i = 0; i < nodes_.size(); ++i) { // don't merge this loop to above loop, because these nodes are used in validateInstance.
 		if (nodes_[i][nodes_[i].size() - 1] == ']') {
 			node_instances_.erase(nodes_[i]);
@@ -80,9 +82,12 @@ void DomainGraph::buildGraph(Relations rs) {
 }
 
 void DomainGraph::buildMaximalInstancesForNode(string node, set<string> path) {
+	if(node_instances_.find("cell[0]") != node_instances_.end()){
+		int t=  0;
+	}
 	path.insert(node);
 	vector<string> instances;
-	if (node[node.size() - 1] == ']') {
+	if (node[node.size() - 1] == ']') {  // ²ÎÊý
 		for (set<int>::iterator i = edges_[node_num_[node]].begin(); i != edges_[node_num_[node]].end(); ++i) {
 			if (path.find(nodes_[*i]) == path.end()) {
 				buildMaximalInstancesForNode(nodes_[*i], path);
@@ -90,7 +95,7 @@ void DomainGraph::buildMaximalInstancesForNode(string node, set<string> path) {
 			}
 		}
 		instances = Tools::removeVectorDuplicates(instances);
-	} else {
+	} else {   
 		int item_num = 0;
 		for (int i = 0; node_num_.find(buildNode(node, i)) != node_num_.end(); ++i) {
 			if (path.find(buildNode(node, i)) == path.end()) {
@@ -142,10 +147,17 @@ void DomainGraph::buildMaximalInstancesForNode(string node, set<string> path) {
 			}
 		}		
 	}
-	node_instances_[node] = instances;
+	
+	for(int i = 0 ; i < instances.size(); ++i){
+		node_instances_[node].push_back(instances[i]);
+	}
+	node_instances_[node] = Tools::removeVectorDuplicates(node_instances_[node]);
+	
+	//node_instances_[node] = instances;  
 }
 
 void DomainGraph::buildGraphBySingleRelation(Relation r) {	
+
 	bool is_a_node = true;
 	if (r.type_ == RelationType::r_or ||
 		r.type_ == RelationType::r_and ||
@@ -166,6 +178,7 @@ void DomainGraph::buildGraphBySingleRelation(Relation r) {
 		buildGraphBySingleRelation(r.items_[i]);			
 	}
 
+
 	//add edges
 	if (node_num_.find(r.content_) != node_num_.end()) {
 		for (int i = 0; i < r.items_.size(); ++i) {
@@ -174,7 +187,7 @@ void DomainGraph::buildGraphBySingleRelation(Relation r) {
 			}
 		}
 	}
-	if (r.type_ == RelationType::r_derivation) {
+	if (r.type_ == RelationType::r_derivation) { 
 		set<string> head_vars = r.items_[0].findVariables();
 		map<string, set<int>> headvar_nodes;
 		for (set<string>::iterator i = head_vars.begin(); i != head_vars.end(); ++i) {
@@ -254,6 +267,11 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 	bool result = false;
 	Relation r;
 	Reader::getRelation(instance, r, RelationType::r_other);
+
+	if(instance == "cellOpen 2 2"){
+		int t = 1;
+	}
+
 	if (r.type_ == RelationType::r_true) {
 		if (validateInstance(r.items_[0].toString(), true_instances, false_instances, validating_instances, rs)) {
 			result = true;
@@ -289,11 +307,14 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 			}
 			break;
 		case RelationType::r_not:
+			/*
 			if (validateInstance(r.items_[0].toString(), true_instances, false_instances, validating_instances, rs)) {
 				result = false;
 			} else {
 				result = true;
 			}
+			*/
+			result = true;
 			break;
 		case RelationType::r_distinct:
 			if (r.items_[0].type_ == RelationType::r_constant && r.items_[1].type_ == RelationType::r_constant) {

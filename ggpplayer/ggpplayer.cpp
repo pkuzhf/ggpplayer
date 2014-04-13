@@ -33,6 +33,7 @@ int main() {
 		for(int i = 0; i < does1.size(); ++i){
 			does += '0';
 		}
+	
 		does[does1.find('1')] = '1';
 		does[does2.find('1')] = '1';
 		state = prover.askNextState(state, does);
@@ -42,7 +43,11 @@ int main() {
 				cout << prover.keyrelations_[i].toString() <<endl;
 			}
 		}
-		
+		vector<int> result;
+		prover.askGoal(result, state);
+		for(int i = 0; i < result.size(); ++i){
+			cout << "player" << i << ": "<< result[i]<<endl;
+		}
 	}
 #endif
 

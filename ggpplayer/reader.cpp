@@ -110,6 +110,8 @@ bool Reader::fetch(const string &s, int &start, string &result) {
 }
 
 RelationType Reader::getType(const string &s) {
+	
+
 	for (int i = 0; i < relation_type_num; ++i) {
 		if (s == relation_type_words[i]) {
 			return (RelationType)i;

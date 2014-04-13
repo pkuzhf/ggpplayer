@@ -19,7 +19,9 @@ Prover::Prover(Relations relations) : relations_(relations) {}
 
 
 string Prover::getInitState() {
+
 	dg_.buildGraph(relations_);
+
 	set<Relation> temp_keyrelations;
 	for (vector<string>::iterator i = dg_.node_instances_["next"].begin(); i != dg_.node_instances_.at("next").end() ; ++i) {
 		Relation r;
