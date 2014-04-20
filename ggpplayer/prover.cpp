@@ -10,7 +10,7 @@
 #include "relation.h"
 #include "domaingraph.h"
 #include "reader.h"
-
+#include "dependgraph.h"
 using namespace std;
 
 
@@ -20,7 +20,8 @@ Prover::Prover(Relations relations) : relations_(relations) {}
 
 string Prover::getInitState() {
 
-	dg_.buildGraph(relations_);
+	//dg_.buildGraph(relations_);
+	dpg_.buildGraph(relations_);
 
 	set<Relation> temp_keyrelations;
 	for (vector<string>::iterator i = dg_.node_instances_["next"].begin(); i != dg_.node_instances_.at("next").end() ; ++i) {
@@ -128,7 +129,7 @@ bool Prover::contain_var(Relation r, string var){
 
 bool Prover::validateInstance(string instance, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances){
 
-	//cerr<<instance<<endl;
+	
 	if (true_instances.find(instance) != true_instances.end()) {
 		return true;
 	}
@@ -144,11 +145,7 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 	Relation r;
 	Reader::getRelation(instance, r, RelationType::r_other);
 
-	//
-	if(instance.compare("line red")==0){
-		int tt =1;
-	}
-	//
+	
 	if (r.type_ == RelationType::r_true) {
 		if (validateInstance(r.items_[0].toString(), true_instances, false_instances, validating_instances)) {
 			result = true;
@@ -235,45 +232,9 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 							break;
 						}
 						
-						if(conditions_satisfied(relations_[i],var_value, vars, values, 1, true_instances, false_instances, validating_instances)){
+						if(conditions_satisfied(relations_[i],var_value, vars, values, 1, true_instances, false_instances, validating_instances)){ // ÅÐ¶ÏÊÇ·ñÂú×ã
 							condition_satisfy = true;
 						}
-						/*
-						do {
-
-							map<string, string> var_value_enum;
-							for (int k = 0; k < vars.size(); ++k) {
-								var_value_enum[vars[k]] = values[k][idx[k]];
-							}
-							condition_satisfy = true;
-							for (int k = 1; k < relations_[i].items_.size(); ++k) {
-								Relation condition = relations_[i].items_[k];
-								condition.replaceVariables(var_value);
-								condition.replaceVariables(var_value_enum);
-								if (!validateInstance(condition.toString(), true_instances, false_instances, validating_instances)) {
-									condition_satisfy = false;
-									break;
-								}
-							}
-							if (condition_satisfy) {
-								break;
-							}
-							int k = 0;
-							while (k < idx.size() && idx[k] == values[k].size() - 1) {
-								idx[k] = 0;			
-								++k;
-							}
-							if (k < idx.size()) {
-								++idx[k];
-							} else {
-								break;
-							}
-						} while (true);
-						*/
-						if(instance == "line red"){
-							int t=1;
-						}
-
 					} else {
 						condition_satisfy = true;
 						for (int j = 1; j < relations_[i].items_.size(); ++j) {

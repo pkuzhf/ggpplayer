@@ -82,9 +82,14 @@ void DomainGraph::buildGraph(Relations rs) {
 }
 
 void DomainGraph::buildMaximalInstancesForNode(string node, set<string> path) {
-	if(node_instances_.find("cell[0]") != node_instances_.end()){
-		int t=  0;
+	static set<string> cache_set;
+	if(cache_set.find(node) == cache_set.end()){
+		cache_set.insert(node);
+	} else{
+		return;
 	}
+	
+	cout<<node<<endl;
 	path.insert(node);
 	vector<string> instances;
 	if (node[node.size() - 1] == ']') {  // ²ÎÊý
@@ -92,6 +97,8 @@ void DomainGraph::buildMaximalInstancesForNode(string node, set<string> path) {
 			if (path.find(nodes_[*i]) == path.end()) {
 				buildMaximalInstancesForNode(nodes_[*i], path);
 				instances.insert(instances.end(), node_instances_[nodes_[*i]].begin(), node_instances_[nodes_[*i]].end());
+			} else{
+				cache_set.erase(node);
 			}
 		}
 		instances = Tools::removeVectorDuplicates(instances);
@@ -253,6 +260,7 @@ string DomainGraph::buildNode(string s, int i) {
 }
 
 bool DomainGraph::validateInstance(string instance, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances, Relations &rs) {
+	cout<<instance<<endl;
 	if (true_instances.find(instance) != true_instances.end()) {
 		return true;
 	}
@@ -268,9 +276,6 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 	Relation r;
 	Reader::getRelation(instance, r, RelationType::r_other);
 
-	if(instance == "cellOpen 2 2"){
-		int t = 1;
-	}
 
 	if (r.type_ == RelationType::r_true) {
 		if (validateInstance(r.items_[0].toString(), true_instances, false_instances, validating_instances, rs)) {
@@ -278,6 +283,8 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 		} else {
 			result = false;
 		}
+	} else if(r.type_== RelationType::r_init){
+		result = false;
 	} else if (r.type_ == RelationType::r_does) {
 		r.content_ = "legal";
 		r.type_ = RelationType::r_legal;

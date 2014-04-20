@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include "domaingraph.h"
+#include "dependgraph.h"
 #include "tools.h"
 
 using namespace std;
@@ -34,6 +35,8 @@ public:
 private:
 	Relations relations_;
 	DomainGraph dg_;
+	DependGraph dpg_;
+
 	bool validateInstance(string instance, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances);
 	void findVarDomainInSingleInstance(Relation r, map<string, set<string>> &var_values);
 	string buildNode(string s, int i);

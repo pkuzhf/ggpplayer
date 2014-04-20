@@ -75,6 +75,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cache.cpp" />
+    <ClCompile Include="dependgraph.cpp" />
     <ClCompile Include="domaingraph.cpp" />
     <ClCompile Include="ggpplayer.cpp" />
     <ClCompile Include="prover.cpp" />
@@ -85,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cache.h" />
+    <ClInclude Include="dependgraph.h" />
     <ClInclude Include="domaingraph.h" />
     <ClInclude Include="prover.h" />
     <ClInclude Include="reader.h" />

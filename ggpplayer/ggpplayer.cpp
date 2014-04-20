@@ -10,6 +10,7 @@
 #include "relation.h"
 #include "prover.h"
 #include "domaingraph.h"
+#include  "dependgraph.h"
 #include "tools.h"
 #include "statemachine.h"
 
@@ -20,7 +21,7 @@ int main() {
 #ifdef CHECK_PROVER
 	
 	Reader r;
-	r.scanGDLFile("gdl\\tic_tac_toe.txt");
+	r.scanGDLFile("gdl\\connect_four.txt");
 	Relations rs;
 	r.getRelations(rs);
 	Prover prover(rs);
