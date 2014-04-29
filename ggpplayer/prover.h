@@ -30,6 +30,7 @@ public:
 	string askLegalActions(int role, const string &state);
 	string askLegalActions(const string &state);
 	string askNextState(const string &currentstate, const string &does);
+	string askNextStateByDG(const string &currentstate, const string &does);
 	
 
 private:

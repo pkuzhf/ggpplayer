@@ -89,7 +89,7 @@ void DomainGraph::buildMaximalInstancesForNode(string node, set<string> path) {
 		return;
 	}
 	
-	cout<<node<<endl;
+	//cout<<node<<endl;
 	path.insert(node);
 	vector<string> instances;
 	if (node[node.size() - 1] == ']') {  // ²ÎÊý
@@ -130,11 +130,9 @@ void DomainGraph::buildMaximalInstancesForNode(string node, set<string> path) {
 					string instance = node;
 					Relation r;
 					r.content_ = node;
-					for (int i = 0; i < idx.size(); ++i) {
-						Relation item;
-						Reader::getRelation(node_instances_[buildNode(node, i)][idx[i]], item, RelationType::r_other);
-						//item.content_ = node_instances_[buildNode(node, i)][idx[i]];
-						r.items_.push_back(item);						
+					for (int i = 0; i < idx.size(); ++i) {						
+						r.items_.push_back(Reader::getRelation(node_instances_[buildNode(node, i)][idx[i]]));
+						//item.content_ = node_instances_[buildNode(node, i)][idx[i]];						
 					}
 					instance = r.toString();
 					instances.push_back(instance);
@@ -260,7 +258,7 @@ string DomainGraph::buildNode(string s, int i) {
 }
 
 bool DomainGraph::validateInstance(string instance, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances, Relations &rs) {
-	cout<<instance<<endl;
+	//cout<<instance<<endl;
 	if (true_instances.find(instance) != true_instances.end()) {
 		return true;
 	}
@@ -274,7 +272,7 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 	}
 	bool result = false;
 	Relation r;
-	Reader::getRelation(instance, r, RelationType::r_other);
+	r = Reader::getRelation(instance);
 
 
 	if (r.type_ == RelationType::r_true) {

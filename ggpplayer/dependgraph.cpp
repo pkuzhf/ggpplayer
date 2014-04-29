@@ -17,19 +17,34 @@ using namespace std;
 
 void DependGraph::buildGraph(Relations rs)
 {
+	//input
+	addNode(relation_type_words[RelationType::r_role]);
+	addNode(relation_type_words[RelationType::r_does]);
+	addNode(relation_type_words[RelationType::r_true]);
+	//output
+	addNode(relation_type_words[RelationType::r_next]);
+	addNode(relation_type_words[RelationType::r_goal]);
+	addNode(relation_type_words[RelationType::r_legal]);
+	addNode(relation_type_words[RelationType::r_terminal]);		
+
 	for(int i = 0 ; i < rs.size(); ++i){
 		buildGraphBySingleRelation(rs[i]);
+		if (rs[i].type_ == RelationType::r_derivation) {
+			derivations_.push_back(rs[i]);
+		}
 	}
+
 	topoSort();
+
 }
 
 void DependGraph::topoSort()
 {
 	while(true){
-		int zero_in_index = find_zero_in();
+		int zero_in_index = findZeroIn();
 		if(zero_in_index == -1) break;
 		if(zero_in_index == -2){
-			delete_loop();
+			deleteLoop();
 			continue;
 		}
 		MARK[zero_in_index] = true;
@@ -45,11 +60,11 @@ void DependGraph::topoSort()
 	}
 }
 
-void DependGraph::delete_loop()
+void DependGraph::deleteLoop()
 {
 	int index = 0; 
 	for(int i = 0 ; i < node_num_.size(); ++i){
-		if(!MARK[i]){
+		if(!MARK[i] && edges_out_[i].size() > 0){
 			index = i;
 			break;
 		}
@@ -71,24 +86,47 @@ void DependGraph::delete_loop()
 				MARK[now] = true;
 				now = dis[now];
 			}
+			tempVector.push_back(index);
 			for(int i = 0 ; i < tempVector.size(); ++i){
-				for(int j = 0; j < edges_out_[i].size(); ++j){
-					vector<int>::iterator iter = find(edges_in_[edges_out_[i][j]].begin(), edges_in_[edges_out_[i][j]].end(), i);
-					*iter = index;
-					edges_out_[index].push_back(edges_out_[i][j]);
+				if(tempVector[i] == index) continue;
+				for(int j = 0; j < edges_out_[tempVector[i] ].size(); ++j){
+					if(find(tempVector.begin(), tempVector.end(), edges_out_[tempVector[i]][j]) == tempVector.end()){
+						vector<int>::iterator iter = find(edges_in_[edges_out_[tempVector[i] ][j]].begin(), edges_in_[edges_out_[tempVector[i] ][j]].end(), tempVector[i] );
+						*iter = index;
+						edges_out_[index].push_back(edges_out_[tempVector[i] ][j]);
+					}						
 				}
-				for(int j = 0; j < edges_in_[i].size(); ++j){
-					vector<int>::iterator iter = find(edges_out_[edges_in_[i][j]].begin(), edges_out_[edges_in_[i][j]].end(), i);
-					*iter = index;
-					edges_in_[index].push_back(edges_in_[i][j]);
+				for(int j = 0; j < edges_in_[tempVector[i] ].size(); ++j){
+					if(find(tempVector.begin(), tempVector.end(), edges_in_[tempVector[i] ][j]) == tempVector.end()){
+						vector<int>::iterator iter = find(edges_out_[edges_in_[tempVector[i] ][j]].begin(), edges_out_[edges_in_[tempVector[i] ][j]].end(), tempVector[i] );
+						*iter = index;
+					
+						edges_in_[index].push_back(edges_in_[tempVector[i] ][j]);
+					}
 				}
-				edges_in_[i].resize(0);
-				edges_out_[i].resize(0);
-				for(int j = 0; j < edges_in_[i].size(); ++j){
-					nodes_[index].push_back(nodes_[i][j]);
+				edges_in_[tempVector[i] ].resize(0);
+				edges_out_[tempVector[i] ].resize(0);
+				for(int j = 0; j < nodes_[tempVector[i] ].size(); ++j){
+					nodes_[index].push_back(nodes_[tempVector[i] ][j]);
 				}
-				
+				for(vector<int>::iterator j = edges_in_[index].begin() ; j != edges_in_[index].end(); ++j){
+					if(*j == tempVector[i]){
+						j = edges_in_[index].erase(j);
+					}
+					if(j == edges_in_[index].end())
+						break;
+					
+				}
+				for(vector<int>::iterator j = edges_out_[index].begin() ; j != edges_out_[index].end(); ++j){
+					if(*j == tempVector[i]){
+						 j = edges_out_[index].erase(j);
+					}
+					if(j == edges_out_[index].end())
+						break;
+				}
 			}
+			
+			return;
 		} else {
 			for(int i = 0; i < edges_out_[now].size(); ++i){
 				dis[edges_out_[now][i]] = now;
@@ -98,7 +136,7 @@ void DependGraph::delete_loop()
 	}
 }
 
-int DependGraph::find_zero_in()
+int DependGraph::findZeroIn()
 {
 	bool b = false;
 	for(int i = 0 ;i < node_num_.size(); ++i){
@@ -124,20 +162,9 @@ void DependGraph::addNode(string node) {
 }
 
 void DependGraph::buildGraphBySingleRelation(Relation & r)
-{
-	bool is_a_node = true;
-	if (r.type_ == RelationType::r_or ||
-		r.type_ == RelationType::r_and ||
-		r.type_ == RelationType::r_not ||
-		r.type_ == RelationType::r_distinct ||
-		r.type_ == RelationType::r_derivation ||
-		r.type_ == RelationType::r_variable ||
-		r.type_ == RelationType::r_constant ||
-		node_num_.find(r.content_) != node_num_.end()) {
-		is_a_node = false;	
-	}
-	if (is_a_node) {
-		addNode(r.content_);		
+{	
+	if (r.type_ == RelationType::r_function && node_num_.find(r.content_) != node_num_.end()) {
+		addNode(r.content_);
 	}
 	for (int i = 0; i < r.items_.size(); ++i) {
 		buildGraphBySingleRelation(r.items_[i]);			

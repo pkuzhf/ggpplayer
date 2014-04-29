@@ -17,7 +17,7 @@ class Reader {
 public:
 	bool scanGDLFile(string filename);
 	bool getRelations(Relations &relations);
-	static bool getRelation(const string &s, Relation &r, RelationType fathertype);
+	static Relation getRelation(const string &s, RelationType fathertype = RelationType::r_function);
 private:
 	string file_content_;
 	static bool fetch(const string &s, int &start, string &result);

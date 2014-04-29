@@ -31,8 +31,8 @@ private:
 	void addNode(string node);
 	void addEdge(Relation & head, Relation & tail);
 	void topoSort();
-	int find_zero_in();
-	void delete_loop();
+	int findZeroIn();
+	void deleteLoop();
 	vector<bool> MARK;
 
 };

@@ -20,13 +20,13 @@ Prover::Prover(Relations relations) : relations_(relations) {}
 
 string Prover::getInitState() {
 
-	//dg_.buildGraph(relations_);
+	dg_.buildGraph(relations_);
 	dpg_.buildGraph(relations_);
 
 	set<Relation> temp_keyrelations;
 	for (vector<string>::iterator i = dg_.node_instances_["next"].begin(); i != dg_.node_instances_.at("next").end() ; ++i) {
 		Relation r;
-		Reader::getRelation(*i, r, RelationType::r_other);
+		r = Reader::getRelation(*i);
 		temp_keyrelations.insert(r.items_[0]);
 	}
 	for (int i = 0; i < relations_.size(); ++i){
@@ -43,7 +43,7 @@ string Prover::getInitState() {
 
 	for (vector<string>::iterator i = dg_.node_instances_["does"].begin(); i != dg_.node_instances_.at("does").end() ; ++i) {
 		Relation r;
-		Reader::getRelation(*i, r, RelationType::r_other);
+		r = Reader::getRelation(*i);
 		legalactions_.push_back(r);
 	}
 	for( int i = 0; i < legalactions_.size(); ++i){
@@ -52,7 +52,7 @@ string Prover::getInitState() {
 
 	for (vector<string>::iterator i = dg_.node_instances_["role"].begin(); i != dg_.node_instances_.at("role").end() ; ++i) {
 		Relation r;
-		Reader::getRelation(*i, r, RelationType::r_other);
+		r = Reader::getRelation(*i);
 		roles_.push_back(r.items_[0]);
 	}
 	for( int i = 0; i < roles_.size(); ++i){
@@ -95,7 +95,7 @@ void Prover::findVarDomainInSingleInstance(Relation condition, map<string, set<s
 	if(dg_.node_instances_.find(condition.content_) != dg_.node_instances_.end()){
 		for(int k = 0;k < dg_.node_instances_.at(condition.content_).size(); k++){
 			Relation r;
-			Reader::getRelation(dg_.node_instances_.at(condition.content_).at(k), r,RelationType::r_other);
+			r = Reader::getRelation(dg_.node_instances_.at(condition.content_).at(k));
 			map<string, string> var_value_temp;
 			if(r.matches(condition, var_value_temp)){
 				for(map<string, string>::iterator it = var_value_temp.begin(); it != var_value_temp.end(); it++){
@@ -143,7 +143,7 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 	}
 	bool result = false;
 	Relation r;
-	Reader::getRelation(instance, r, RelationType::r_other);
+	r = Reader::getRelation(instance);
 
 	
 	if (r.type_ == RelationType::r_true) {
@@ -355,7 +355,7 @@ bool Prover::askGoal(vector<int> &result, const string & state ){
 		Relation r;
 		string s = dg_.node_instances_.at("goal").at(i);
 		if(validateInstance(s, true_instances, false_instances, validating_instances)){
-			Reader::getRelation(s, r, RelationType::r_other);
+			r = Reader::getRelation(s);
 			result[role_num_.at(r.items_[0])] = atoi(r.items_[1].toString().c_str());
 		}
 	}
@@ -420,4 +420,9 @@ string Prover::askNextState(const string &currentstate, const string &does){
 		}
 	}
 	return rtn;
+}
+
+string Prover::askNextStateByDG(const string &currentstate, const string &does) {
+
+	return "";
 }

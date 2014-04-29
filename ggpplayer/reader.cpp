@@ -37,40 +37,78 @@ bool Reader::getRelations(Relations &relations) {
 		if (substring[0] != '(') {
 			return false;
 		}
-		Relation r;
-		if (getRelation(substring, r, RelationType::r_other)) {
-			relations.push_back(r);
-		}
+		relations.push_back(getRelation(substring));
 	}
 	return true;
 }
 
-bool Reader::getRelation(const string &s, Relation &r, RelationType fathertype) {
-	string head;
+Relation Reader::getRelation(const string &s, RelationType default_type) {	
 	int idx = 0;
 	if (s[idx] == '(') {
 		idx = 1;
 	}
-	if (fetch(s, idx, head)) {
-		if (head[0] == '(') {
-			return false;
-		}
-		r.content_ = head;
-		r.type_ = getType(head);
-		string substring;
-		while (fetch(s, idx, substring)) {
-			Relation r1;
-			if (getRelation(substring, r1, r.type_)) {
-				r.items_.push_back(r1);
-			}
-		}
-		if (r.type_ == RelationType::r_function && (fathertype == RelationType::r_function 
-													|| fathertype == RelationType::r_distinct
-													|| fathertype == RelationType::r_role)) {
-			r.type_ = RelationType::r_constant;
-		}
+	Relation r;
+	string head;
+	fetch(s, idx, head);
+	r.content_ = head;
+	r.type_ = getType(head);
+	if (r.type_ == RelationType::r_other) {
+		r.type_ = default_type;
 	}
-	return true;
+
+	string substring;	
+	switch(r.type_) {
+	case RelationType::r_role:
+		fetch(s, idx, substring);
+		r.items_.push_back(getRelation(substring, RelationType::r_constant));		
+		break;
+	case RelationType::r_init:			
+	case RelationType::r_next:
+	case RelationType::r_true:
+	case RelationType::r_base:
+	case RelationType::r_not:
+		fetch(s, idx, substring);
+		r.items_.push_back(getRelation(substring, RelationType::r_function));		
+		break;
+	case RelationType::r_legal:
+	case RelationType::r_input:
+	case RelationType::r_does:
+		fetch(s, idx, substring);
+		r.items_.push_back(getRelation(substring, RelationType::r_constant));		
+		fetch(s, idx, substring);
+		r.items_.push_back(getRelation(substring, RelationType::r_function));					
+		break;
+	case RelationType::r_goal:
+	case RelationType::r_distinct:
+		fetch(s, idx, substring);
+		r.items_.push_back(getRelation(substring, RelationType::r_constant));		
+		fetch(s, idx, substring);
+		r.items_.push_back(getRelation(substring, RelationType::r_constant));
+		break;		
+	case RelationType::r_and:
+	case RelationType::r_or:
+		while (fetch(s, idx, substring)) {				
+			r.items_.push_back(getRelation(substring, RelationType::r_function));
+		}
+		break;
+	case RelationType::r_derivation:
+		fetch(s, idx, substring);
+		r.items_.push_back(getRelation(substring, RelationType::r_function));
+		while (fetch(s, idx, substring)) {				
+			r.items_.push_back(getRelation(substring, RelationType::r_function));
+		}
+		break;
+	case RelationType::r_function:
+		while (fetch(s, idx, substring)) {				
+			r.items_.push_back(getRelation(substring, RelationType::r_constant));
+		}
+		break;
+	case RelationType::r_terminal:
+	case RelationType::r_constant:
+	case RelationType::r_variable:
+		break;	
+	};
+	return r;
 }
 
 bool Reader::fetch(const string &s, int &start, string &result) {
@@ -110,8 +148,6 @@ bool Reader::fetch(const string &s, int &start, string &result) {
 }
 
 RelationType Reader::getType(const string &s) {
-	
-
 	for (int i = 0; i < relation_type_num; ++i) {
 		if (s == relation_type_words[i]) {
 			return (RelationType)i;
@@ -120,5 +156,5 @@ RelationType Reader::getType(const string &s) {
 	if (s[0] == '?') {
 		return RelationType::r_variable;
 	}
-	return RelationType::r_function;
+	return RelationType::r_other;
 }

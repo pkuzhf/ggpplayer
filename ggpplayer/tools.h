@@ -17,40 +17,38 @@ enum RelationType {
 	r_role = 0,
 	r_init = 1,
 	r_next = 2,
-	r_goal = 3,
-	r_action = 4,
-	r_true = 5,
-	r_legal = 6,
-	r_terminal = 7,
-	r_base = 8,
-	r_input = 9,
-	r_does = 10,
+	r_goal = 3,	
+	r_true = 4,
+	r_legal = 5,
+	r_terminal = 6,
+	r_base = 7,
+	r_input = 8,
+	r_does = 9,
 
-	r_derivation = 11,
+	r_derivation = 10,
 	
 	//logic
-	r_or = 12,
-	r_and = 13,
-	r_not = 14,
-	r_distinct = 15,
+	r_or = 11,
+	r_and = 12,
+	r_not = 13,
+	r_distinct = 14,
 
 	r_constant = 100,
-	r_variable = 101,
+	r_variable = 101,	
 
-	r_function = 102,
+	r_function = 103,
 
 	r_other = 200
 };
 
 
-const int relation_type_num = 16;
+const int relation_type_num = 15;
 
 const string relation_type_words[relation_type_num] = {
 	"role",
 	"init",
 	"next",
-	"goal",
-	"action",
+	"goal",	
 	"true",
 	"legal",
 	"terminal",
