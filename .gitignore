@@ -1,0 +1,8 @@
+Debug
+ipch
+*.sln
+*.suo
+*.sdf
+*.opensdf
+*.swp
+*.user
