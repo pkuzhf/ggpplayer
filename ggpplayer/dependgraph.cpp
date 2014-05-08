@@ -34,7 +34,6 @@ void DependGraph::buildGraph(Relations rs)
 		}
 	}
 
-
 	topoSort();
 	getStraDeriv();
 }
@@ -219,6 +218,7 @@ void DependGraph::buildGraphBySingleRelation(Relation & r)
 		for (int i = 0; i < r.items_.size(); ++i) {
 			buildGraphBySingleRelation(r.items_[i]);			
 		}
+
 		for(int i = 1; i < r.items_.size(); ++i){
 			addEdge(r.items_[0], r.items_[i]);
 		}
@@ -229,6 +229,7 @@ void DependGraph::addEdge(Relation & head, Relation & tail)
 {
 	if(head.content_ == tail.content_) 
 		return;        // delete single loop
+
 	if(tail.isLogic()){
 		for(int i = 0 ; i < tail.items_.size(); ++i){
 			addEdge(head, tail.items_[i]);
@@ -236,6 +237,7 @@ void DependGraph::addEdge(Relation & head, Relation & tail)
 	} else if(node_num_.find(head.content_) != node_num_.end()
 		&& node_num_.find(tail.content_) != node_num_.end()
 		&& find(edges_in_[node_num_[head.content_]].begin(), edges_in_[node_num_[head.content_]].end(), node_num_[tail.content_]) == edges_in_[node_num_[head.content_]].end() ){
+
 		edges_in_[node_num_[head.content_]].push_back(node_num_[tail.content_]);
 		edges_out_[node_num_[tail.content_]].push_back(node_num_[head.content_]);
 	}

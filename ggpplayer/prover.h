@@ -23,6 +23,7 @@ public:
 	vector<Relation> roles_;
 
 	Prover(Relations relations);
+	void init();
 	string getInitState();
 	int askRole(Relation &role);  // 返回role在所有玩家中的编号 
 	bool askGoal(vector<int> &result, const string &state);
@@ -30,7 +31,7 @@ public:
 	string askLegalActions(int role, const string &state);
 	string askLegalActions(const string &state);
 	string askNextState(const string &currentstate, const string &does);
-	string askNextStateByDG(const string &currentstate, const string &does);
+	void askNextStateByDPG(Relations &currentstate, const Relations &does);
 	
 
 private:

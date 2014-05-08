@@ -37,7 +37,13 @@ bool Reader::getRelations(Relations &relations) {
 		if (substring[0] != '(') {
 			return false;
 		}
-		relations.push_back(getRelation(substring));
+		Relation r = getRelation(substring);
+		if (r.type_ == RelationType::r_derivation) {
+			Relations rs = eliminateLogicalWords(r);
+			relations.insert(relations.end(), rs.begin(), rs.end());
+		} else {
+			relations.push_back(r);
+		}
 	}
 	return true;
 }
@@ -158,3 +164,19 @@ RelationType Reader::getType(const string &s) {
 	}
 	return RelationType::r_other;
 }
+
+Relations Reader::eliminateLogicalWords(Relation r) {
+	Relations ret;
+	Relations items;
+	for (int i = 1; i < r.items_.size(); ++i) {
+		if (r.items_[i].type_ == RelationType::r_and) {
+			for (int j = 0; j < r.items_[i].items_.size(); ++j) {
+				items.push_back(r.items_[i].items_[j]);
+			}
+		} else {
+			items.push_back(r.items_[i]);
+		}
+	}
+}
+
+Relations 

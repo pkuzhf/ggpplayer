@@ -22,6 +22,7 @@ private:
 	string file_content_;
 	static bool fetch(const string &s, int &start, string &result);
 	static RelationType getType(const string &s);
+	Relations eliminateLogicalWords(Relation r);
 };
 
 #endif

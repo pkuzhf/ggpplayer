@@ -18,6 +18,12 @@ using namespace std;
 Prover::Prover(Relations relations) : relations_(relations) {}
 
 
+void Prover::init() {
+	dpg_.buildGraph(relations_);
+	Relations rs;
+
+}
+
 string Prover::getInitState() {
 
 	//dg_.buildGraph(relations_);
@@ -422,7 +428,19 @@ string Prover::askNextState(const string &currentstate, const string &does){
 	return rtn;
 }
 
-string Prover::askNextStateByDG(const string &currentstate, const string &does) {
+void Prover::askNextStateByDPG(Relations &rs, const Relations &does) {
+	int idx = 0;
+	rs.insert(rs.end(), does.begin(), does.end());
+	for (int i = 0; i < dpg_.stra_deriv_.size(); ++i) {
+		do {
+			int rs_size = rs.size();
+			for (int j = 0; j < dpg_.stra_deriv_[i].size(); ++j) {
+				Relation d = dpg_.derivations_[dpg_.stra_deriv_[i][j]];
 
-	return "";
+			}
+			if (rs.size() == rs_size) {
+				break;
+			}
+		} while (true);
+	}	
 }
