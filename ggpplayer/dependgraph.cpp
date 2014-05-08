@@ -207,15 +207,17 @@ void DependGraph::addNode(string node) {
 
 void DependGraph::buildGraphBySingleRelation(Relation & r)
 {	
-	if (r.type_ == RelationType::r_function && node_num_.find(r.content_) != node_num_.end()) {
+	if (r.type_ == RelationType::r_function && node_num_.find(r.content_) == node_num_.end()) {
 		addNode(r.content_);
 	}
-	for (int i = 0; i < r.items_.size(); ++i) {
-		buildGraphBySingleRelation(r.items_[i]);			
-	}
+
+	
 	//add edges
 	
 	if(r.type_ == RelationType::r_derivation){
+		for (int i = 0; i < r.items_.size(); ++i) {
+			buildGraphBySingleRelation(r.items_[i]);			
+		}
 		for(int i = 1; i < r.items_.size(); ++i){
 			addEdge(r.items_[0], r.items_[i]);
 		}
@@ -228,7 +230,9 @@ void DependGraph::addEdge(Relation & head, Relation & tail)
 		for(int i = 0 ; i < tail.items_.size(); ++i){
 			addEdge(head, tail.items_[i]);
 		}
-	} else if(node_num_.find(head.content_) != node_num_.end() && node_num_.find(tail.content_) != node_num_.end()){
+	} else if(node_num_.find(head.content_) != node_num_.end()
+		&& node_num_.find(tail.content_) != node_num_.end()
+		&& find(edges_in_[node_num_[head.content_]].begin(), edges_in_[node_num_[head.content_]].end(), node_num_[tail.content_]) == edges_in_[node_num_[head.content_]].end() ){
 		edges_in_[node_num_[head.content_]].push_back(node_num_[tail.content_]);
 		edges_out_[node_num_[tail.content_]].push_back(node_num_[head.content_]);
 	}
