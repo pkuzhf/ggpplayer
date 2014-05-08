@@ -34,7 +34,9 @@ private:
 	int findZeroIn();
 	void deleteLoop();
 	vector<bool> MARK;
-
+	void getStraDeriv();
+	int findMaxCondition(Relation & r);
+	int findMaxSubRelation(Relation & r);
 };
 
 #endif

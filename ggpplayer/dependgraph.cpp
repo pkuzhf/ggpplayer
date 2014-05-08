@@ -35,7 +35,51 @@ void DependGraph::buildGraph(Relations rs)
 	}
 
 	topoSort();
+	getStraDeriv();
+}
 
+void DependGraph::getStraDeriv()
+{
+	for(int i = 0 ; i < topo_graph_.size(); ++i){
+		stra_deriv_.push_back(vector<int>());
+	}
+
+	for(int i = 0 ; i < derivations_.size(); ++i){
+		int max_condition = this->findMaxCondition(derivations_[i]);
+		stra_deriv_[max_condition].push_back(i);
+	}
+}
+
+int DependGraph::findMaxCondition(Relation & r)
+{
+	int rtn = 0;
+	for(int i = 1 ; i < r.items_.size(); ++i){
+		int temp = findMaxSubRelation(r.items_[i]);
+		if(temp > rtn){
+			rtn = temp;
+		}
+	}
+	return rtn;
+}
+
+int DependGraph::findMaxSubRelation(Relation & r)
+{
+	if(!r.isLogic()){
+		for(int i = 0 ; i < topo_graph_.size(); ++i){
+			if(find(topo_graph_[i].begin(), topo_graph_[i].end(), node_num_[r.content_]) != topo_graph_[i].end()){
+				return i;
+			}
+		}
+	} else{
+		int rtn = 0;
+		for(int i = 0; i < r.items_.size(); ++i){
+			int t = findMaxSubRelation(r.items_[i]);
+			if(t > rtn){
+				rtn = t;
+			}
+		}
+		return rtn;
+	}
 }
 
 void DependGraph::topoSort()
