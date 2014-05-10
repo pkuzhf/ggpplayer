@@ -34,6 +34,7 @@ void DependGraph::buildGraph(Relations rs)
 		}
 	}
 
+
 	topoSort();
 	getStraDeriv();
 }
@@ -226,6 +227,8 @@ void DependGraph::buildGraphBySingleRelation(Relation & r)
 
 void DependGraph::addEdge(Relation & head, Relation & tail)
 {
+	if(head.content_ == tail.content_) 
+		return;        // delete single loop
 	if(tail.isLogic()){
 		for(int i = 0 ; i < tail.items_.size(); ++i){
 			addEdge(head, tail.items_[i]);

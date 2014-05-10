@@ -20,7 +20,7 @@ Prover::Prover(Relations relations) : relations_(relations) {}
 
 string Prover::getInitState() {
 
-	dg_.buildGraph(relations_);
+	//dg_.buildGraph(relations_);
 	dpg_.buildGraph(relations_);
 
 	set<Relation> temp_keyrelations;
