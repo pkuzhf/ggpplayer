@@ -428,19 +428,94 @@ string Prover::askNextState(const string &currentstate, const string &does){
 	return rtn;
 }
 
-void Prover::askNextStateByDPG(Relations &rs, const Relations &does) {
+void Prover::askNextStateByDPG(Relations &currentstate) {
 	int idx = 0;
-	rs.insert(rs.end(), does.begin(), does.end());
+	map<string, vector<int>> content_relations;
+	int old_num = 0;
+	for (int i = 0; i < currentstate.size(); ++i) {
+		if (content_relations.find(currentstate[i].content_) == content_relations.end()) {
+			vector<int> rs;
+			content_relations[currentstate[i].content_] = rs;
+		}
+		content_relations[currentstate[i].content_].push_back(i);
+	}
 	for (int i = 0; i < dpg_.stra_deriv_.size(); ++i) {
-		do {
-			int rs_size = rs.size();
+		while(true) {
+			Relations newrs;
 			for (int j = 0; j < dpg_.stra_deriv_[i].size(); ++j) {
 				Relation d = dpg_.derivations_[dpg_.stra_deriv_[i][j]];
-
+				vector<int> refresh;
+				vector<int> non_refresh;
+				bool skip = false;
+				for (int k = 1; k < d.items_.size(); ++k) {
+					if (d.items_[k].type_ == RelationType::r_not || d.items_[k].type_ == RelationType::r_distinct) {
+						break;
+					}
+					if (content_relations.find(d.items_[k].content_) == content_relations.end()) {
+						skip = true;
+						break;
+					}
+					if (*(content_relations[d.items_[k].content_].end() - 1) >= old_num) {
+						refresh.push_back(k);
+					} else {
+						non_refresh.push_back(k);
+					}
+				}
+				if (skip || refresh.size() == 0) {
+					continue;
+				}								
+				vector<int> idx;
+				for (int k = 0; k < refresh.size() + non_refresh.size(); ++k) {
+					idx.push_back(0);
+				}
+				while (true) {					
+					int k = non_refresh.size() - 1;
+					while (k > 0) {
+						if (idx[refresh.size() + k] < content_relations[d.items_[non_refresh[k]].content_].size() - 1) {
+							++idx[refresh.size() + k];
+							break;
+						} else {
+							idx[refresh.size() + k] = 0;							
+						}
+						--k;
+					}
+					if (k < 0) {
+						do {
+							k = refresh.size() - 1;
+							while (k > 0) {
+								if (idx[k] < content_relations[d.items_[refresh[k]].content_].size() - 1) {
+									if (content_relations[d.items_[refresh[k]].content_][idx[k]] >= old_num) {
+										--new_items_num;
+									}
+									if (content_relations[d.items_[refresh[k]].content_][idx[k] + 1] >= old_num) {
+										++new_items_num;
+									}
+									++idx[k];
+									break;
+								} else {
+									idx[k] = 0;							
+								}
+								--k;
+							}
+						} while (new_items_num == 0);
+					}
+					if (k < 0) {
+						break;
+					}
+				}
 			}
-			if (rs.size() == rs_size) {
+			if (newrs.size() == 0) {
 				break;
 			}
-		} while (true);
+			old_num = currentstate.size();
+			currentstate.insert(currentstate.end(), newrs.begin(), newrs.end());
+			for (int j = old_num; j < currentstate.size(); ++j) {
+				if (content_relations.find(currentstate[j].content_) == content_relations.end()) {
+					vector<int> rs;
+					content_relations[currentstate[j].content_] = rs;
+				}
+				content_relations[currentstate[j].content_].push_back(j);
+			}
+		}
 	}	
 }

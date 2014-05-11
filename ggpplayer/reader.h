@@ -23,6 +23,7 @@ private:
 	static bool fetch(const string &s, int &start, string &result);
 	static RelationType getType(const string &s);
 	Relations eliminateLogicalWords(Relation r);
+	void sortDerivationItems(Relation &r);
 };
 
 #endif

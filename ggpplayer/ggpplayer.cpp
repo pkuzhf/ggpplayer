@@ -22,6 +22,7 @@ int main() {
 	
 	Reader r;
 	r.scanGDLFile("gdl\\2pffa_zerosum.kif");
+
 	Relations rs;
 	r.getRelations(rs);
 	Prover prover(rs);

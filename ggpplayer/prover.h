@@ -31,13 +31,13 @@ public:
 	string askLegalActions(int role, const string &state);
 	string askLegalActions(const string &state);
 	string askNextState(const string &currentstate, const string &does);
-	void askNextStateByDPG(Relations &currentstate, const Relations &does);
+	void askNextStateByDPG(Relations &currentstate);
 	
 
 private:
 	Relations relations_;
 	DomainGraph dg_;
-	DependGraph dpg_;
+	DependGraph dpg_;	
 
 	bool validateInstance(string instance, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances);
 	void findVarDomainInSingleInstance(Relation r, map<string, set<string>> &var_values);

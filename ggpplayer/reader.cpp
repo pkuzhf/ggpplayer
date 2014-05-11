@@ -40,6 +40,9 @@ bool Reader::getRelations(Relations &relations) {
 		Relation r = getRelation(substring);
 		if (r.type_ == RelationType::r_derivation) {
 			Relations rs = eliminateLogicalWords(r);
+			for (int i = 0; i < rs.size(); ++i) {
+				sortDerivationItems(rs[i]);
+			}
 			relations.insert(relations.end(), rs.begin(), rs.end());
 		} else {
 			relations.push_back(r);
@@ -165,11 +168,13 @@ RelationType Reader::getType(const string &s) {
 	return RelationType::r_other;
 }
 
-Relations Reader::eliminateLogicalWords(Relation r) {
+Relations Reader::eliminateLogicalWords(Relation r) {	
 	Relations ret;
 	Relations items;
-	for (int i = 1; i < r.items_.size(); ++i) {
+	bool changed = false;
+	for (int i = 0; i < r.items_.size(); ++i) {
 		if (r.items_[i].type_ == RelationType::r_and) {
+			changed = true;
 			for (int j = 0; j < r.items_[i].items_.size(); ++j) {
 				items.push_back(r.items_[i].items_[j]);
 			}
@@ -177,6 +182,54 @@ Relations Reader::eliminateLogicalWords(Relation r) {
 			items.push_back(r.items_[i]);
 		}
 	}
+	r.items_ = items;
+	for (int i = 0; i < r.items_.size(); ++i) {
+		if (r.items_[i].type_ == RelationType::r_or) {
+			changed = true;
+			for (int j = 0; j < r.items_[i].items_.size(); ++j) {
+				ret.push_back(r);
+				ret[j].items_[i] = r.items_[i].items_[j];				
+			}
+			break;
+		}
+	}
+	if (ret.size() == 0) {
+		ret.push_back(r);
+	}
+	if (changed) {
+		Relations tmp = ret;
+		ret.clear();
+		for (int i = 0; i < tmp.size(); ++i) {
+			Relations result = eliminateLogicalWords(tmp[i]);
+			ret.insert(ret.end(), result.begin(), result.end());
+		}
+	}
+	return ret;
 }
 
-Relations 
+inline int getOrder(RelationType rt) {
+	if (rt == RelationType::r_not) {
+		return 3;
+	} else if (rt == RelationType::r_distinct) {
+		return 2;
+	} else {
+		return 1;
+	}
+}
+
+void Reader::sortDerivationItems(Relation &r) {
+	for (int i = 1; i < r.items_.size(); ++i) {
+		bool changed = false;
+		for (int j = i + 1; j < r.items_.size(); ++j) {
+			if (getOrder(r.items_[j - 1].type_) > getOrder(r.items_[j].type_)) {
+				Relation tmp = r.items_[j - 1];
+				r.items_[j - 1] = r.items_[j];
+				r.items_[j] = tmp;
+				changed = true;
+			}
+		}
+		if (!changed) {
+			break;
+		}
+	}
+}
