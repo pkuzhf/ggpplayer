@@ -60,7 +60,7 @@ int main() {
 	Reader r;
 
 	//r.scanGDLFile("gdl\\lights_out.txt");
-	r.scanGDLFile("gdl\\tic_tac_toe.txt");
+	r.scanGDLFile("gdl\\2pffa_zerosum.kif");
 
 	Relations rs;
 	r.getRelations(rs);

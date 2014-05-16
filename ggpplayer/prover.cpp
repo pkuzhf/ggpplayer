@@ -20,7 +20,6 @@ Prover::Prover(Relations relations) : relations_(relations) {
 	init();
 }
 
-
 void Prover::init() {	
 	for (int i = 0; i < relations_.size(); ++i) {
 		if (relations_[i].type_ == RelationType::r_derivation) {
@@ -186,10 +185,6 @@ string Prover::getInitState() {
 
 	return rtn;
 }
-
-
-
-
 
 string Prover::buildNode(string s, int i){
 	char number[10];
@@ -523,12 +518,14 @@ void Prover::askNextStateByDPG(Relations &currentstate, Relations &does) {
 
 Relations Prover::generateTrueProps(Relations true_props) {	
 	map<string, vector<int>> content_relations;
+	set<string> true_props_string;
 	for (int i = 0; i < true_props.size(); ++i) {
 		if (content_relations.find(true_props[i].content_) == content_relations.end()) {
 			vector<int> rs;
 			content_relations[true_props[i].content_] = rs;
 		}
 		content_relations[true_props[i].content_].push_back(i);
+		true_props_string.insert(true_props[i].toString());
 	}
 	for (int i = 0; i < dpg_.stra_deriv_.size(); ++i) {
 		Relations derivations;
@@ -683,14 +680,17 @@ Relations Prover::generateTrueProps(Relations true_props) {
 		while (true) {
 			int old_true_props_num = true_props.size();
 			for (Relations::iterator j = derivations.begin(); j != derivations.end(); ) {
-				if (j->items_.size() == 1) {
+				if (j->items_.size() == 1) {					
 					Relation prop = j->items_[0];
-					true_props.push_back(prop);
-					if (content_relations.find(prop.content_) == content_relations.end()) {
-						vector<int> rs;
-						content_relations[prop.content_] = rs;
+					if (true_props_string.find(prop.toString()) == true_props_string.end()) {
+						true_props.push_back(prop);
+						true_props_string.insert(prop.toString());
+						if (content_relations.find(prop.content_) == content_relations.end()) {
+							vector<int> rs;
+							content_relations[prop.content_] = rs;
+						}
+						content_relations[prop.content_].push_back(true_props.size() - 1);
 					}
-					content_relations[prop.content_].push_back(true_props.size() - 1);
 					j = derivations.erase(j);
 				} else {
 					++j;
