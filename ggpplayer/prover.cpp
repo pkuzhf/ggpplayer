@@ -4,6 +4,7 @@
 #include <set>
 #include <map>
 #include <string>
+#include <algorithm>
 
 #include "prover.h"
 #include "tools.h"
@@ -26,13 +27,13 @@ void Prover::init() {
 			derivations_.push_back(relations_[i]);
 		} else if (relations_[i].type_ == RelationType::r_function
 			|| relations_[i].type_ == RelationType::r_role) {
-			statics_.push_back(relations_[i]);		
+			//statics_.push_back(relations_[i]);		
 		} else if (relations_[i].type_ == RelationType::r_init) {
-			inits_.push_back(relations_[i]);
+			//inits_.push_back(relations_[i]);
 		}
 	}
 	// should use dpg to generate more statics and inits
-	dpg_.buildGraph(derivations_);
+	dpg_.buildGraph(derivations_);  // build graph for the first time
 	getStaticRelation();
 	Relations true_rs;
 	for(int i = 0 ; i < relations_.size(); ++i){
@@ -43,6 +44,28 @@ void Prover::init() {
 		}
 	}
 	true_rs = generateTrueProps(true_rs);
+	for(int i = 0; i < true_rs.size(); ++i){
+		if(true_rs[i].type_ == RelationType::r_init){
+			inits_.push_back(true_rs[i]);
+		}else if(true_rs[i].type_ == RelationType::r_base){
+			Relation r = true_rs[i];
+			r.content_ = "true";
+			r.type_ = RelationType::r_true;
+			keyrelations_.push_back(r);
+			keyrelation_num_[r] = keyrelation_num_.size();
+		} else if(true_rs[i].type_ == RelationType::r_input){
+			Relation r = true_rs[i];
+			r.content_ = "legal";
+			r.type_ = RelationType::r_legal;
+			legalactions_.push_back(r);
+			legalaction_num_[r] = legalaction_num_.size();
+		}
+		else if(find(static_relation_.begin(), static_relation_.end(), dpg_.node_num_[true_rs[i].content_]) != static_relation_.end()){
+			statics_.push_back(true_rs[i]);
+		}
+	}
+
+	dpg2_.buildGraph(nonstatic_static_derivations_); 
 }
 
 void Prover::getStaticRelation()
@@ -56,6 +79,13 @@ void Prover::getStaticRelation()
 	for(int i = 0 ; i < mark.size(); ++i){
 		if(mark[i] == 0){
 			static_relation_.push_back(i);
+		}
+	}
+	for(int i = 0 ; i < derivations_.size(); ++i){
+		if(find(static_relation_.begin(), static_relation_.end(), dpg_.node_num_[derivations_[i].items_[0].content_]) == static_relation_.end()){
+			nonstatic_static_derivations_.push_back(derivations_[i]);
+		}else {
+			static_derivations_.push_back(derivations_[i]);
 		}
 	}
 }
@@ -553,7 +583,6 @@ Relations Prover::generateTrueProps(Relations true_props) {
 				continue;
 			}
 			int k = 0;
-			cout << k << endl;
 			if (var_candidates.size() == 0) {
 				bool satisfied = true;
 				for (int ii = 0; ii < not_subgoals.size() && satisfied; ++ii) {

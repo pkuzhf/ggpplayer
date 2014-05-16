@@ -38,10 +38,13 @@ public:
 private:
 	Relations relations_;
 	Relations derivations_;
+	Relations static_derivations_;
+	Relations nonstatic_static_derivations_;
 	Relations inits_;
 	Relations statics_;
 	DomainGraph dg_;
 	DependGraph dpg_;	
+	DependGraph dpg2_;	
 
 	// get by DPG
 	vector<int> static_relation_;
