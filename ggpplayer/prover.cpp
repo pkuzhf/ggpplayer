@@ -33,7 +33,33 @@ void Prover::init() {
 	}
 	// should use dpg to generate more statics and inits
 	dpg_.buildGraph(derivations_);
+	getStaticRelation();
 }
+
+void Prover::getStaticRelation()
+{
+	vector<int> mark;
+	for(int i = 0 ; i < dpg_.init_nodes_.size(); ++i){
+		mark.push_back(0);
+	}
+	markNonStatic(dpg_.node_num_["does"], mark);
+	markNonStatic(dpg_.node_num_["true"], mark);
+	for(int i = 0 ; i < mark.size(); ++i){
+		if(mark[i] == 0){
+			static_relation_.push_back(i);
+		}
+	}
+}
+void Prover::markNonStatic(int index, vector<int> & mark)
+{
+	mark[index] = 1;
+	for(int i = 0 ; i < dpg_.init_edges_out_[index].size(); ++i){
+		if(mark[dpg_.init_edges_out_[index][i]] == 0){
+			markNonStatic(dpg_.init_edges_out_[index][i], mark);
+		}
+	}
+}
+
 
 Relations Prover::getInitStateByDPG() {
 	Relations true_props = inits_;

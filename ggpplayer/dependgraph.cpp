@@ -46,7 +46,11 @@ void DependGraph::buildGraph(Relations derivations)
 			addEdge(derivations_[i].items_[0].content_, r.content_);
 		}
 	}	
-
+	for(int i = 0 ; i < nodes_.size(); ++i){
+		init_nodes_.push_back(nodes_[i][0]);
+	}
+	init_edges_in_ = edges_in_;
+	init_edges_out_ = edges_out_;
 	topoSort();
 	node_stra_.resize(node_num_.size());
 	for (int i = 0; i < topo_graph_.size(); ++i) {
@@ -234,5 +238,6 @@ void DependGraph::addEdge(string head, string tail)
 
 		edges_in_[node_num_[head]].push_back(node_num_[tail]);
 		edges_out_[node_num_[tail]].push_back(node_num_[head]);
+
 	}
 }

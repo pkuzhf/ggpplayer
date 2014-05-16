@@ -12,11 +12,11 @@ using namespace std;
 
 class DependGraph {
 public:
-	vector<vector<string>> nodes_;      // num to strings
+	vector<string> init_nodes_;
+	vector<vector<string>> nodes_;      
 	map<string, int> node_num_; // string to num
-
-	vector<vector<int>> edges_in_; // 入边的另一个顶点的num
-	vector<vector<int>> edges_out_; // 出边的另一个顶点的num
+	vector<vector<int>> init_edges_in_; // 入边的另一个顶点的num
+	vector<vector<int>> init_edges_out_; // 出边的另一个顶点的num
 	
 	vector<vector<int>> topo_graph_;  // 拓扑拍好序的关系图，vector中每个元素是一层，层内是环形的依赖关系网
 	vector<int> node_stra_;
@@ -38,6 +38,8 @@ private:
 	void getStraDeriv();
 	int findMaxCondition(Relation & r);
 	int findMaxSubRelation(Relation & r);
+	vector<vector<int>> edges_in_; // 入边的另一个顶点的num
+	vector<vector<int>> edges_out_; // 出边的另一个顶点的num
 };
 
 #endif
