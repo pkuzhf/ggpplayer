@@ -21,7 +21,7 @@ int main() {
 #ifdef CHECK_PROVER
 	
 	Reader r;
-	r.scanGDLFile("gdl\\connect_four.txt");
+	r.scanGDLFile("gdl\\2pffa_zerosum.kif");
 
 	Relations rs;
 	r.getRelations(rs);

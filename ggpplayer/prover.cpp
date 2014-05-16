@@ -610,7 +610,7 @@ Relations Prover::generateTrueProps(Relations true_props) {
 							distinct.replaceVariables(m);							
 							if (distinct.items_[0].type_ == RelationType::r_variable || distinct.items_[1].type_ == RelationType::r_variable) {
 								undetermined_distincts.push_back(ii);
-							} else if (distinct.items_[0].content_ != distinct.items_[1].content_) {
+							} else if (distinct.items_[0].content_ == distinct.items_[1].content_) {
 								check_not_and_distinct = false;
 							}							
 						}
