@@ -553,6 +553,7 @@ Relations Prover::generateTrueProps(Relations true_props) {
 				continue;
 			}
 			int k = 0;
+			cout << k << endl;
 			if (var_candidates.size() == 0) {
 				bool satisfied = true;
 				for (int ii = 0; ii < not_subgoals.size() && satisfied; ++ii) {
@@ -582,6 +583,9 @@ Relations Prover::generateTrueProps(Relations true_props) {
 					idx[k] = 0;
 					maps.pop_back();
 					--k;
+					if (k >= 0) {
+						++idx[k];
+					}
 				}
 				if (k < 0) {
 					break;
