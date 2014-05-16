@@ -31,11 +31,15 @@ public:
 	string askLegalActions(int role, const string &state);
 	string askLegalActions(const string &state);
 	string askNextState(const string &currentstate, const string &does);
-	void askNextStateByDPG(Relations &currentstate);
+	void askNextStateByDPG(Relations &currentstate, Relations &does);
+	Relations getInitStateByDPG();
 	
 
 private:
 	Relations relations_;
+	Relations derivations_;
+	Relations inits_;
+	Relations statics_;
 	DomainGraph dg_;
 	DependGraph dpg_;	
 
@@ -44,6 +48,7 @@ private:
 	string buildNode(string s, int i);
 	bool conditions_satisfied(Relation relation, map<string, string> var_value, vector<string> vars, vector<vector<string>> values, int condition_count , set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances);
 	bool contain_var(Relation r, string var);
+	Relations generateTrueProps(Relations true_props);
 };
 
 #endif

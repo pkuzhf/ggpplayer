@@ -21,13 +21,15 @@ int main() {
 #ifdef CHECK_PROVER
 	
 	Reader r;
-	r.scanGDLFile("gdl\\2pffa_zerosum.kif");
+	r.scanGDLFile("gdl\\tic_tac_toe.txt");
 
 	Relations rs;
 	r.getRelations(rs);
 	Prover prover(rs);
-	
+		
+	prover.getInitStateByDPG();	
 	string state = prover.getInitState();
+	
 	while(!prover.askTerminal(state)){
 		string does1 = prover.askLegalActions(0, state);
 		string does2 = prover.askLegalActions(1, state);

@@ -15,26 +15,45 @@
 using namespace std;
 
 
-void DependGraph::buildGraph(Relations rs)
+void DependGraph::buildGraph(Relations derivations)
 {
-	//input
-	addNode(relation_type_words[RelationType::r_role]);
-	addNode(relation_type_words[RelationType::r_does]);
-	addNode(relation_type_words[RelationType::r_true]);
-	//output
-	addNode(relation_type_words[RelationType::r_next]);
-	addNode(relation_type_words[RelationType::r_goal]);
-	addNode(relation_type_words[RelationType::r_legal]);
-	addNode(relation_type_words[RelationType::r_terminal]);		
+	////input
+	//addNode(relation_type_words[RelationType::r_role]);
+	//addNode(relation_type_words[RelationType::r_does]);
+	//addNode(relation_type_words[RelationType::r_true]);
+	////output
+	//addNode(relation_type_words[RelationType::r_next]);
+	//addNode(relation_type_words[RelationType::r_goal]);
+	//addNode(relation_type_words[RelationType::r_legal]);
+	//addNode(relation_type_words[RelationType::r_terminal]);		
 
-	for(int i = 0 ; i < rs.size(); ++i){
-		buildGraphBySingleRelation(rs[i]);
-		if (rs[i].type_ == RelationType::r_derivation) {
-			derivations_.push_back(rs[i]);
+	derivations_ = derivations;
+	for(int i = 0 ; i < derivations_.size(); ++i){
+		if (node_num_.find(derivations_[i].items_[0].content_) == node_num_.end()) {
+			addNode(derivations_[i].items_[0].content_);
 		}
-	}
+		for(int j = 1; j < derivations_[i].items_.size(); ++j){			
+			Relation r = derivations_[i].items_[j];
+			if (r.type_ == RelationType::r_distinct) {
+				continue;
+			}
+			if (r.type_ == RelationType::r_not) {
+				r = r.items_[0];
+			}
+			if (node_num_.find(r.content_) == node_num_.end()) {
+				addNode(r.content_);
+			}
+			addEdge(derivations_[i].items_[0].content_, r.content_);
+		}
+	}	
 
 	topoSort();
+	node_stra_.resize(node_num_.size());
+	for (int i = 0; i < topo_graph_.size(); ++i) {
+		for (int j = 0; j < topo_graph_[i].size(); ++j) {
+			node_stra_[topo_graph_[i][j]] = i;
+		}
+	}
 	getStraDeriv();
 }
 
@@ -45,8 +64,9 @@ void DependGraph::getStraDeriv()
 	}
 
 	for(int i = 0 ; i < derivations_.size(); ++i){
-		int max_condition = this->findMaxCondition(derivations_[i]);
-		stra_deriv_[max_condition].push_back(i);
+		//int max_condition = this->findMaxCondition(derivations_[i]);
+		//stra_deriv_[max_condition].push_back(i);
+		stra_deriv_[node_stra_[node_num_[derivations_[i].items_[0].content_]]].push_back(i);
 	}
 }
 
@@ -205,40 +225,14 @@ void DependGraph::addNode(string node) {
 	MARK.push_back(false);
 }
 
-void DependGraph::buildGraphBySingleRelation(Relation & r)
-{	
-	if (r.type_ == RelationType::r_function && node_num_.find(r.content_) == node_num_.end()) {
-		addNode(r.content_);
-	}
-
-	
-	//add edges
-	
-	if(r.type_ == RelationType::r_derivation){
-		for (int i = 0; i < r.items_.size(); ++i) {
-			buildGraphBySingleRelation(r.items_[i]);			
-		}
-
-		for(int i = 1; i < r.items_.size(); ++i){
-			addEdge(r.items_[0], r.items_[i]);
-		}
-	}
-}
-
-void DependGraph::addEdge(Relation & head, Relation & tail)
+void DependGraph::addEdge(string head, string tail)
 {
-	if(head.content_ == tail.content_) 
+	if (head == tail) 
 		return;        // delete single loop
 
-	if(tail.isLogic()){
-		for(int i = 0 ; i < tail.items_.size(); ++i){
-			addEdge(head, tail.items_[i]);
-		}
-	} else if(node_num_.find(head.content_) != node_num_.end()
-		&& node_num_.find(tail.content_) != node_num_.end()
-		&& find(edges_in_[node_num_[head.content_]].begin(), edges_in_[node_num_[head.content_]].end(), node_num_[tail.content_]) == edges_in_[node_num_[head.content_]].end() ){
+	if (find(edges_in_[node_num_[head]].begin(), edges_in_[node_num_[head]].end(), node_num_[tail]) == edges_in_[node_num_[head]].end() ){
 
-		edges_in_[node_num_[head.content_]].push_back(node_num_[tail.content_]);
-		edges_out_[node_num_[tail.content_]].push_back(node_num_[head.content_]);
+		edges_in_[node_num_[head]].push_back(node_num_[tail]);
+		edges_out_[node_num_[tail]].push_back(node_num_[head]);
 	}
 }

@@ -15,19 +15,38 @@ using namespace std;
 
 
 
-Prover::Prover(Relations relations) : relations_(relations) {}
+Prover::Prover(Relations relations) : relations_(relations) {
+	init();
+}
 
 
-void Prover::init() {
-	dpg_.buildGraph(relations_);
-	Relations rs;
+void Prover::init() {	
+	for (int i = 0; i < relations_.size(); ++i) {
+		if (relations_[i].type_ == RelationType::r_derivation) {
+			derivations_.push_back(relations_[i]);
+		} else if (relations_[i].type_ == RelationType::r_function
+			|| relations_[i].type_ == RelationType::r_role) {
+			statics_.push_back(relations_[i]);		
+		} else if (relations_[i].type_ == RelationType::r_init) {
+			inits_.push_back(relations_[i]);
+		}
+	}
+	// should use dpg to generate more statics and inits
+	dpg_.buildGraph(derivations_);
+}
 
+Relations Prover::getInitStateByDPG() {
+	Relations true_props = inits_;
+	for (int i = 0; i < true_props.size(); ++i) {
+		true_props[i] = inits_[i].items_[0];
+	}	
+	true_props.insert(true_props.end(), statics_.begin(), statics_.end());	
+	return generateTrueProps(true_props);
 }
 
 string Prover::getInitState() {
 
-	//dg_.buildGraph(relations_);
-	dpg_.buildGraph(relations_);
+	dg_.buildGraph(relations_);	
 
 	set<Relation> temp_keyrelations;
 	for (vector<string>::iterator i = dg_.node_instances_["next"].begin(); i != dg_.node_instances_.at("next").end() ; ++i) {
@@ -428,94 +447,220 @@ string Prover::askNextState(const string &currentstate, const string &does){
 	return rtn;
 }
 
-void Prover::askNextStateByDPG(Relations &currentstate) {
-	int idx = 0;
+void Prover::askNextStateByDPG(Relations &currentstate, Relations &does) {
+	Relations true_relations;
+	true_relations.insert(true_relations.end(), statics_.begin(), statics_.end());
+	true_relations.insert(true_relations.end(), currentstate.begin(), currentstate.end());
+	true_relations.insert(true_relations.end(), does.begin(), does.end());
+	generateTrueProps(true_relations);
+}
+
+Relations Prover::generateTrueProps(Relations true_props) {	
 	map<string, vector<int>> content_relations;
-	int old_num = 0;
-	for (int i = 0; i < currentstate.size(); ++i) {
-		if (content_relations.find(currentstate[i].content_) == content_relations.end()) {
+	for (int i = 0; i < true_props.size(); ++i) {
+		if (content_relations.find(true_props[i].content_) == content_relations.end()) {
 			vector<int> rs;
-			content_relations[currentstate[i].content_] = rs;
+			content_relations[true_props[i].content_] = rs;
 		}
-		content_relations[currentstate[i].content_].push_back(i);
+		content_relations[true_props[i].content_].push_back(i);
 	}
 	for (int i = 0; i < dpg_.stra_deriv_.size(); ++i) {
-		while(true) {
-			Relations newrs;
-			for (int j = 0; j < dpg_.stra_deriv_[i].size(); ++j) {
-				Relation d = dpg_.derivations_[dpg_.stra_deriv_[i][j]];
-				vector<int> refresh;
-				vector<int> non_refresh;
-				bool skip = false;
-				for (int k = 1; k < d.items_.size(); ++k) {
-					if (d.items_[k].type_ == RelationType::r_not || d.items_[k].type_ == RelationType::r_distinct) {
-						break;
-					}
-					if (content_relations.find(d.items_[k].content_) == content_relations.end()) {
-						skip = true;
-						break;
-					}
-					if (*(content_relations[d.items_[k].content_].end() - 1) >= old_num) {
-						refresh.push_back(k);
-					} else {
-						non_refresh.push_back(k);
-					}
-				}
-				if (skip || refresh.size() == 0) {
-					continue;
-				}								
-				vector<int> idx;
-				for (int k = 0; k < refresh.size() + non_refresh.size(); ++k) {
-					idx.push_back(0);
-				}
-				while (true) {					
-					int k = non_refresh.size() - 1;
-					while (k > 0) {
-						if (idx[refresh.size() + k] < content_relations[d.items_[non_refresh[k]].content_].size() - 1) {
-							++idx[refresh.size() + k];
-							break;
-						} else {
-							idx[refresh.size() + k] = 0;							
-						}
-						--k;
-					}
-					if (k < 0) {
-						do {
-							k = refresh.size() - 1;
-							while (k > 0) {
-								if (idx[k] < content_relations[d.items_[refresh[k]].content_].size() - 1) {
-									if (content_relations[d.items_[refresh[k]].content_][idx[k]] >= old_num) {
-										--new_items_num;
+		Relations derivations;
+		for (int j = 0; j < dpg_.stra_deriv_[i].size(); ++j) {
+			Relation d = derivations_[dpg_.stra_deriv_[i][j]];
+			vector<int> lower_stratum_subgoals;
+			vector<int> current_stratum_subgoals;
+			vector<int> not_subgoals;
+			vector<int> distinct_subgoals;
+			vector<vector<map<string, string>>> var_candidates;
+			vector<int> idx;
+			bool impossible = false;
+			for (int k = 1; k < d.items_.size(); ++k) {								
+				if (d.items_[k].type_ == RelationType::r_not) {
+					not_subgoals.push_back(k);
+				} else if (d.items_[k].type_ == RelationType::r_distinct) {
+					distinct_subgoals.push_back(k);
+				} else if (dpg_.node_stra_[dpg_.node_num_[d.items_[k].content_]] < i) { // lower stratum subgoals					
+					//lower_stratum_subgoals.push_back(k);
+					vector<map<string, string>> candidates;
+					for (int ii = 0; ii < content_relations[d.items_[k].content_].size(); ++ii) { // scan all true props to generate var-value maps
+						map<string, string> var_value;
+						if (d.items_[k].matches(true_props[content_relations[d.items_[k].content_][ii]], var_value)) {
+							bool duplicated = false;
+							for (int jj = 0; jj < candidates.size(); ++jj) {
+								bool equal = true;
+								for (map<string, string>::iterator kk = var_value.begin(); kk != var_value.end(); ++kk) {
+									if (candidates[jj][kk->first] != kk->second) {
+										equal = false;
 									}
-									if (content_relations[d.items_[refresh[k]].content_][idx[k] + 1] >= old_num) {
-										++new_items_num;
-									}
-									++idx[k];
-									break;
-								} else {
-									idx[k] = 0;							
 								}
-								--k;
+								if (equal) {
+									duplicated = true;
+									break;
+								}
 							}
-						} while (new_items_num == 0);
+							if (!duplicated) {
+								candidates.push_back(var_value);
+							}
+						}
 					}
-					if (k < 0) {
+					if (candidates.size() == 0) { // size of candidates should be greater than 0
+						impossible = true;
 						break;
 					}
+					idx.push_back(0);
+					var_candidates.push_back(candidates);
+				} else {
+					current_stratum_subgoals.push_back(k);
 				}
 			}
-			if (newrs.size() == 0) {
+			if (impossible) {
+				continue;
+			}
+			int k = 0;
+			if (var_candidates.size() == 0) {
+				bool satisfied = true;
+				for (int ii = 0; ii < not_subgoals.size() && satisfied; ++ii) {
+					Relation not = d.items_[not_subgoals[ii]].items_[0];					
+					for (int jj = 0; jj < content_relations[not.content_].size(); ++jj) {
+						Relation true_prop = true_props[content_relations[not.content_][jj]];
+						if (true_prop.matches(not, map<string, string>())) {
+							satisfied = false;
+							break;
+						}
+					}
+				}
+				if (satisfied) {
+					Relation d2;
+					d2.type_ = d.type_;
+					d2.content_ = d.content_;
+					d2.items_.push_back(d.items_[0]);
+					derivations.push_back(d2);
+				}
+				k = -1; // avoid the while loop below
+			}			
+			vector<map<string, string>> maps;
+			map<string, string> m;
+			maps.push_back(m);
+			while (true) {								
+				while (k >= 0 && idx[k] == var_candidates[k].size()) {
+					idx[k] = 0;
+					maps.pop_back();
+					--k;
+				}
+				if (k < 0) {
+					break;
+				}
+				map<string, string> m = maps[maps.size() - 1];
+				map<string, string> m2 = var_candidates[k][idx[k]];
+				bool combined = true;
+				for (map<string, string>::iterator ii = m2.begin(); ii != m2.end(); ++ii) {
+					if (m.find(ii->first) == m.end()) {
+						m[ii->first] = ii->second;
+					} else if (m[ii->first] != ii->second) {
+						combined = false;
+						break;
+					}
+				}
+				if (combined) {											
+					if (k == var_candidates.size() - 1) {
+						bool check_not_and_distinct = true;
+						vector<int> undetermined_distincts;
+						for (int ii = 0; ii < distinct_subgoals.size(); ++ii) {
+							Relation distinct = d.items_[distinct_subgoals[ii]];
+							distinct.replaceVariables(m);							
+							if (distinct.items_[0].type_ == RelationType::r_variable || distinct.items_[1].type_ == RelationType::r_variable) {
+								undetermined_distincts.push_back(ii);
+							} else if (distinct.items_[0].content_ != distinct.items_[1].content_) {
+								check_not_and_distinct = false;
+							}							
+						}
+						for (int ii = 0; ii < not_subgoals.size(); ++ii) {
+							Relation not = d.items_[not_subgoals[ii]].items_[0];
+							not.replaceVariables(m);							
+							for (int jj = 0; jj < content_relations[not.content_].size(); ++jj) {
+								Relation true_prop = true_props[content_relations[not.content_][jj]];
+								if (true_prop.matches(not, map<string, string>())) {
+									check_not_and_distinct = false;
+									break;
+								}
+							}
+						}
+						if (check_not_and_distinct) {
+							Relation d2;
+							d2.type_ = d.type_;
+							d2.content_ = d.content_;
+							d2.items_.push_back(d.items_[0]);
+							for (int ii = 0; ii < current_stratum_subgoals.size(); ++ii) {
+								d2.items_.push_back(d.items_[current_stratum_subgoals[ii]]);
+							}
+							for (int ii = 0; ii < undetermined_distincts.size(); ++ii) {
+								d2.items_.push_back(d.items_[distinct_subgoals[undetermined_distincts[ii]]]);
+							}
+							d2.replaceVariables(m);
+							derivations.push_back(d2);
+						}
+						++idx[k];
+					} else {
+						maps.push_back(m);
+						++k;
+					}
+				} else {
+					++idx[k];						
+				}				
+			}			
+		}
+
+		while (true) {
+			int old_true_props_num = true_props.size();
+			for (Relations::iterator j = derivations.begin(); j != derivations.end(); ) {
+				if (j->items_.size() == 1) {
+					Relation prop = j->items_[0];
+					true_props.push_back(prop);
+					if (content_relations.find(prop.content_) == content_relations.end()) {
+						vector<int> rs;
+						content_relations[prop.content_] = rs;
+					}
+					content_relations[prop.content_].push_back(true_props.size() - 1);
+					j = derivations.erase(j);
+				} else {
+					++j;
+				}
+			}
+			if (old_true_props_num == true_props.size()) {
 				break;
 			}
-			old_num = currentstate.size();
-			currentstate.insert(currentstate.end(), newrs.begin(), newrs.end());
-			for (int j = old_num; j < currentstate.size(); ++j) {
-				if (content_relations.find(currentstate[j].content_) == content_relations.end()) {
-					vector<int> rs;
-					content_relations[currentstate[j].content_] = rs;
+			for (int j = 0; j < derivations.size(); ++j) {				
+				for (Relations::iterator k = derivations[j].items_.begin(); k != derivations[j].items_.end(); ) {
+					Relation p = *k;
+					if (content_relations.find(p.content_) != content_relations.end()) {
+						vector<int> props = content_relations[p.content_];
+						bool find = false;
+						for (int ii = props.size() - 1; ii >= 0; --ii) {
+							if (props[ii] < old_true_props_num) {
+								break;
+							}
+							bool equal = true;
+							for (int jj = 0; jj < p.items_.size(); ++jj) {
+								if (p.items_[jj].content_ != true_props[props[ii]].items_[jj].content_) {
+									equal = false;
+									break;
+								}
+							}
+							if (equal) {
+								find = true;
+								break;
+							}
+						}
+						if (find) {
+							k = derivations[j].items_.erase(k);
+							continue;
+						}
+					}
+					++k;
 				}
-				content_relations[currentstate[j].content_].push_back(j);
 			}
-		}
-	}	
+		}		
+	}
+	return true_props;
 }

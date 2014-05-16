@@ -173,6 +173,34 @@ Relations Reader::eliminateLogicalWords(Relation r) {
 	Relations items;
 	bool changed = false;
 	for (int i = 0; i < r.items_.size(); ++i) {
+		if (r.items_[i].type_ == RelationType::r_not) {
+			if (r.items_[i].items_[0].type_ == RelationType::r_and
+				|| r.items_[i].items_[0].type_ == RelationType::r_or) {
+				changed = true;
+				Relation item = r.items_[i].items_[0];
+				if (item.type_ == RelationType::r_and) {
+					item.type_ = RelationType::r_or;
+					item.content_ = relation_type_words[RelationType::r_or];
+				} else {
+					item.type_ = RelationType::r_and;
+					item.content_ = relation_type_words[RelationType::r_and];
+				}				
+				for (int j = 0; j < item.items_.size(); ++j) {
+					if (item.items_[j].type_ == RelationType::r_not) {
+						item.items_[j] = item.items_[j].items_[0];
+					} else {
+						Relation not;
+						not.type_ = RelationType::r_not;
+						not.content_ = relation_type_words[RelationType::r_not];
+						not.items_.push_back(item.items_[j]);
+						item.items_[j] = not;
+					}
+				}
+				r.items_[i] = item;
+			}
+		}
+	}
+	for (int i = 0; i < r.items_.size(); ++i) {
 		if (r.items_[i].type_ == RelationType::r_and) {
 			changed = true;
 			for (int j = 0; j < r.items_[i].items_.size(); ++j) {
