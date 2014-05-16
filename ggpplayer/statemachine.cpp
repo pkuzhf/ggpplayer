@@ -47,6 +47,8 @@ bool StateMachine::isTerminal(Relations &state) {
 	return false;
 }
 
+
+
 Relations StateMachine::getInitialState() {
 	return initial_state_;
 }
@@ -86,7 +88,10 @@ Relations StateMachine::getNextState(Relations &state, Relations &moves) {
 	Relations rtn;
 	for(int i = 0 ; i < true_rs.size(); ++i){
 		if(true_rs[i].type_ == RelationType::r_next){
-			rtn.push_back(true_rs[i]);
+			Relation r = true_rs[i];
+			r.content_ = "true";
+			r.type_ = RelationType::r_true;
+			rtn.push_back(r);
 		}
 	}
 	return rtn;
@@ -100,4 +105,18 @@ Relation StateMachine::getRandomMove(Relations &state, Relation role) {
 
 int StateMachine::getRoleSum() {
 	return role_n_;
+}
+
+void StateMachine::setState(Relations & state)
+{
+	Relations rs;
+	current_state_.clear();
+	for(int i = 0  ; i < state.size(); ++i){
+		current_state_.push_back(state[i]);
+		rs.push_back(state[i]);
+	}
+	for(int i = 0 ; i < prover_.statics_.size(); ++i){
+		rs.push_back(prover_.statics_[i]);
+	}
+	right_props_ = prover_.generateTrueProps(rs);
 }

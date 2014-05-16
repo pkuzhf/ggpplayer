@@ -31,10 +31,11 @@ public:
 	Relation getRandomMove(Relations &state, Relation role);
 	int getRoleSum();
 	Prover prover_;
-
+	void setState(Relations & state);
+	Relations right_props_;
 private:
 	static const int cache_size_ = 1000;//Ö»±£´æ1000¸östate
-	
+	Relations current_state_;
 	Relations initial_state_;
 	int role_n_;
 	Cache cache_;
