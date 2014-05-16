@@ -39,8 +39,10 @@ private:
 	Relations relations_;
 	Relations derivations_;
 	Relations static_derivations_;
-	Relations nonstatic_static_derivations_;
+	Relations nonstatic_derivations_;
 	Relations inits_;
+	Relations bases_;
+	Relations inputs_;
 	Relations statics_;
 	DomainGraph dg_;
 	DependGraph dpg_;	
