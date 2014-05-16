@@ -34,6 +34,15 @@ void Prover::init() {
 	// should use dpg to generate more statics and inits
 	dpg_.buildGraph(derivations_);
 	getStaticRelation();
+	Relations true_rs;
+	for(int i = 0 ; i < relations_.size(); ++i){
+		if(relations_[i].type_ == RelationType::r_role 
+			|| relations_[i].type_ == RelationType::r_init
+			||relations_[i].type_ == RelationType::r_function ){
+				true_rs.push_back(relations_[i]);
+		}
+	}
+	true_rs = generateTrueProps(true_rs);
 }
 
 void Prover::getStaticRelation()
