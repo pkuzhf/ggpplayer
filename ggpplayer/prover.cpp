@@ -60,6 +60,22 @@ void Prover::init() {
 			statics_.push_back(true_rs[i]);
 		}
 	}
+	// add key_head which isn't in base sentence
+	for(int i = 0 ; i < relations_.size(); ++i){
+		if(relations_[i].type_ == RelationType::r_base){
+			string temp = relations_[i].items_[0].content_;
+			if(find(key_head_.begin(), key_head_.end(), temp) == key_head_.end()){
+				key_head_.push_back(temp);
+			}
+		} else if(relations_[i].type_ == RelationType::r_derivation && (relations_[i].items_[0].type_ == RelationType::r_next)){
+			string temp = relations_[i].items_[0].items_[0].content_;
+			if(find(key_head_.begin(), key_head_.end(), temp) == key_head_.end()){
+				key_head_.push_back(temp);
+			}
+		} else if(relations_[i].type_ == RelationType::r_role){
+			roles_.push_back(relations_[i]);
+		}
+	}
 
 	dpg2_.buildGraph(nonstatic_derivations_); 
 }
@@ -97,12 +113,16 @@ void Prover::markNonStatic(int index, vector<int> & mark)
 
 
 Relations Prover::getInitStateByDPG() {
-	Relations true_props = inits_;
-	for (int i = 0; i < true_props.size(); ++i) {
-		true_props[i] = inits_[i].items_[0];
-	}	
-	true_props.insert(true_props.end(), statics_.begin(), statics_.end());	
-	return generateTrueProps(true_props);
+	Relations rtn;
+	for(int i = 0 ; i < inits_.size(); ++i){
+		Relation r = inits_[i];
+		if(find(key_head_.begin(), key_head_.end(), r.items_[0].content_) != key_head_.end()){
+			r.content_ = "true";
+			r.type_ = RelationType::r_true;
+			rtn.push_back(r);
+		}
+	}
+	return rtn;
 }
 
 string Prover::getInitState() {
@@ -412,21 +432,6 @@ int Prover::askRole(Relation &role){
 	return role_num_[role];
 }
 
-bool Prover::askTerminal(const string & state){
-	set<string> true_instances, false_instances, validating_instances;
-	for(int i = 0; i < state.size(); ++i){
-		if(state[i] == '1'){
-			true_instances.insert(keyrelations_[i].toString());
-		}
-	}
-	for(vector<string>::iterator i = dg_.node_instances_.at("terminal").begin(); i != dg_.node_instances_.at("terminal").end(); i++){
-		string s = i->data();
-		if(validateInstance(s, true_instances, false_instances, validating_instances)){
-			return true;	
-		}
-	}
-	return false;
-}
 
 
 bool Prover::askGoal(vector<int> &result, const string & state ){

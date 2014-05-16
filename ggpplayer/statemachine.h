@@ -15,28 +15,27 @@
 using namespace std;
 
 
-typedef int Role;
-typedef vector<int> Moves;
-typedef vector<int> Goals;
+
 
 class StateMachine {
 public:
 
 public:
 	StateMachine(Relations description);
-	bool getGoals(Goals &result, const string &state);
-	bool isTerminal(const string &state);
-	string getInitialState();
-	bool getLegalMoves(Moves &moves, const string &state, Role role);
+	Relations getGoals( Relations &state);
+	bool isTerminal(Relations &state);
+	Relations getInitialState();
+	Relations getLegalMoves(Relations &state, Relation role);
 	//bool getLegalMoves(Moves &moves, const State &state);
-	string getNextState(const string &state, const Moves &moves);
-	int getRandomMove(const string &state, Role role);
+	Relations getNextState(Relations &state, Relations &moves);
+	Relation getRandomMove(Relations &state, Relation role);
 	int getRoleSum();
+	Prover prover_;
 
 private:
 	static const int cache_size_ = 1000;//Ö»±£´æ1000¸östate
-	Prover prover_;
-	string initial_state_;
+	
+	Relations initial_state_;
 	int role_n_;
 	Cache cache_;
 };

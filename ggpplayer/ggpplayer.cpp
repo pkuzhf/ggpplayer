@@ -1,4 +1,4 @@
-#define CHECK_PROVER
+#define CHECK_STATEMACHINE
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -27,7 +27,7 @@ int main() {
 	r.getRelations(rs);
 	Prover prover(rs);
 		
-	prover.getInitStateByDPG();	
+	Relations initialState = prover.getInitStateByDPG();	
 	string state = prover.getInitState();
 	
 	while(!prover.askTerminal(state)){
@@ -66,23 +66,18 @@ int main() {
 	r.getRelations(rs);
 	StateMachine machine(rs);
 
-	string state = machine.getInitialState();
-	cout << "state:" << endl;
-	cout << "	" << state << endl;
+	Relations state = machine.getInitialState();
+	
 	while (!machine.isTerminal(state)) {
-		Moves moves;
+		Relations moves;
 		for (int i = 0; i < machine.getRoleSum(); ++i) {
-			moves.push_back(machine.getRandomMove(state, i));
+			Relation role = machine.prover_.roles_[i];
+			moves.push_back(machine.getRandomMove(state, role));
 		}
 		state = machine.getNextState(state, moves);
-		cout << "	" << state << endl;
 	}
-	Goals goals;
-	machine.getGoals(goals, state);
-	cout << "score:" << endl;
-	for (int i = 0; i < machine.getRoleSum(); ++i) {
-		cout << "	player" << i << ":" << goals.at(i) << endl;
-	}
+	Relations goals = machine.getGoals(state);
+	
 
 #endif
 

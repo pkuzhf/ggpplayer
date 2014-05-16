@@ -15,97 +15,85 @@ using namespace std;
 
 
 StateMachine::StateMachine(Relations description):prover_(description), cache_(cache_size_) {
-	initial_state_ = prover_.getInitState();
+	initial_state_ = prover_.getInitStateByDPG();
 	role_n_ = prover_.roles_.size();
 }
 
-bool StateMachine::getGoals(Goals &result, const string &state) {
-	prover_.askGoal(result, state);
-	return true;
-}
-
-bool StateMachine::isTerminal(const string &state) {
-	Data *data = cache_.get(state);
-	if (data == NULL) {
-		data = new Data();
-		if (prover_.askTerminal(state)) {
-			data->terminal_ = 1;
-		} else {
-			data->terminal_ = -1;
-		}
-		cache_.put(state, *data);// TODO
-	} else if (data->terminal_ == 0) {
-		if (prover_.askTerminal(state)) {
-			data->terminal_ = 1;
-		} else {
-			data->terminal_ = -1;
+Relations StateMachine::getGoals(Relations &state)
+{
+	for(int i = 0 ;  i < prover_.statics_.size(); ++i){
+		state.push_back(prover_.statics_[i]);
+	}
+	Relations true_rs = prover_.generateTrueProps(state);
+	Relations rtn;
+	for(int i = 0 ; i < true_rs.size(); ++i){
+		if(true_rs[i].type_ == RelationType::r_goal){
+			rtn.push_back(true_rs[i]);
 		}
 	}
-	return data->terminal_ == 1;
+	return rtn;
 }
 
-string StateMachine::getInitialState() {
+bool StateMachine::isTerminal(Relations &state) {
+	for(int i = 0 ;  i < prover_.statics_.size(); ++i){
+		state.push_back(prover_.statics_[i]);
+	}
+	Relations true_rs = prover_.generateTrueProps(state);
+	for(int i = 0 ; i < true_rs.size(); ++i){
+		if(true_rs[i].type_ == RelationType::r_terminal){
+			return true;
+		}
+	}
+	return false;
+}
+
+Relations StateMachine::getInitialState() {
 	return initial_state_;
 }
 
 
-bool StateMachine::getLegalMoves(Moves &moves, const string &state, Role role) {
-	string ret;
-	Data *data = cache_.get(state);
-	if (data == NULL) {
-		data = new Data();
-		ret = prover_.askLegalActions(role, state);
-		data->legalActions_.insert(pair<Role, string>(role, ret));
-		cache_.put(state, *data);// TODO
-	} else {
-		map<Role, string>::iterator i = (data->legalActions_).find(role);
-		if (i == data->legalActions_.end()) {
-			ret = prover_.askLegalActions(role, state);
-			data->legalActions_.insert(pair<Role, string>(role, ret));
-		} else {
-			ret = i->second;
+Relations StateMachine::getLegalMoves( Relations &state, Relation role) {
+	for(int i = 0 ;  i < prover_.statics_.size(); ++i){
+		state.push_back(prover_.statics_[i]);
+	}
+	Relations true_rs = prover_.generateTrueProps(state);
+	Relations rtn;
+	for(int i = 0 ; i < true_rs.size(); ++i){
+		if(true_rs[i].type_ == RelationType::r_legal && true_rs[i].items_[0].content_ == role.items_[0].content_){
+			Relation r = true_rs[i];
+			r.content_ = "does";
+			r.type_ = RelationType::r_does;
+			rtn.push_back(r);
 		}
 	}
-	for (int i = 0; i < ret.size(); ++i) {
-		if (ret[i] == '1')
-			moves.push_back(i);
-	}
-	return true;
+	return rtn;
 }
 
-/*
-Moves StateMachine::getLegalMoves(const State &state) {
-	return prover_.askLegalActions(state);
-}
-*/
 
-string StateMachine::getNextState(const string &state, const Moves &moves) {
-	string ret;
-	string moveString(prover_.legalactions_.size(), '0');
-	for (int i = 0; i < moves.size(); ++i) {
-		moveString[moves[i]] = '1';
+
+Relations StateMachine::getNextState(Relations &state, Relations &moves) {
+	Relations true_rs;
+	for(int i = 0 ;  i < prover_.statics_.size(); ++i){
+		true_rs.push_back(prover_.statics_[i]);
 	}
-	Data *data = cache_.get(state);
-	if (data == NULL) {
-		data = new Data();
-		ret = prover_.askNextState(state, moveString);
-		data->nextState_.insert(pair<string, string>(moveString, ret));
-		cache_.put(state, *data);// TODO
-	} else {
-		map<string, string>::iterator i = (data->nextState_).find(ret);
-		if (i == data->nextState_.end()) {
-			ret = prover_.askNextState(state, moveString);
-			data->nextState_.insert(pair<string, string>(moveString, ret));
-		} else {
-			ret = i->second;
+	for(int i = 0 ;  i < state.size(); ++i){
+		true_rs.push_back(state[i]);
+	}
+	for(int i = 0 ;  i < moves.size(); ++i){
+		true_rs.push_back(moves[i]);
+	}
+	true_rs = prover_.generateTrueProps(true_rs);
+	Relations rtn;
+	for(int i = 0 ; i < true_rs.size(); ++i){
+		if(true_rs[i].type_ == RelationType::r_next){
+			rtn.push_back(true_rs[i]);
 		}
 	}
-	return ret;
+	return rtn;
 }
 
-int StateMachine::getRandomMove(const string &state, Role role) {
-	Moves moves;
-	getLegalMoves(moves, state, role);
+Relation StateMachine::getRandomMove(Relations &state, Relation role) {
+	Relations moves = getLegalMoves(state, role);
 	srand((unsigned)time(NULL));  
 	return moves[rand() % moves.size()];
 }
