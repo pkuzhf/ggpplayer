@@ -19,28 +19,21 @@ StateMachine::StateMachine(Relations description):prover_(description), cache_(c
 	role_n_ = prover_.roles_.size();
 }
 
-Relations StateMachine::getGoals(Relations &state)
+Relations StateMachine::getGoals()
 {
-	for(int i = 0 ;  i < prover_.statics_.size(); ++i){
-		state.push_back(prover_.statics_[i]);
-	}
-	Relations true_rs = prover_.generateTrueProps(state);
 	Relations rtn;
-	for(int i = 0 ; i < true_rs.size(); ++i){
-		if(true_rs[i].type_ == RelationType::r_goal){
-			rtn.push_back(true_rs[i]);
+	for(int i = 0 ; i < right_props_.size(); ++i){
+		if(right_props_[i].type_ == RelationType::r_goal){
+			rtn.push_back(right_props_[i]);
 		}
 	}
 	return rtn;
 }
 
-bool StateMachine::isTerminal(Relations &state) {
-	for(int i = 0 ;  i < prover_.statics_.size(); ++i){
-		state.push_back(prover_.statics_[i]);
-	}
-	Relations true_rs = prover_.generateTrueProps(state);
-	for(int i = 0 ; i < true_rs.size(); ++i){
-		if(true_rs[i].type_ == RelationType::r_terminal){
+bool StateMachine::isTerminal() {
+	
+	for(int i = 0 ; i < right_props_.size(); ++i){
+		if(right_props_[i].type_ == RelationType::r_terminal){
 			return true;
 		}
 	}
@@ -54,15 +47,12 @@ Relations StateMachine::getInitialState() {
 }
 
 
-Relations StateMachine::getLegalMoves( Relations &state, Relation role) {
-	for(int i = 0 ;  i < prover_.statics_.size(); ++i){
-		state.push_back(prover_.statics_[i]);
-	}
-	Relations true_rs = prover_.generateTrueProps(state);
+Relations StateMachine::getLegalMoves(Relation role) {
+	
 	Relations rtn;
-	for(int i = 0 ; i < true_rs.size(); ++i){
-		if(true_rs[i].type_ == RelationType::r_legal && true_rs[i].items_[0].content_ == role.items_[0].content_){
-			Relation r = true_rs[i];
+	for(int i = 0 ; i < right_props_.size(); ++i){
+		if(right_props_[i].type_ == RelationType::r_legal && right_props_[i].items_[0].content_ == role.items_[0].content_){
+			Relation r = right_props_[i];
 			r.content_ = "does";
 			r.type_ = RelationType::r_does;
 			rtn.push_back(r);
@@ -73,13 +63,10 @@ Relations StateMachine::getLegalMoves( Relations &state, Relation role) {
 
 
 
-Relations StateMachine::getNextState(Relations &state, Relations &moves) {
+Relations StateMachine::getNextState( Relations &moves) {
 	Relations true_rs;
-	for(int i = 0 ;  i < prover_.statics_.size(); ++i){
-		true_rs.push_back(prover_.statics_[i]);
-	}
-	for(int i = 0 ;  i < state.size(); ++i){
-		true_rs.push_back(state[i]);
+	for(int i = 0 ;  i < right_props_.size(); ++i){
+		true_rs.push_back(right_props_[i]);
 	}
 	for(int i = 0 ;  i < moves.size(); ++i){
 		true_rs.push_back(moves[i]);
@@ -97,8 +84,8 @@ Relations StateMachine::getNextState(Relations &state, Relations &moves) {
 	return rtn;
 }
 
-Relation StateMachine::getRandomMove(Relations &state, Relation role) {
-	Relations moves = getLegalMoves(state, role);
+Relation StateMachine::getRandomMove(Relation role) {
+	Relations moves = getLegalMoves(role);
 	srand((unsigned)time(NULL));  
 	return moves[rand() % moves.size()];
 }
@@ -119,4 +106,23 @@ void StateMachine::setState(Relations & state)
 		rs.push_back(prover_.statics_[i]);
 	}
 	right_props_ = prover_.generateTrueProps(rs);
+}
+
+Relations StateMachine::randomGo()
+{
+	int count = 0;
+	clock_t begin, end;
+	begin = clock();
+	while (!isTerminal()) {
+		count ++;
+		Relations moves;
+		for (int i = 0; i < getRoleSum(); ++i) {
+			Relation role = prover_.roles_[i];
+			moves.push_back(getRandomMove(role));
+		}
+		setState(getNextState(moves));
+	}
+	end = clock();
+	cout<< count << "steps in "<< end - begin<<" ms"<<endl;
+	return getGoals();
 }

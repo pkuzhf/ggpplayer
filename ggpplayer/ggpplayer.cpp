@@ -60,23 +60,16 @@ int main() {
 	Reader r;
 
 	//r.scanGDLFile("gdl\\lights_out.txt");
-	r.scanGDLFile("gdl\\2pffa_zerosum.kif");
+	r.scanGDLFile("gdl\\connect_four.txt");
 
 	Relations rs;
 	r.getRelations(rs);
 	StateMachine machine(rs);
 
 	Relations state = machine.getInitialState();
+	machine.setState(state);
 	
-	while (!machine.isTerminal(state)) {
-		Relations moves;
-		for (int i = 0; i < machine.getRoleSum(); ++i) {
-			Relation role = machine.prover_.roles_[i];
-			moves.push_back(machine.getRandomMove(state, role));
-		}
-		state = machine.getNextState(state, moves);
-	}
-	Relations goals = machine.getGoals(state);
+	Relations goals = machine.randomGo();
 	
 
 #endif

@@ -22,17 +22,18 @@ public:
 
 public:
 	StateMachine(Relations description);
-	Relations getGoals( Relations &state);
-	bool isTerminal(Relations &state);
+	Relations getGoals();
+	bool isTerminal();
 	Relations getInitialState();
-	Relations getLegalMoves(Relations &state, Relation role);
+	Relations getLegalMoves(Relation role);
 	//bool getLegalMoves(Moves &moves, const State &state);
-	Relations getNextState(Relations &state, Relations &moves);
-	Relation getRandomMove(Relations &state, Relation role);
+	Relations getNextState(Relations &moves);
+	Relation getRandomMove( Relation role);
 	int getRoleSum();
 	Prover prover_;
 	void setState(Relations & state);
 	Relations right_props_;
+	Relations randomGo();
 private:
 	static const int cache_size_ = 1000;//Ö»±£´æ1000¸östate
 	Relations current_state_;
