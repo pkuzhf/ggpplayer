@@ -65,17 +65,17 @@ Relations StateMachine::getLegalMoves(Relation role) {
 
 Relations StateMachine::getNextState( Relations &moves) {
 	Relations true_rs;
-	for(int i = 0 ;  i < right_props_.size(); ++i){
-		true_rs.push_back(right_props_[i]);
+	for(int i = 0 ;  i < current_state_.size(); ++i){
+		true_rs.push_back(current_state_[i]);
 	}
 	for(int i = 0 ;  i < moves.size(); ++i){
 		true_rs.push_back(moves[i]);
 	}
-	true_rs = prover_.generateTrueProps(true_rs);
+	setState(true_rs);
 	Relations rtn;
-	for(int i = 0 ; i < true_rs.size(); ++i){
-		if(true_rs[i].type_ == RelationType::r_next){
-			Relation r = true_rs[i];
+	for(int i = 0 ; i < right_props_.size(); ++i){
+		if(right_props_[i].type_ == RelationType::r_next){
+			Relation r = right_props_[i];
 			r.content_ = "true";
 			r.type_ = RelationType::r_true;
 			rtn.push_back(r);
@@ -97,22 +97,28 @@ int StateMachine::getRoleSum() {
 void StateMachine::setState(Relations & state)
 {
 	Relations rs;
-	current_state_.clear();
 	for(int i = 0  ; i < state.size(); ++i){
-		current_state_.push_back(state[i]);
 		rs.push_back(state[i]);
 	}
 	for(int i = 0 ; i < prover_.statics_.size(); ++i){
 		rs.push_back(prover_.statics_[i]);
 	}
 	right_props_ = prover_.generateTrueProps(rs);
+	current_state_.clear();
+	for(int i = 0  ; i < right_props_.size(); ++i){
+		if(right_props_[i].type_ == RelationType::r_next){
+			Relation r = right_props_[i];
+			r.type_ = RelationType::r_true;
+			r.content_ = "true";
+			current_state_.push_back(r);
+		}
+	}
 }
 
 Relations StateMachine::randomGo()
 {
+	clock_t begin = clock();
 	int count = 0;
-	clock_t begin, end;
-	begin = clock();
 	while (!isTerminal()) {
 		count ++;
 		Relations moves;
@@ -120,9 +126,9 @@ Relations StateMachine::randomGo()
 			Relation role = prover_.roles_[i];
 			moves.push_back(getRandomMove(role));
 		}
-		setState(getNextState(moves));
+		getNextState(moves);		
 	}
-	end = clock();
-	cout<< count << "steps in "<< end - begin<<" ms"<<endl;
+	clock_t end = clock();
+	cout<< count <<" steps in "<<end - begin<< " ms" <<endl;
 	return getGoals();
 }
