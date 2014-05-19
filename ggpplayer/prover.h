@@ -33,22 +33,20 @@ public:
 	string askLegalActions(int role, const string &state);
 	string askLegalActions(const string &state);
 	string askNextState(const string &currentstate, const string &does);
-	void askNextStateByDPG(Relations &currentstate, Relations &does);
-	Relations getInitStateByDPG();
+	void askNextStateByDPG(Relations &currentstate, Relations &does);	
 	Relations generateTrueProps(Relations true_props);
 	Relations statics_;
+	Relations inits_;
 private:
 	Relations relations_;
 	Relations derivations_;
 	Relations static_derivations_;
-	Relations nonstatic_derivations_;
-	Relations inits_;
+	Relations nonstatic_derivations_;	
 	Relations bases_;
 	Relations inputs_;
 	
 	DomainGraph dg_;
-	DependGraph dpg_;	
-	DependGraph dpg2_;	
+	DependGraph dpg_;		
 
 	// get by DPG
 	vector<int> static_relation_;

@@ -26,17 +26,15 @@ public:
 	bool isTerminal();
 	Relations getInitialState();
 	Relations getLegalMoves(string role);
-	//bool getLegalMoves(Moves &moves, const State &state);
-	Relations getNextState(Relations &moves);
+	//bool getLegalMoves(Moves &moves, const State &state);	
 	Relation getRandomMove(string role);
 	Prover prover_;
-	void setState(Relations & state);
+	void goOneStep(Relations & move);
 	Relations right_props_;
 	Relations randomGo();
 private:
 	static const int cache_size_ = 1000;//Ö»±£´æ1000¸östate
-	Relations current_state_;
-	Relations initial_state_;
+	Relations current_state_;	
 	Cache cache_;
 };
 

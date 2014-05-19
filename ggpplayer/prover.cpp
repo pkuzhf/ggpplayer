@@ -75,7 +75,9 @@ void Prover::init() {
 		}
 	}
 
-	dpg2_.buildGraph(nonstatic_derivations_); 
+	DependGraph dpg2;
+	dpg2.buildGraph(nonstatic_derivations_); 
+	dpg_ = dpg2;
 }
 
 void Prover::getStaticRelation()
@@ -107,20 +109,6 @@ void Prover::markNonStatic(int index, vector<int> & mark)
 			markNonStatic(dpg_.init_edges_out_[index][i], mark);
 		}
 	}
-}
-
-
-Relations Prover::getInitStateByDPG() {
-	Relations rtn;
-	for(int i = 0 ; i < inits_.size(); ++i){
-		Relation r = inits_[i];
-		if(find(key_head_.begin(), key_head_.end(), r.items_[0].content_) != key_head_.end()){
-			r.content_ = "true";
-			r.type_ = r_true;
-			rtn.push_back(r);
-		}
-	}
-	return rtn;
 }
 
 string Prover::getInitState() {

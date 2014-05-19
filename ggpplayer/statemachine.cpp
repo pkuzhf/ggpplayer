@@ -16,7 +16,18 @@ using namespace std;
 
 
 StateMachine::StateMachine(Relations description):prover_(description), cache_(cache_size_) {
-	initial_state_ = prover_.getInitStateByDPG();
+	current_state_ = prover_.inits_;	
+	for (int i = 0; i < current_state_.size(); ++i) {
+		current_state_[i].content_ = "true";
+		current_state_[i].type_ = r_true;
+	}
+	Relations move;
+	goOneStep(move);
+	current_state_ = prover_.inits_;	
+	for (int i = 0; i < current_state_.size(); ++i) {
+		current_state_[i].content_ = "true";
+		current_state_[i].type_ = r_true;
+	}
 }
 
 Relations StateMachine::getGoals()
@@ -40,13 +51,6 @@ bool StateMachine::isTerminal() {
 	return false;
 }
 
-
-
-Relations StateMachine::getInitialState() {
-	return initial_state_;
-}
-
-
 Relations StateMachine::getLegalMoves(string role) {
 	
 	Relations rtn;
@@ -61,44 +65,21 @@ Relations StateMachine::getLegalMoves(string role) {
 	return rtn;
 }
 
-
-
-Relations StateMachine::getNextState( Relations &moves) {
-	Relations true_rs;
-	for(int i = 0 ;  i < current_state_.size(); ++i){
-		true_rs.push_back(current_state_[i]);
-	}
-	for(int i = 0 ;  i < moves.size(); ++i){
-		true_rs.push_back(moves[i]);
-	}
-	setState(true_rs);
-	Relations rtn;
-	for(int i = 0 ; i < right_props_.size(); ++i){
-		if(right_props_[i].type_ == r_next){
-			Relation r = right_props_[i];
-			r.content_ = "true";
-			r.type_ = r_true;
-			rtn.push_back(r);
-		}
-	}
-	return rtn;
-}
-
 Relation StateMachine::getRandomMove(string role) {
 	Relations moves = getLegalMoves(role);
 	srand((unsigned)time(NULL));  
+	if (moves.size() == 0) {
+		cout << "err" <<endl;
+	}
 	return moves[rand() % moves.size()];
 }
 
-void StateMachine::setState(Relations & state)
+void StateMachine::goOneStep(Relations & move)
 {
 	Relations rs;
-	for(int i = 0  ; i < state.size(); ++i){
-		rs.push_back(state[i]);
-	}
-	for(int i = 0 ; i < prover_.statics_.size(); ++i){
-		rs.push_back(prover_.statics_[i]);
-	}
+	rs.insert(rs.end(), move.begin(), move.end());
+	rs.insert(rs.end(), current_state_.begin(), current_state_.end());
+	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
 	right_props_ = prover_.generateTrueProps(rs);
 	current_state_.clear();
 	for(int i = 0  ; i < right_props_.size(); ++i){
@@ -117,12 +98,13 @@ Relations StateMachine::randomGo()
 	int count = 0;
 	while (!isTerminal()) {
 		count ++;
-		Relations moves;
+		Relations joint_move;
 		for (int i = 0; i < prover_.roles_.size(); ++i) {
 			Relation role = prover_.roles_[i];
-			moves.push_back(getRandomMove(role.items_[0].content_));
+			joint_move.push_back(getRandomMove(role.items_[0].content_));
 		}
-		getNextState(moves);		
+		cout << joint_move[0].toString() << endl;
+		goOneStep(joint_move);		
 	}
 	clock_t end = clock();
 	cout<< count <<" steps in "<<end - begin<< " ms" <<endl;

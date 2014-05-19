@@ -66,18 +66,20 @@ int main() {
 	Relations rs;
 	r.getRelations(rs);
 	StateMachine machine(rs);
-
-	Relations state = machine.getInitialState();
-	machine.setState(state);
 	
 	string role;
-	//cin >> role;
+	cin >> role;
 	cout << "ready" << endl;
 
 	string move;
-	//cin >> move;
-	//cout << machine.getRandomMove(role).toString();
-	Relations goals = machine.randomGo();
+	cin >> move;
+	cout << machine.getRandomMove(role).toString();
+	while (true) {
+		cin >> move;
+
+	}
+
+	//Relations goals = machine.randomGo();
 	
 
 #endif
