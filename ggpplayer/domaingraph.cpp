@@ -28,7 +28,7 @@ void DomainGraph::buildGraph(Relations rs) {
 	cout<<"buildGraphBySingleRelation"<<endl;
 
 	for (int i = 0; i < rs.size(); ++i) {
-		//removeNodesByType(rs[i], RelationType::r_distinct);
+		//removeNodesByType(rs[i], r_distinct);
 
 		buildGraphBySingleRelation(rs[i]);
 	}
@@ -49,7 +49,7 @@ void DomainGraph::buildGraph(Relations rs) {
 	cout<<"removeNodesByType"<<endl;
 
 	for (int i = 0; i < rs.size(); ++i) {
-		removeNodesByType(rs[i], RelationType::r_not);
+		removeNodesByType(rs[i], r_not);
 	}
 
 	cout<<"validating_instances"<<endl;
@@ -175,12 +175,12 @@ void DomainGraph::buildMaximalInstancesForNode(string node, set<string> path) {
 void DomainGraph::buildGraphBySingleRelation(Relation r) {	
 
 	bool is_a_node = true;
-	if (r.type_ == RelationType::r_or ||
-		r.type_ == RelationType::r_and ||
-		r.type_ == RelationType::r_not ||
-		r.type_ == RelationType::r_distinct ||
-		r.type_ == RelationType::r_derivation ||
-		r.type_ == RelationType::r_variable ||
+	if (r.type_ == r_or ||
+		r.type_ == r_and ||
+		r.type_ == r_not ||
+		r.type_ == r_distinct ||
+		r.type_ == r_derivation ||
+		r.type_ == r_variable ||
 		node_num_.find(r.content_) != node_num_.end()) {
 		is_a_node = false;
 	}
@@ -203,7 +203,7 @@ void DomainGraph::buildGraphBySingleRelation(Relation r) {
 			}
 		}
 	}
-	if (r.type_ == RelationType::r_derivation) { 
+	if (r.type_ == r_derivation) { 
 		set<string> head_vars = r.items_[0].findVariables();
 		map<string, set<int> > headvar_nodes;
 		for (set<string>::iterator i = head_vars.begin(); i != head_vars.end(); ++i) {
@@ -252,7 +252,7 @@ void DomainGraph::addNode(string node) {
 void DomainGraph::findVariableNode(Relation r, map<string, set<int> > &m) {
 	if (node_num_.find(r.content_) != node_num_.end()) {
 		for (int i = 0; i < r.items_.size(); ++i) {
-			if (r.items_[i].type_ == RelationType::r_variable) {
+			if (r.items_[i].type_ == r_variable) {
 				m[r.items_[i].content_].insert(node_num_[buildNode(r.content_, i)]);
 			}
 		}
@@ -286,17 +286,17 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 	r = Reader::getRelation(instance);
 
 
-	if (r.type_ == RelationType::r_true) {
+	if (r.type_ == r_true) {
 		if (validateInstance(r.items_[0].toString(), true_instances, false_instances, validating_instances, rs)) {
 			result = true;
 		} else {
 			result = false;
 		}
-	} else if(r.type_== RelationType::r_init){
+	} else if(r.type_== r_init){
 		result = false;
-	} else if (r.type_ == RelationType::r_does) {
+	} else if (r.type_ == r_does) {
 		r.content_ = "legal";
-		r.type_ = RelationType::r_legal;
+		r.type_ = r_legal;
 		if (validateInstance(r.toString(), true_instances, false_instances, validating_instances, rs)) {
 			result = true;
 		} else {
@@ -304,7 +304,7 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 		}
 	} else if (r.isLogic()) {
 		switch (r.type_) {
-		case RelationType::r_and:
+		case r_and:
 			result = true;
 			for (int i = 0; i < r.items_.size(); ++i) {
 				if (!validateInstance(r.items_[i].toString(), true_instances, false_instances, validating_instances, rs)) {
@@ -313,7 +313,7 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 				}
 			}
 			break;
-		case RelationType::r_or:
+		case r_or:
 			result = false;
 			for (int i = 0; i < r.items_.size(); ++i) {
 				if (validateInstance(r.items_[i].toString(), true_instances, false_instances, validating_instances, rs)) {
@@ -322,7 +322,7 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 				}
 			}
 			break;
-		case RelationType::r_not:
+		case r_not:
 			/*
 			if (validateInstance(r.items_[0].toString(), true_instances, false_instances, validating_instances, rs)) {
 				result = false;
@@ -332,8 +332,8 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 			*/
 			result = true;
 			break;
-		case RelationType::r_distinct:
-			if (r.items_[0].type_ == RelationType::r_constant && r.items_[1].type_ == RelationType::r_constant) {
+		case r_distinct:
+			if (r.items_[0].type_ == r_constant && r.items_[1].type_ == r_constant) {
 				if (r.items_[0].content_ != r.items_[1].content_) {
 					result = true;
 				} else {
@@ -346,10 +346,10 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 		}
 	} else {
 		for (int i = 0; i < rs.size(); ++i) {
-			if (rs[i].type_ == RelationType::r_derivation) {
+			if (rs[i].type_ == r_derivation) {
 				map<string, string> var_value;
 				if (rs[i].items_[0].matches(r, var_value) ||
-					(rs[i].items_[0].type_ == RelationType::r_next && rs[i].items_[0].items_[0].matches(r, var_value))) {
+					(rs[i].items_[0].type_ == r_next && rs[i].items_[0].items_[0].matches(r, var_value))) {
 					bool condition_satisfy = true;		
 					bool contain_variables = false;
 					map<string, set<string> > var_values;
@@ -426,7 +426,7 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 						break;
 					}
 				}			
-			} else if (rs[i].type_ == RelationType::r_init) {
+			} else if (rs[i].type_ == r_init) {
 				if (rs[i].items_[0].equals(r)) {
 					result = true;
 					break;
@@ -451,7 +451,7 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 
 void DomainGraph::findVarDomainInSingleInstance(Relation r, map<string, set<string> > &var_values) {
 	for (int i = 0; i < r.items_.size(); ++i) {
-		if (r.items_[i].type_ == RelationType::r_variable) {
+		if (r.items_[i].type_ == r_variable) {
 			if (node_instances_.find(buildNode(r.content_, i)) == node_instances_.end()) {
 				continue;
 			}

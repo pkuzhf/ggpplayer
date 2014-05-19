@@ -37,7 +37,7 @@ bool Reader::getRelations(Relations &relations) {
 			return false;
 		}
 		Relation r = getRelation(substring);
-		if (r.type_ == RelationType::r_derivation) {
+		if (r.type_ == r_derivation) {
 			Relations rs = eliminateLogicalWords(r);
 			for (int i = 0; i < rs.size(); ++i) {
 				sortDerivationItems(rs[i]);
@@ -60,60 +60,60 @@ Relation Reader::getRelation(const string &s, RelationType default_type) {
 	fetch(s, idx, head);
 	r.content_ = head;
 	r.type_ = getType(head);
-	if (r.type_ == RelationType::r_other) {
+	if (r.type_ == r_other) {
 		r.type_ = default_type;
 	}
 
 	string substring;	
 	switch(r.type_) {
-	case RelationType::r_role:
+	case r_role:
 		fetch(s, idx, substring);
-		r.items_.push_back(getRelation(substring, RelationType::r_constant));		
+		r.items_.push_back(getRelation(substring, r_constant));		
 		break;
-	case RelationType::r_init:			
-	case RelationType::r_next:
-	case RelationType::r_true:
-	case RelationType::r_base:
-	case RelationType::r_not:
+	case r_init:			
+	case r_next:
+	case r_true:
+	case r_base:
+	case r_not:
 		fetch(s, idx, substring);
-		r.items_.push_back(getRelation(substring, RelationType::r_function));		
+		r.items_.push_back(getRelation(substring, r_function));		
 		break;
-	case RelationType::r_legal:
-	case RelationType::r_input:
-	case RelationType::r_does:
+	case r_legal:
+	case r_input:
+	case r_does:
 		fetch(s, idx, substring);
-		r.items_.push_back(getRelation(substring, RelationType::r_constant));		
+		r.items_.push_back(getRelation(substring, r_constant));		
 		fetch(s, idx, substring);
-		r.items_.push_back(getRelation(substring, RelationType::r_function));					
+		r.items_.push_back(getRelation(substring, r_function));					
 		break;
-	case RelationType::r_goal:
-	case RelationType::r_distinct:
+	case r_goal:
+	case r_distinct:
 		fetch(s, idx, substring);
-		r.items_.push_back(getRelation(substring, RelationType::r_constant));		
+		r.items_.push_back(getRelation(substring, r_constant));		
 		fetch(s, idx, substring);
-		r.items_.push_back(getRelation(substring, RelationType::r_constant));
+		r.items_.push_back(getRelation(substring, r_constant));
 		break;		
-	case RelationType::r_and:
-	case RelationType::r_or:
+	case r_and:
+	case r_or:
 		while (fetch(s, idx, substring)) {				
-			r.items_.push_back(getRelation(substring, RelationType::r_function));
+			r.items_.push_back(getRelation(substring, r_function));
 		}
 		break;
-	case RelationType::r_derivation:
+	case r_derivation:
 		fetch(s, idx, substring);
-		r.items_.push_back(getRelation(substring, RelationType::r_function));
+		r.items_.push_back(getRelation(substring, r_function));
 		while (fetch(s, idx, substring)) {				
-			r.items_.push_back(getRelation(substring, RelationType::r_function));
+			r.items_.push_back(getRelation(substring, r_function));
 		}
 		break;
-	case RelationType::r_function:
+	case r_function:
 		while (fetch(s, idx, substring)) {				
-			r.items_.push_back(getRelation(substring, RelationType::r_constant));
+			r.items_.push_back(getRelation(substring, r_constant));
 		}
 		break;
-	case RelationType::r_terminal:
-	case RelationType::r_constant:
-	case RelationType::r_variable:
+	case r_terminal:
+	case r_constant:
+	case r_variable:
 		break;	
 	};
 	return r;
@@ -162,9 +162,9 @@ RelationType Reader::getType(const string &s) {
 		}
 	}
 	if (s[0] == '?') {
-		return RelationType::r_variable;
+		return r_variable;
 	}
-	return RelationType::r_other;
+	return r_other;
 }
 
 Relations Reader::eliminateLogicalWords(Relation r) {	
@@ -172,25 +172,25 @@ Relations Reader::eliminateLogicalWords(Relation r) {
 	Relations items;
 	bool changed = false;
 	for (int i = 0; i < r.items_.size(); ++i) {
-		if (r.items_[i].type_ == RelationType::r_not) {
-			if (r.items_[i].items_[0].type_ == RelationType::r_and
-				|| r.items_[i].items_[0].type_ == RelationType::r_or) {
+		if (r.items_[i].type_ == r_not) {
+			if (r.items_[i].items_[0].type_ == r_and
+				|| r.items_[i].items_[0].type_ == r_or) {
 				changed = true;
 				Relation item = r.items_[i].items_[0];
-				if (item.type_ == RelationType::r_and) {
-					item.type_ = RelationType::r_or;
-					item.content_ = relation_type_words[RelationType::r_or];
+				if (item.type_ == r_and) {
+					item.type_ = r_or;
+					item.content_ = relation_type_words[r_or];
 				} else {
-					item.type_ = RelationType::r_and;
-					item.content_ = relation_type_words[RelationType::r_and];
+					item.type_ = r_and;
+					item.content_ = relation_type_words[r_and];
 				}				
 				for (int j = 0; j < item.items_.size(); ++j) {
-					if (item.items_[j].type_ == RelationType::r_not) {
+					if (item.items_[j].type_ == r_not) {
 						item.items_[j] = item.items_[j].items_[0];
 					} else {
 						Relation not;
-						not.type_ = RelationType::r_not;
-						not.content_ = relation_type_words[RelationType::r_not];
+						not.type_ = r_not;
+						not.content_ = relation_type_words[r_not];
 						not.items_.push_back(item.items_[j]);
 						item.items_[j] = not;
 					}
@@ -200,7 +200,7 @@ Relations Reader::eliminateLogicalWords(Relation r) {
 		}
 	}
 	for (int i = 0; i < r.items_.size(); ++i) {
-		if (r.items_[i].type_ == RelationType::r_and) {
+		if (r.items_[i].type_ == r_and) {
 			changed = true;
 			for (int j = 0; j < r.items_[i].items_.size(); ++j) {
 				items.push_back(r.items_[i].items_[j]);
@@ -211,7 +211,7 @@ Relations Reader::eliminateLogicalWords(Relation r) {
 	}
 	r.items_ = items;
 	for (int i = 0; i < r.items_.size(); ++i) {
-		if (r.items_[i].type_ == RelationType::r_or) {
+		if (r.items_[i].type_ == r_or) {
 			changed = true;
 			for (int j = 0; j < r.items_[i].items_.size(); ++j) {
 				ret.push_back(r);
@@ -235,9 +235,9 @@ Relations Reader::eliminateLogicalWords(Relation r) {
 }
 
 inline int getOrder(RelationType rt) {
-	if (rt == RelationType::r_not) {
+	if (rt == r_not) {
 		return 3;
-	} else if (rt == RelationType::r_distinct) {
+	} else if (rt == r_distinct) {
 		return 2;
 	} else {
 		return 1;

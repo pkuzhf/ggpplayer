@@ -23,7 +23,7 @@ Relations StateMachine::getGoals()
 {
 	Relations rtn;
 	for(int i = 0 ; i < right_props_.size(); ++i){
-		if(right_props_[i].type_ == RelationType::r_goal){
+		if(right_props_[i].type_ == r_goal){
 			rtn.push_back(right_props_[i]);
 		}
 	}
@@ -33,7 +33,7 @@ Relations StateMachine::getGoals()
 bool StateMachine::isTerminal() {
 	
 	for(int i = 0 ; i < right_props_.size(); ++i){
-		if(right_props_[i].type_ == RelationType::r_terminal){
+		if(right_props_[i].type_ == r_terminal){
 			return true;
 		}
 	}
@@ -51,10 +51,10 @@ Relations StateMachine::getLegalMoves(Relation role) {
 	
 	Relations rtn;
 	for(int i = 0 ; i < right_props_.size(); ++i){
-		if(right_props_[i].type_ == RelationType::r_legal && right_props_[i].items_[0].content_ == role.items_[0].content_){
+		if(right_props_[i].type_ == r_legal && right_props_[i].items_[0].content_ == role.items_[0].content_){
 			Relation r = right_props_[i];
 			r.content_ = "does";
-			r.type_ = RelationType::r_does;
+			r.type_ = r_does;
 			rtn.push_back(r);
 		}
 	}
@@ -74,10 +74,10 @@ Relations StateMachine::getNextState( Relations &moves) {
 	setState(true_rs);
 	Relations rtn;
 	for(int i = 0 ; i < right_props_.size(); ++i){
-		if(right_props_[i].type_ == RelationType::r_next){
+		if(right_props_[i].type_ == r_next){
 			Relation r = right_props_[i];
 			r.content_ = "true";
-			r.type_ = RelationType::r_true;
+			r.type_ = r_true;
 			rtn.push_back(r);
 		}
 	}
@@ -106,9 +106,9 @@ void StateMachine::setState(Relations & state)
 	right_props_ = prover_.generateTrueProps(rs);
 	current_state_.clear();
 	for(int i = 0  ; i < right_props_.size(); ++i){
-		if(right_props_[i].type_ == RelationType::r_next){
+		if(right_props_[i].type_ == r_next){
 			Relation r = right_props_[i];
-			r.type_ = RelationType::r_true;
+			r.type_ = r_true;
 			r.content_ = "true";
 			current_state_.push_back(r);
 		}

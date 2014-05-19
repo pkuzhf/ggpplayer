@@ -17,14 +17,14 @@ using namespace std;
 void DependGraph::buildGraph(Relations derivations)
 {
 	////input
-	//addNode(relation_type_words[RelationType::r_role]);
-	//addNode(relation_type_words[RelationType::r_does]);
-	//addNode(relation_type_words[RelationType::r_true]);
+	//addNode(relation_type_words[r_role]);
+	//addNode(relation_type_words[r_does]);
+	//addNode(relation_type_words[r_true]);
 	////output
-	//addNode(relation_type_words[RelationType::r_next]);
-	//addNode(relation_type_words[RelationType::r_goal]);
-	//addNode(relation_type_words[RelationType::r_legal]);
-	//addNode(relation_type_words[RelationType::r_terminal]);		
+	//addNode(relation_type_words[r_next]);
+	//addNode(relation_type_words[r_goal]);
+	//addNode(relation_type_words[r_legal]);
+	//addNode(relation_type_words[r_terminal]);		
 
 	derivations_ = derivations;
 	for(int i = 0 ; i < derivations_.size(); ++i){
@@ -33,10 +33,10 @@ void DependGraph::buildGraph(Relations derivations)
 		}
 		for(int j = 1; j < derivations_[i].items_.size(); ++j){			
 			Relation r = derivations_[i].items_[j];
-			if (r.type_ == RelationType::r_distinct) {
+			if (r.type_ == r_distinct) {
 				continue;
 			}
-			if (r.type_ == RelationType::r_not) {
+			if (r.type_ == r_not) {
 				r = r.items_[0];
 			}
 			if (node_num_.find(r.content_) == node_num_.end()) {

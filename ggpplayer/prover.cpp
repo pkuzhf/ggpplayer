@@ -21,7 +21,7 @@ Prover::Prover(Relations relations) : relations_(relations) {
 
 void Prover::init() {	
 	for (int i = 0; i < relations_.size(); ++i) {
-		if (relations_[i].type_ == RelationType::r_derivation) {
+		if (relations_[i].type_ == r_derivation) {
 			derivations_.push_back(relations_[i]);
 		}
 	}
@@ -30,28 +30,28 @@ void Prover::init() {
 	getStaticRelation();
 	Relations true_rs;
 	for(int i = 0 ; i < relations_.size(); ++i){
-		if(relations_[i].type_ == RelationType::r_role 
-			|| relations_[i].type_ == RelationType::r_init
-			|| relations_[i].type_ == RelationType::r_function ){
+		if(relations_[i].type_ == r_role 
+			|| relations_[i].type_ == r_init
+			|| relations_[i].type_ == r_function ){
 				true_rs.push_back(relations_[i]);
 		}
 	}
 	true_rs = generateTrueProps(true_rs);
 	for(int i = 0; i < true_rs.size(); ++i){
-		if(true_rs[i].type_ == RelationType::r_init){
+		if(true_rs[i].type_ == r_init){
 			inits_.push_back(true_rs[i]);
-		} else if(true_rs[i].type_ == RelationType::r_base){
+		} else if(true_rs[i].type_ == r_base){
 			bases_.push_back(true_rs[i]);
 			Relation r = true_rs[i];
 			r.content_ = "true";
-			r.type_ = RelationType::r_true;
+			r.type_ = r_true;
 			keyrelations_.push_back(r);
 			keyrelation_num_[r] = keyrelation_num_.size();
-		} else if(true_rs[i].type_ == RelationType::r_input){
+		} else if(true_rs[i].type_ == r_input){
 			inputs_.push_back(true_rs[i]);
 			Relation r = true_rs[i];
 			r.content_ = "legal";
-			r.type_ = RelationType::r_legal;
+			r.type_ = r_legal;
 			legalactions_.push_back(r);
 			legalaction_num_[r] = legalaction_num_.size();
 		} else if(find(static_relation_.begin(), static_relation_.end(), dpg_.node_num_[true_rs[i].content_]) != static_relation_.end()){
@@ -60,17 +60,17 @@ void Prover::init() {
 	}
 	// add key_head which isn't in base sentence
 	for(int i = 0 ; i < relations_.size(); ++i){
-		if(relations_[i].type_ == RelationType::r_base){
+		if(relations_[i].type_ == r_base){
 			string temp = relations_[i].items_[0].content_;
 			if(find(key_head_.begin(), key_head_.end(), temp) == key_head_.end()){
 				key_head_.push_back(temp);
 			}
-		} else if(relations_[i].type_ == RelationType::r_derivation && (relations_[i].items_[0].type_ == RelationType::r_next)){
+		} else if(relations_[i].type_ == r_derivation && (relations_[i].items_[0].type_ == r_next)){
 			string temp = relations_[i].items_[0].items_[0].content_;
 			if(find(key_head_.begin(), key_head_.end(), temp) == key_head_.end()){
 				key_head_.push_back(temp);
 			}
-		} else if(relations_[i].type_ == RelationType::r_role){
+		} else if(relations_[i].type_ == r_role){
 			roles_.push_back(relations_[i]);
 		}
 	}
@@ -116,7 +116,7 @@ Relations Prover::getInitStateByDPG() {
 		Relation r = inits_[i];
 		if(find(key_head_.begin(), key_head_.end(), r.items_[0].content_) != key_head_.end()){
 			r.content_ = "true";
-			r.type_ = RelationType::r_true;
+			r.type_ = r_true;
 			rtn.push_back(r);
 		}
 	}
@@ -168,7 +168,7 @@ string Prover::getInitState() {
 	string rtn;
 	set<string> true_instance, false_instance, valideting_instance;
 	for( int i = 0; i < relations_.size(); ++i){
-		if( relations_[i].type_ == RelationType::r_init ){
+		if( relations_[i].type_ == r_init ){
 			true_instance.insert(relations_[i].items_[0].toString());
 		}
 	}
@@ -246,19 +246,19 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 	r = Reader::getRelation(instance);
 
 	
-	if (r.type_ == RelationType::r_true) {
+	if (r.type_ == r_true) {
 		if (validateInstance(r.items_[0].toString(), true_instances, false_instances, validating_instances)) {
 			result = true;
 		} else {
 			result = false;
 		}
 	} 
-	else if(r.type_==RelationType::r_does){
+	else if(r.type_==r_does){
 		result =  false;
 	}
 	else if (r.isLogic()) {
 		switch (r.type_) {
-		case RelationType::r_and:
+		case r_and:
 			result = true;
 			for (int i = 0; i < r.items_.size(); ++i) {
 				if (!validateInstance(r.items_[i].toString(), true_instances, false_instances, validating_instances)) {
@@ -267,7 +267,7 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 				}
 			}
 			break;
-		case RelationType::r_or:
+		case r_or:
 			result = false;
 			for (int i = 0; i < r.items_.size(); ++i) {
 				if (validateInstance(r.items_[i].toString(), true_instances, false_instances, validating_instances)) {
@@ -276,15 +276,15 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 				}
 			}
 			break;
-		case RelationType::r_not:
+		case r_not:
 			if (validateInstance(r.items_[0].toString(), true_instances, false_instances, validating_instances)) {
 				result = false;
 			} else {
 				result = true;
 			}
 			break;
-		case RelationType::r_distinct:
-			if (r.items_[0].type_ == RelationType::r_constant && r.items_[1].type_ == RelationType::r_constant) {
+		case r_distinct:
+			if (r.items_[0].type_ == r_constant && r.items_[1].type_ == r_constant) {
 				if (r.items_[0].content_ != r.items_[1].content_) {
 					result = true;
 				} else {
@@ -297,7 +297,7 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 		}
 	} else {
 		for (int i = 0; i < relations_.size(); ++i) {
-			if (relations_[i].type_ == RelationType::r_derivation) {
+			if (relations_[i].type_ == r_derivation) {
 				map<string, string> var_value;
 				if (relations_[i].items_[0].matches(r, var_value)) {
 					bool condition_satisfy = true;		
@@ -458,7 +458,7 @@ string Prover::askLegalActions(const string &state){
 	for(int i = 0; i < legalactions_.size(); ++i){
 		Relation r = legalactions_[i];
 		r.content_ = "legal";
-		r.type_ = RelationType::r_legal;
+		r.type_ = r_legal;
 		if(validateInstance(r.toString(), true_instances, false_instances, validating_instances)){
 			rtn += '1';
 		}else{
@@ -495,7 +495,7 @@ string Prover::askNextState(const string &currentstate, const string &does){
 	for(int i = 0; i < keyrelations_.size(); ++i){
 		Relation r;
 		r.content_ = "next";
-		r.type_ = RelationType::r_next;
+		r.type_ = r_next;
 		r.items_.push_back(keyrelations_[i]);
 
 		if(validateInstance(r.toString(), true_instances, false_instances, validating_instances)){
@@ -538,9 +538,9 @@ Relations Prover::generateTrueProps(Relations true_props) {
 			vector<int> idx;
 			bool impossible = false;
 			for (int k = 1; k < d.items_.size(); ++k) {								
-				if (d.items_[k].type_ == RelationType::r_not) {
+				if (d.items_[k].type_ == r_not) {
 					not_subgoals.push_back(k);
-				} else if (d.items_[k].type_ == RelationType::r_distinct) {
+				} else if (d.items_[k].type_ == r_distinct) {
 					distinct_subgoals.push_back(k);
 				} else if (dpg_.node_stra_[dpg_.node_num_[d.items_[k].content_]] < i) { // lower stratum subgoals					
 					//lower_stratum_subgoals.push_back(k);
@@ -634,7 +634,7 @@ Relations Prover::generateTrueProps(Relations true_props) {
 						for (int ii = 0; ii < distinct_subgoals.size(); ++ii) {
 							Relation distinct = d.items_[distinct_subgoals[ii]];
 							distinct.replaceVariables(m);							
-							if (distinct.items_[0].type_ == RelationType::r_variable || distinct.items_[1].type_ == RelationType::r_variable) {
+							if (distinct.items_[0].type_ == r_variable || distinct.items_[1].type_ == r_variable) {
 								undetermined_distincts.push_back(ii);
 							} else if (distinct.items_[0].content_ == distinct.items_[1].content_) {
 								check_not_and_distinct = false;
