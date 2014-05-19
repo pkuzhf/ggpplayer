@@ -6,6 +6,5 @@ ipch
 *.opensdf
 *.swp
 *.user
-*.vcxproj
 *.filters
 node_modules
