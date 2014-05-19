@@ -58,7 +58,7 @@ int main() {
 	Reader r;
 
 	//r.scanGDLFile("gdl\\lights_out.txt");
-	if (!r.scanGDLFile("gdl/connect_four.txt")) {
+	if (!r.scanGDLFile("gdl/rule.txt")) {
         cout << "read file failed." << endl;
         return -1;
     }
@@ -70,6 +70,13 @@ int main() {
 	Relations state = machine.getInitialState();
 	machine.setState(state);
 	
+	string role;
+	//cin >> role;
+	cout << "ready" << endl;
+
+	string move;
+	//cin >> move;
+	//cout << machine.getRandomMove(role).toString();
 	Relations goals = machine.randomGo();
 	
 
