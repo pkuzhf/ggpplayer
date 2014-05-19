@@ -95,7 +95,7 @@ http.createServer(function (req, res) {
             response = '( ( name ailab ) ( status available ) )';
             break;
         case 'start' :
-            fs.writeFile('rule.txt', request.rule, function(err) {
+            fs.writeFile('ggpplayer/gdl/rule.txt', request.rule, function(err) {
                 if (err) {
                     console.log(err);
                 }

@@ -17,7 +17,6 @@ using namespace std;
 
 StateMachine::StateMachine(Relations description):prover_(description), cache_(cache_size_) {
 	initial_state_ = prover_.getInitStateByDPG();
-	role_n_ = prover_.roles_.size();
 }
 
 Relations StateMachine::getGoals()
@@ -48,11 +47,11 @@ Relations StateMachine::getInitialState() {
 }
 
 
-Relations StateMachine::getLegalMoves(Relation role) {
+Relations StateMachine::getLegalMoves(string role) {
 	
 	Relations rtn;
 	for(int i = 0 ; i < right_props_.size(); ++i){
-		if(right_props_[i].type_ == r_legal && right_props_[i].items_[0].content_ == role.items_[0].content_){
+		if(right_props_[i].type_ == r_legal && right_props_[i].items_[0].content_ == role){
 			Relation r = right_props_[i];
 			r.content_ = "does";
 			r.type_ = r_does;
@@ -85,14 +84,10 @@ Relations StateMachine::getNextState( Relations &moves) {
 	return rtn;
 }
 
-Relation StateMachine::getRandomMove(Relation role) {
+Relation StateMachine::getRandomMove(string role) {
 	Relations moves = getLegalMoves(role);
 	srand((unsigned)time(NULL));  
 	return moves[rand() % moves.size()];
-}
-
-int StateMachine::getRoleSum() {
-	return role_n_;
 }
 
 void StateMachine::setState(Relations & state)
@@ -123,9 +118,9 @@ Relations StateMachine::randomGo()
 	while (!isTerminal()) {
 		count ++;
 		Relations moves;
-		for (int i = 0; i < getRoleSum(); ++i) {
+		for (int i = 0; i < prover_.roles_.size(); ++i) {
 			Relation role = prover_.roles_[i];
-			moves.push_back(getRandomMove(role));
+			moves.push_back(getRandomMove(role.items_[0].content_));
 		}
 		getNextState(moves);		
 	}
