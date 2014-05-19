@@ -641,10 +641,11 @@ Relations Prover::generateTrueProps(Relations true_props) {
 							}							
 						}
 						for (int ii = 0; ii < not_subgoals.size(); ++ii) {
-							Relation not = d.items_[not_subgoals[ii]].items_[0];
-							not.replaceVariables(m);							
-							for (int jj = 0; jj < content_relations[not.content_].size(); ++jj) {								
-								if (true_props[content_relations[not.content_][jj]].matches(not, map<string, string>())) {
+							Relation not_relation = d.items_[not_subgoals[ii]].items_[0];
+							not_relation.replaceVariables(m);							
+							for (int jj = 0; jj < content_relations[not_relation.content_].size(); ++jj) {								
+								map<string, string> m;
+								if (true_props[content_relations[not_relation.content_][jj]].matches(not_relation, m)) {
 									check_not_and_distinct = false;
 									break;
 								}
