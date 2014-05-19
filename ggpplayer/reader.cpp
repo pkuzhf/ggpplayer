@@ -6,7 +6,6 @@
 #include <string>
 
 #include "reader.h"
-#include "tools.h"
 #include "relation.h"
 
 using namespace std;

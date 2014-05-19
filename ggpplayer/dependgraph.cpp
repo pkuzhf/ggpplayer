@@ -8,7 +8,6 @@
 #include <string>
 
 #include "dependgraph.h"
-#include "tools.h"
 #include "relation.h"
 #include "reader.h"
 

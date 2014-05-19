@@ -27,17 +27,7 @@ set<string> Tools::stringIntersect(set<string> s1, set<string> s2) {
 	return result;
 }
 
-vector<string> Tools::removeVectorDuplicates(vector<string> v) {
-	set<string> s;
-	vector<string> res;
-	for (int i = 0; i < v.size(); ++i) {
-		s.insert(v[i]);
-	}
-	for (set<string>::iterator i = s.begin(); i != s.end(); ++i) {
-		res.push_back(*i);
-	}
-	return res;
-}
+
 /*
 Relations Tools::removeRelationVectorDuplicates(Relations v) {
 	set<Relation> s;

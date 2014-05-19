@@ -7,7 +7,7 @@
 
 #include "cache.h"
 #include "prover.h"
-#include "tools.h"
+#include "relation.h"
 
 using namespace std;
 

@@ -81,7 +81,6 @@
     <ClInclude Include="reader.h" />
     <ClInclude Include="relation.h" />
     <ClInclude Include="statemachine.h" />
-    <ClInclude Include="tools.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cache.cpp" />
@@ -92,7 +91,6 @@
     <ClCompile Include="reader.cpp" />
     <ClCompile Include="relation.cpp" />
     <ClCompile Include="statemachine.cpp" />
-    <ClCompile Include="tools.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "prover.h"
-#include "tools.h"
 #include "relation.h"
 #include "domaingraph.h"
 #include "reader.h"

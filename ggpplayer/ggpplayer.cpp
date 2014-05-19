@@ -11,7 +11,6 @@
 #include "prover.h"
 #include "domaingraph.h"
 #include  "dependgraph.h"
-#include "tools.h"
 #include "statemachine.h"
 
 using namespace std;

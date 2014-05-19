@@ -9,7 +9,7 @@
 #include "statemachine.h"
 #include "prover.h"
 #include "reader.h"
-#include "tools.h"
+#include "relation.h"
 
 using namespace std;
 

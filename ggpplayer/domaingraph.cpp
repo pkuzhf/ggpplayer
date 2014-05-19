@@ -6,7 +6,6 @@
 #include <string>
 
 #include "domaingraph.h"
-#include "tools.h"
 #include "relation.h"
 #include "reader.h"
 
@@ -81,6 +80,18 @@ void DomainGraph::buildGraph(Relations rs) {
 	}
 }
 
+vector<string> removeVectorDuplicates(vector<string> v) {
+	set<string> s;
+	vector<string> res;
+	for (int i = 0; i < v.size(); ++i) {
+		s.insert(v[i]);
+	}
+	for (set<string>::iterator i = s.begin(); i != s.end(); ++i) {
+		res.push_back(*i);
+	}
+	return res;
+}
+
 void DomainGraph::buildMaximalInstancesForNode(string node, set<string> path) {
 	static set<string> cache_set;
 	if(cache_set.find(node) == cache_set.end()){
@@ -101,7 +112,7 @@ void DomainGraph::buildMaximalInstancesForNode(string node, set<string> path) {
 				cache_set.erase(node);
 			}
 		}
-		instances = Tools::removeVectorDuplicates(instances);
+		instances = removeVectorDuplicates(instances);
 	} else {   
 		int item_num = 0;
 		for (int i = 0; node_num_.find(buildNode(node, i)) != node_num_.end(); ++i) {
@@ -156,7 +167,7 @@ void DomainGraph::buildMaximalInstancesForNode(string node, set<string> path) {
 	for(int i = 0 ; i < instances.size(); ++i){
 		node_instances_[node].push_back(instances[i]);
 	}
-	node_instances_[node] = Tools::removeVectorDuplicates(node_instances_[node]);
+	node_instances_[node] = removeVectorDuplicates(node_instances_[node]);
 	
 	//node_instances_[node] = instances;  
 }
