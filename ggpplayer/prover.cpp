@@ -534,7 +534,7 @@ Relations Prover::generateTrueProps(Relations true_props) {
 			vector<int> current_stratum_subgoals;
 			vector<int> not_subgoals;
 			vector<int> distinct_subgoals;
-			vector<vector<map<string, string> >> var_candidates;
+			vector<vector<map<string, string> > > var_candidates;
 			vector<int> idx;
 			bool impossible = false;
 			for (int k = 1; k < d.items_.size(); ++k) {								
@@ -583,10 +583,10 @@ Relations Prover::generateTrueProps(Relations true_props) {
 			if (var_candidates.size() == 0) {
 				bool satisfied = true;
 				for (int ii = 0; ii < not_subgoals.size() && satisfied; ++ii) {
-					Relation not = d.items_[not_subgoals[ii]].items_[0];					
-					for (int jj = 0; jj < content_relations[not.content_].size(); ++jj) {
-						Relation true_prop = true_props[content_relations[not.content_][jj]];
-						if (true_prop.matches(not, map<string, string>())) {
+					Relation not_relation = d.items_[not_subgoals[ii]].items_[0];					
+					for (int jj = 0; jj < content_relations[not_relation.content_].size(); ++jj) {
+						Relation true_prop = true_props[content_relations[not_relation.content_][jj]];
+						if (true_prop.matches(not_relation, map<string, string>())) {
 							satisfied = false;
 							break;
 						}
