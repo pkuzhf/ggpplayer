@@ -11,7 +11,7 @@
 using namespace std;
 
 bool Reader::scanGDLFile(string filename) {
-	ifstream f(filename);
+	ifstream f(filename.c_str());
 	if (!f) {
 		return false;
 	}

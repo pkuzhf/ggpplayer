@@ -586,7 +586,8 @@ Relations Prover::generateTrueProps(Relations true_props) {
 					Relation not_relation = d.items_[not_subgoals[ii]].items_[0];					
 					for (int jj = 0; jj < content_relations[not_relation.content_].size(); ++jj) {
 						Relation true_prop = true_props[content_relations[not_relation.content_][jj]];
-						if (true_prop.matches(not_relation, map<string, string>())) {
+						map<string, string> m;
+						if (true_prop.matches(not_relation, m)) {
 							satisfied = false;
 							break;
 						}
