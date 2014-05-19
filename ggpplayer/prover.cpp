@@ -192,7 +192,7 @@ string Prover::buildNode(string s, int i){
 	return s + '[' + number + ']';
 }
 
-void Prover::findVarDomainInSingleInstance(Relation condition, map<string, set<string>> &var_values) {  
+void Prover::findVarDomainInSingleInstance(Relation condition, map<string, set<string> > &var_values) {  
 	if(dg_.node_instances_.find(condition.content_) != dg_.node_instances_.end()){
 		for(int k = 0;k < dg_.node_instances_.at(condition.content_).size(); k++){
 			Relation r;
@@ -303,7 +303,7 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 				if (relations_[i].items_[0].matches(r, var_value)) {
 					bool condition_satisfy = true;		
 					bool contain_variables = false;
-					map<string, set<string>> var_values;
+					map<string, set<string> > var_values;
 					for (int j = 1; j < relations_[i].items_.size(); ++j) {
 						Relation condition = relations_[i].items_[j];
 						condition.replaceVariables(var_value);
@@ -314,10 +314,10 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 					}
 					if (contain_variables) {
 						vector<string> vars;
-						vector<vector<string>> values;
+						vector<vector<string> > values;
 						vector<int> idx;
 						bool none_value_var = false;
-						for (map<string, set<string>>::iterator j = var_values.begin(); j != var_values.end(); ++j) {
+						for (map<string, set<string> >::iterator j = var_values.begin(); j != var_values.end(); ++j) {
 							if (j->second.size() == 0) {
 								none_value_var = true;
 								break;
@@ -371,7 +371,7 @@ bool Prover::validateInstance(string instance, set<string> &true_instances, set<
 	return result;
 }
 
-bool Prover::conditions_satisfied(Relation relation, map<string, string> var_value, vector<string> vars, vector<vector<string>> values, int condition_count, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances){
+bool Prover::conditions_satisfied(Relation relation, map<string, string> var_value, vector<string> vars, vector<vector<string> > values, int condition_count, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances){
 	if(condition_count == relation.items_.size()){
 		return true;
 	}
@@ -395,7 +395,7 @@ bool Prover::conditions_satisfied(Relation relation, map<string, string> var_val
 		r.replaceVariables(var_value);
 		r.replaceVariables(var_value_enum);
 		if (validateInstance(r.toString(), true_instances, false_instances, validating_instances)) {
-			vector<vector<string>> new_values = values;
+			vector<vector<string> > new_values = values;
 			for(int k = 0; k < var_idx.size(); ++k){
 				new_values[var_idx[k]].clear();
 				new_values[var_idx[k]].push_back(values[var_idx[k]][idx[k]]);
@@ -517,7 +517,7 @@ void Prover::askNextStateByDPG(Relations &currentstate, Relations &does) {
 }
 
 Relations Prover::generateTrueProps(Relations true_props) {	
-	map<string, vector<int>> content_relations;
+	map<string, vector<int> > content_relations;
 	set<string> true_props_string;
 	for (int i = 0; i < true_props.size(); ++i) {
 		if (content_relations.find(true_props[i].content_) == content_relations.end()) {
@@ -535,7 +535,7 @@ Relations Prover::generateTrueProps(Relations true_props) {
 			vector<int> current_stratum_subgoals;
 			vector<int> not_subgoals;
 			vector<int> distinct_subgoals;
-			vector<vector<map<string, string>>> var_candidates;
+			vector<vector<map<string, string> >> var_candidates;
 			vector<int> idx;
 			bool impossible = false;
 			for (int k = 1; k < d.items_.size(); ++k) {								
@@ -545,7 +545,7 @@ Relations Prover::generateTrueProps(Relations true_props) {
 					distinct_subgoals.push_back(k);
 				} else if (dpg_.node_stra_[dpg_.node_num_[d.items_[k].content_]] < i) { // lower stratum subgoals					
 					//lower_stratum_subgoals.push_back(k);
-					vector<map<string, string>> candidates;
+					vector<map<string, string> > candidates;
 					for (int ii = 0; ii < content_relations[d.items_[k].content_].size(); ++ii) { // scan all true props to generate var-value maps
 						map<string, string> var_value;
 						if (d.items_[k].matches(true_props[content_relations[d.items_[k].content_][ii]], var_value)) {
@@ -602,7 +602,7 @@ Relations Prover::generateTrueProps(Relations true_props) {
 				}
 				k = -1; // avoid the while loop below
 			}			
-			vector<map<string, string>> maps;
+			vector<map<string, string> > maps;
 			map<string, string> m;
 			maps.push_back(m);
 			while (true) {								
@@ -644,9 +644,8 @@ Relations Prover::generateTrueProps(Relations true_props) {
 						for (int ii = 0; ii < not_subgoals.size(); ++ii) {
 							Relation not = d.items_[not_subgoals[ii]].items_[0];
 							not.replaceVariables(m);							
-							for (int jj = 0; jj < content_relations[not.content_].size(); ++jj) {
-								Relation true_prop = true_props[content_relations[not.content_][jj]];
-								if (true_prop.matches(not, map<string, string>())) {
+							for (int jj = 0; jj < content_relations[not.content_].size(); ++jj) {								
+								if (true_props[content_relations[not.content_][jj]].matches(not, map<string, string>())) {
 									check_not_and_distinct = false;
 									break;
 								}

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ggpplayer", "ggpplayer\ggpplayer.vcxproj", "{20256C9B-4C38-423F-8C2C-A9482158CB80}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ggpplayer", "ggpplayer\ggpplayer.vcxproj", "{177FD9C5-0D7C-49BB-8873-D86E9C5DC796}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +9,10 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{20256C9B-4C38-423F-8C2C-A9482158CB80}.Debug|Win32.ActiveCfg = Debug|Win32
-		{20256C9B-4C38-423F-8C2C-A9482158CB80}.Debug|Win32.Build.0 = Debug|Win32
-		{20256C9B-4C38-423F-8C2C-A9482158CB80}.Release|Win32.ActiveCfg = Release|Win32
-		{20256C9B-4C38-423F-8C2C-A9482158CB80}.Release|Win32.Build.0 = Release|Win32
+		{177FD9C5-0D7C-49BB-8873-D86E9C5DC796}.Debug|Win32.ActiveCfg = Debug|Win32
+		{177FD9C5-0D7C-49BB-8873-D86E9C5DC796}.Debug|Win32.Build.0 = Debug|Win32
+		{177FD9C5-0D7C-49BB-8873-D86E9C5DC796}.Release|Win32.ActiveCfg = Release|Win32
+		{177FD9C5-0D7C-49BB-8873-D86E9C5DC796}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

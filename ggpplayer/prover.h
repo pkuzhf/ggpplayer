@@ -54,9 +54,9 @@ private:
 	vector<int> static_relation_;
 
 	bool validateInstance(string instance, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances);
-	void findVarDomainInSingleInstance(Relation r, map<string, set<string>> &var_values);
+	void findVarDomainInSingleInstance(Relation r, map<string, set<string> > &var_values);
 	string buildNode(string s, int i);
-	bool conditions_satisfied(Relation relation, map<string, string> var_value, vector<string> vars, vector<vector<string>> values, int condition_count , set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances);
+	bool conditions_satisfied(Relation relation, map<string, string> var_value, vector<string> vars, vector<vector<string> > values, int condition_count , set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances);
 	bool contain_var(Relation r, string var);
 	
 	void getStaticRelation();

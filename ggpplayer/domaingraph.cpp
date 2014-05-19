@@ -194,7 +194,7 @@ void DomainGraph::buildGraphBySingleRelation(Relation r) {
 	}
 	if (r.type_ == RelationType::r_derivation) { 
 		set<string> head_vars = r.items_[0].findVariables();
-		map<string, set<int>> headvar_nodes;
+		map<string, set<int> > headvar_nodes;
 		for (set<string>::iterator i = head_vars.begin(); i != head_vars.end(); ++i) {
 			set<int> s;
 			headvar_nodes[*i] = s;
@@ -202,7 +202,7 @@ void DomainGraph::buildGraphBySingleRelation(Relation r) {
 		findVariableNode(r.items_[0], headvar_nodes);
 
 		set<string> body_vars;
-		map<string, set<int>> bodyvar_nodes;
+		map<string, set<int> > bodyvar_nodes;
 		for (int i = 1; i < r.items_.size(); ++i) {
 			set<string> vars = r.items_[i].findVariables();
 			body_vars.insert(vars.begin(), vars.end());
@@ -238,7 +238,7 @@ void DomainGraph::addNode(string node) {
 	edges_.push_back(s);
 }
 
-void DomainGraph::findVariableNode(Relation r, map<string, set<int>> &m) {
+void DomainGraph::findVariableNode(Relation r, map<string, set<int> > &m) {
 	if (node_num_.find(r.content_) != node_num_.end()) {
 		for (int i = 0; i < r.items_.size(); ++i) {
 			if (r.items_[i].type_ == RelationType::r_variable) {
@@ -341,7 +341,7 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 					(rs[i].items_[0].type_ == RelationType::r_next && rs[i].items_[0].items_[0].matches(r, var_value))) {
 					bool condition_satisfy = true;		
 					bool contain_variables = false;
-					map<string, set<string>> var_values;
+					map<string, set<string> > var_values;
 					for (int j = 1; j < rs[i].items_.size(); ++j) {
 						Relation condition = rs[i].items_[j];
 						condition.replaceVariables(var_value);
@@ -352,10 +352,10 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 					}
 					if (contain_variables) {
 						vector<string> vars;
-						vector<vector<string>> values;
+						vector<vector<string> > values;
 						vector<int> idx;
 						bool none_value_var = false;
-						for (map<string, set<string>>::iterator j = var_values.begin(); j != var_values.end(); ++j) {
+						for (map<string, set<string> >::iterator j = var_values.begin(); j != var_values.end(); ++j) {
 							if (j->second.size() == 0) {
 								none_value_var = true;
 								break;
@@ -438,7 +438,7 @@ bool DomainGraph::validateInstance(string instance, set<string> &true_instances,
 	return result;
 }
 
-void DomainGraph::findVarDomainInSingleInstance(Relation r, map<string, set<string>> &var_values) {
+void DomainGraph::findVarDomainInSingleInstance(Relation r, map<string, set<string> > &var_values) {
 	for (int i = 0; i < r.items_.size(); ++i) {
 		if (r.items_[i].type_ == RelationType::r_variable) {
 			if (node_instances_.find(buildNode(r.content_, i)) == node_instances_.end()) {
