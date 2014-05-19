@@ -4,6 +4,7 @@
 #include <set>
 #include <map>
 #include <string>
+#include <string.h>
 
 #include "reader.h"
 #include "relation.h"
@@ -188,11 +189,11 @@ Relations Reader::eliminateLogicalWords(Relation r) {
 					if (item.items_[j].type_ == r_not) {
 						item.items_[j] = item.items_[j].items_[0];
 					} else {
-						Relation not;
-						not.type_ = r_not;
-						not.content_ = relation_type_words[r_not];
-						not.items_.push_back(item.items_[j]);
-						item.items_[j] = not;
+						Relation not_relation;
+						not_relation.type_ = r_not;
+						not_relation.content_ = relation_type_words[r_not];
+						not_relation.items_.push_back(item.items_[j]);
+						item.items_[j] = not_relation;
 					}
 				}
 				r.items_[i] = item;

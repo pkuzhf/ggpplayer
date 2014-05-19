@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <time.h>
+#include <stdlib.h>
 
 #include "statemachine.h"
 #include "prover.h"
