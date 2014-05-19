@@ -20,8 +20,7 @@ int main() {
 #ifdef CHECK_PROVER
 	
 	Reader r;
-	r.scanGDLFile("gdl\\2pffa_zerosum.kif");
-
+	if (r.scanGDLFile(".\\gdl\\2pffa_zerosum.kif");
 	Relations rs;
 	r.getRelations(rs);
 	Prover prover(rs);
@@ -59,7 +58,10 @@ int main() {
 	Reader r;
 
 	//r.scanGDLFile("gdl\\lights_out.txt");
-	r.scanGDLFile("gdl\\connect_four.txt");
+	if (!r.scanGDLFile("gdl/connect_four.txt")) {
+        cout << "read file failed." << endl;
+        return -1;
+    }
 
 	Relations rs;
 	r.getRelations(rs);

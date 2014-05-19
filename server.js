@@ -43,7 +43,7 @@ var parse = function(data) {
         ret.role = data.substring(s[0], s[1]);
         s = getFirstBracket(data, i);
         i = s[1];
-        ret.rule = data.substring(s[0] + 1, s[1] - 1); // delete outer brachet
+        ret.rule = data.substring(s[0] + 1, s[1] - 1).split('\r').join('\n'); // delete outer brachet
         s = getFirstString(data, i);
         i = s[1];
         ret.startclock = Number(data.substring(s[0], s[1]));
@@ -95,7 +95,7 @@ http.createServer(function (req, res) {
             response = '( ( name ailab ) ( status available ) )';
             break;
         case 'start' :
-            fs.writeFile('rule.txt', request.rule.split('\r').join('\n'), function(err) {
+            fs.writeFile('rule.txt', request.rule, function(err) {
                 if (err) {
                     console.log(err);
                 }

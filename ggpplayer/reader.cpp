@@ -17,7 +17,7 @@ bool Reader::scanGDLFile(string filename) {
 		return false;
 	}
 	while (!f.eof()) {
-		char buffer[1000];
+		char buffer[1010];
 		f.getline(buffer, 1000);
 		int i = 0;
 		while (i < strlen(buffer) && buffer[i] != ';'){
