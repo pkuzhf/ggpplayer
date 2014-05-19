@@ -147,7 +147,7 @@ bool Reader::fetch(const string &s, int &start, string &result) {
 		return false;
 	} else {
 		int i = start;
-		while (i < s.size() && s[i] != ' ' && s[i] != '(' && s[i] != ')') {
+		while (i < s.size() && s[i] != ' ' && s[i] != '(' && s[i] != ')' && s[i] != '\r' && s[i] != '\n') {
 			++i;
 		}
 		result = s.substr(start, i - start);
