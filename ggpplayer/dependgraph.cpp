@@ -16,16 +16,6 @@ using namespace std;
 
 void DependGraph::buildGraph(Relations derivations)
 {
-	////input
-	//addNode(relation_type_words[r_role]);
-	//addNode(relation_type_words[r_does]);
-	//addNode(relation_type_words[r_true]);
-	////output
-	//addNode(relation_type_words[r_next]);
-	//addNode(relation_type_words[r_goal]);
-	//addNode(relation_type_words[r_legal]);
-	//addNode(relation_type_words[r_terminal]);		
-
 	derivations_ = derivations;
 	for(int i = 0 ; i < derivations_.size(); ++i){
 		if (node_num_.find(derivations_[i].items_[0].content_) == node_num_.end()) {
@@ -210,7 +200,7 @@ int DependGraph::findZeroIn()
 		if(MARK[i] == false){
 			b = true;
 			if(edges_in_[i].size() == 0){
-				cout<< nodes_[i][0]<<endl;
+				//cout<< nodes_[i][0]<<endl;
 				return i;
 			}
 		}

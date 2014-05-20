@@ -66,17 +66,35 @@ int main() {
 	Relations rs;
 	r.getRelations(rs);
 	StateMachine machine(rs);
-	
-	string role;
-	cin >> role;
+
+	char buf[1000];
+	cin.getline(buf, 1000);
+	string role;	
+	role = buf;
 	cout << "ready" << endl;
-
-	string move;
-	cin >> move;
-	cout << machine.getRandomMove(role).toString();
-	while (true) {
-		cin >> move;
-
+		
+	cin.getline(buf, 1000);
+	cout << machine.getRandomMove(role).items_[1].toString() << endl;
+	while (true) {				
+		cin.getline(buf, 1000);	
+		Reader move_reader;
+		move_reader.file_content_ = buf;
+		Relations joint_move;
+		move_reader.getRelations(joint_move);
+		for (int i = 0; i < joint_move.size(); ++i) {
+			Relation does;
+			does.content_ = "does";
+			does.type_ = r_does;			
+			does.items_.push_back(machine.prover_.roles_[i].items_[0]);
+			does.items_.push_back(joint_move[i]);
+			joint_move[i] = does;
+		}
+		machine.goOneStep(joint_move);
+		if (machine.isTerminal()) {
+			//cout << "Terminal." << endl;
+			break;
+		}
+		cout << machine.getRandomMove(role).items_[1].toString() << endl;
 	}
 
 	//Relations goals = machine.randomGo();

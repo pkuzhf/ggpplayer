@@ -18,8 +18,8 @@ public:
 	bool scanGDLFile(string filename);
 	bool getRelations(Relations &relations);
 	static Relation getRelation(const string &s, RelationType fathertype = r_function);
-private:
 	string file_content_;
+private:	
 	static bool fetch(const string &s, int &start, string &result);
 	static RelationType getType(const string &s);
 	Relations eliminateLogicalWords(Relation r);

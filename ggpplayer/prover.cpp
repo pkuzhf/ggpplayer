@@ -517,7 +517,7 @@ Relations Prover::generateTrueProps(Relations true_props) {
 	for (int i = 0; i < dpg_.stra_deriv_.size(); ++i) {
 		Relations derivations;
 		for (int j = 0; j < dpg_.stra_deriv_[i].size(); ++j) {
-			Relation d = derivations_[dpg_.stra_deriv_[i][j]];
+			Relation d = dpg_.derivations_[dpg_.stra_deriv_[i][j]];
 			vector<int> lower_stratum_subgoals;
 			vector<int> current_stratum_subgoals;
 			vector<int> not_subgoals;

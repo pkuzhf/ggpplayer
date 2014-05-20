@@ -15,19 +15,24 @@
 using namespace std;
 
 
-StateMachine::StateMachine(Relations description):prover_(description), cache_(cache_size_) {
-	current_state_ = prover_.inits_;	
-	for (int i = 0; i < current_state_.size(); ++i) {
-		current_state_[i].content_ = "true";
-		current_state_[i].type_ = r_true;
+StateMachine::StateMachine(Relations description):prover_(description), cache_(cache_size_) {	
+	Relations rs;
+	rs.insert(rs.end(), prover_.inits_.begin(), prover_.inits_.end());
+	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
+	right_props_ = prover_.generateTrueProps(rs);
+	current_state_.clear();
+	for(int i = 0  ; i < right_props_.size(); ++i){
+		if(right_props_[i].type_ == r_init){
+			Relation r = right_props_[i];
+			r.type_ = r_true;
+			r.content_ = "true";
+			current_state_.push_back(r);
+		}
 	}
-	Relations move;
-	goOneStep(move);
-	current_state_ = prover_.inits_;	
-	for (int i = 0; i < current_state_.size(); ++i) {
-		current_state_[i].content_ = "true";
-		current_state_[i].type_ = r_true;
-	}
+	rs.clear();
+	rs.insert(rs.end(), current_state_.begin(), current_state_.end());
+	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
+	right_props_ = prover_.generateTrueProps(rs);
 }
 
 Relations StateMachine::getGoals()
@@ -69,7 +74,7 @@ Relation StateMachine::getRandomMove(string role) {
 	Relations moves = getLegalMoves(role);
 	srand((unsigned)time(NULL));  
 	if (moves.size() == 0) {
-		cout << "err" <<endl;
+		cout << "No legal move." <<endl;
 	}
 	return moves[rand() % moves.size()];
 }
@@ -90,6 +95,10 @@ void StateMachine::goOneStep(Relations & move)
 			current_state_.push_back(r);
 		}
 	}
+	rs.clear();
+	rs.insert(rs.end(), current_state_.begin(), current_state_.end());
+	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
+	right_props_ = prover_.generateTrueProps(rs);
 }
 
 Relations StateMachine::randomGo()
