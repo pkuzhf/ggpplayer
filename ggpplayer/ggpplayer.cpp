@@ -76,7 +76,7 @@ int main() {
 		Reader move_reader;
 		move_reader.file_content_ = buf;
 		Relations joint_move;
-		move_reader.getRelations(joint_move);
+		move_reader.getMoves(joint_move);
 		for (int i = 0; i < joint_move.size(); ++i) {
 			Relation does;
 			does.content_ = "does";

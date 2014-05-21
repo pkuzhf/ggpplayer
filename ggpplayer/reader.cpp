@@ -51,6 +51,16 @@ bool Reader::getRelations(Relations &relations) {
 	return true;
 }
 
+bool Reader::getMoves(Relations &relations) {
+	int idx = 0;
+	string substring;
+	while (fetch(file_content_, idx, substring)) {
+		Relation r = getRelation(substring);
+		relations.push_back(r);		
+	}
+	return true;
+}
+
 Relation Reader::getRelation(const string &s, RelationType default_type) {	
 	int idx = 0;
 	if (s[idx] == '(') {
