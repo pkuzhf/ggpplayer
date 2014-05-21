@@ -70,7 +70,11 @@ int main() {
 	cout << "ready" << endl;
 		
 	cin.getline(buf, 10000);
-	cout << "( " << machine.getRandomMove(role).items_[1].toString() << " )" << endl;
+	if (machine.getRandomMove(role).items_[1].items_.size() == 0) {		
+		cout << machine.getRandomMove(role).items_[1].toString() << endl;
+	} else {
+		cout << "( " << machine.getRandomMove(role).items_[1].toString() << " )" << endl;
+	}
 	while (true) {				
 		cin.getline(buf, 10000);	
 		Reader move_reader;
@@ -90,7 +94,11 @@ int main() {
 			//cout << "Terminal." << endl;
 			break;
 		}
-		cout << "( " << machine.getRandomMove(role).items_[1].toString() << " )" << endl;
+		if (machine.getRandomMove(role).items_[1].items_.size() == 0) {		
+			cout << machine.getRandomMove(role).items_[1].toString() << endl;
+		} else {
+			cout << "( " << machine.getRandomMove(role).items_[1].toString() << " )" << endl;
+		}
 	}
 
 	//Relations goals = machine.randomGo();
