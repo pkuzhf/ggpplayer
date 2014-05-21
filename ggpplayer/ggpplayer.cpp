@@ -63,16 +63,16 @@ int main() {
 	r.getRelations(rs);
 	StateMachine machine(rs);
 
-	char buf[1000];
-	cin.getline(buf, 1000);
+	char buf[10000];
+	cin.getline(buf, 10000);
 	string role;	
 	role = buf;
 	cout << "ready" << endl;
 		
-	cin.getline(buf, 1000);
+	cin.getline(buf, 10000);
 	cout << "( " << machine.getRandomMove(role).items_[1].toString() << " )" << endl;
 	while (true) {				
-		cin.getline(buf, 1000);	
+		cin.getline(buf, 10000);	
 		Reader move_reader;
 		move_reader.file_content_ = buf;
 		Relations joint_move;
