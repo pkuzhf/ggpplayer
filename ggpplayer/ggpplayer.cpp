@@ -16,7 +16,6 @@
 using namespace std;
 
 int main() {
-
 #ifdef CHECK_PROVER
 	
 	Reader r;
@@ -56,13 +55,10 @@ int main() {
 #ifdef CHECK_STATEMACHINE
 	
 	Reader r;
-
-	//r.scanGDLFile("gdl\\lights_out.txt");
 	if (!r.scanGDLFile("gdl/rule.txt")) {
         cout << "read file failed." << endl;
         return -1;
     }
-
 	Relations rs;
 	r.getRelations(rs);
 	StateMachine machine(rs);
@@ -74,7 +70,7 @@ int main() {
 	cout << "ready" << endl;
 		
 	cin.getline(buf, 1000);
-	cout << machine.getRandomMove(role).items_[1].toString() << endl;
+	cout << "( " << machine.getRandomMove(role).items_[1].toString() << " )" << endl;
 	while (true) {				
 		cin.getline(buf, 1000);	
 		Reader move_reader;
@@ -94,7 +90,7 @@ int main() {
 			//cout << "Terminal." << endl;
 			break;
 		}
-		cout << machine.getRandomMove(role).items_[1].toString() << endl;
+		cout << "( " << machine.getRandomMove(role).items_[1].toString() << " )" << endl;
 	}
 
 	//Relations goals = machine.randomGo();
