@@ -9,7 +9,6 @@
 #include "reader.h"
 #include "relation.h"
 #include "prover.h"
-#include "domaingraph.h"
 #include  "dependgraph.h"
 #include "statemachine.h"
 
@@ -53,20 +52,23 @@ int main() {
 #endif
 
 #ifdef CHECK_STATEMACHINE
-	
+	for(int i = 0 ; i < relation_type_num; ++i){
+		Relation::string2int_[relation_type_words[i]] = i;
+		Relation::int2string_.push_back(relation_type_words[i]);
+	}
 	Reader r;
-	if (!r.scanGDLFile("gdl/rule.txt")) {
+	if (!r.scanGDLFile("gdl/connect_four.txt")) {
         cout << "read file failed." << endl;
         return -1;
     }
 	Relations rs;
 	r.getRelations(rs);
 	StateMachine machine(rs);
-
+	Relations goals = machine.randomGo();
 	char buf[10000];
 	cin.getline(buf, 10000);
-	string role;	
-	role = buf;
+	int role;	
+	role = Relation::string2int_[string(buf)];
 	cout << "ready" << endl;
 		
 	cin.getline(buf, 10000);
@@ -83,7 +85,7 @@ int main() {
 		move_reader.getMoves(joint_move);
 		for (int i = 0; i < joint_move.size(); ++i) {
 			Relation does;
-			does.content_ = "does";
+			does.content_ = r_does;
 			does.type_ = r_does;			
 			does.items_.push_back(machine.prover_.roles_[i].items_[0]);
 			does.items_.push_back(joint_move[i]);
@@ -101,7 +103,7 @@ int main() {
 		}
 	}
 
-	//Relations goals = machine.randomGo();
+	
 	
 
 #endif

@@ -10,10 +10,14 @@
 using namespace std;
 
 
+vector<string> Relation::int2string_ = vector<string>();
+map<string, int> Relation::string2int_ = map<string, int>();
+
+
 bool Relation::operator<(const Relation &r) const{
-	if (content_.compare(r.content_) < 0) {
+	if (content_ < r.content_) {
 		return true;
-	}else if(content_.compare(r.content_) > 0){
+	}else if(content_ > r.content_){
 		return false;
 	}
 	for (int i = 0; i < items_.size() && i < r.items_.size() ; ++i){
@@ -29,7 +33,7 @@ bool Relation::operator<(const Relation &r) const{
 	return false;
 }
 
-bool Relation::matches(const Relation &r, map<string, string> &var_value) const {
+bool Relation::matches(const Relation &r, map<int, int> &var_value) const {
 	if (items_.size() != r.items_.size()) {
 		return false;
 	}
@@ -64,58 +68,11 @@ bool Relation::equals(const Relation &r) const {
 	return true;
 }
 
-map<string, string> Relation::getVarValue(const Relation &r) const {
-//this and r should be matched...
-	map<string, string> p;
-	if (type_ == r_variable && r.type_ != r_variable) {
-		p[content_] = r.content_;
-	} else if (r.type_ == r_variable && type_ != r_variable) {
-		p[r.content_] = content_;
-	}
-	for (int i = 0; i < items_.size(); ++i) {
-		map<string, string> p1 = items_[i].getVarValue(r.items_[i]);
-		for (map<string, string>::iterator j = p1.begin(); j != p1.end(); ++j) {
-			if (p.find(j->first) == p.end()) {
-				p[j->first] = j->second;
-			} else {
-				p.erase(j->first);
-			}
-		}
-	}
-	return p;
-}
 
-set<string> Relation::findVariables() {
-	set<string> vs;
-	if (type_ == r_variable) {
-		vs.insert(content_);
-	}
-	for (int i = 0; i < items_.size(); ++i) {
-		set<string> vs1 = items_[i].findVariables();
-		for (set<string>::iterator j = vs1.begin(); j != vs1.end(); ++j) {
-			if (vs.find(*j) == vs.end()) {
-				vs.insert(*j);
-			}
-		}
-	}
-	return vs;
-}
 
-Relations Relation::findProposions() {
-	Relations rs;
-	if (type_ == r_function) {
-		rs.push_back(*this);
-	} else {
-		for (int i = 0; i < items_.size(); i++) {
-			Relations pros = items_[i].findProposions();
-			rs.insert(rs.end(), pros.begin(), pros.end());
-		}
-	}
-	return rs;
-}
 
 string Relation::toString() const {
-	string s = content_;
+	string s = "" + Relation::int2string_[content_];
 	for (int i = 0; i < items_.size(); ++i) {
 		if (items_[i].items_.size() > 0) {
 			s += " ("+ items_[i].toString() + ")";
@@ -123,13 +80,10 @@ string Relation::toString() const {
 			s += " "+ items_[i].toString();
 		}
 	}
-if (content_ == "does") {
-	int a = 5;
-}
 	return s;
 }
 
-bool Relation::replaceVariables(map<string, string> m) {
+bool Relation::replaceVariables(map<int, int> m) {
 	bool replace_all_vars = true;;
 	if (type_ == r_variable) {
 		if (m.find(content_) != m.end()) {

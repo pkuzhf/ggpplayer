@@ -69,8 +69,12 @@ Relation Reader::getRelation(const string &s, RelationType default_type) {
 	Relation r;
 	string head;
 	fetch(s, idx, head);
-	r.content_ = head;
 	r.type_ = getType(head);
+	if(Relation::string2int_.find(head) == Relation::string2int_.end()){
+		Relation::string2int_[head] = Relation::string2int_.size();
+		Relation::int2string_.push_back(head);
+	}
+	r.content_ = Relation::string2int_[head];
 	if (r.type_ == r_other) {
 		r.type_ = default_type;
 	}
@@ -190,10 +194,10 @@ Relations Reader::eliminateLogicalWords(Relation r) {
 				Relation item = r.items_[i].items_[0];
 				if (item.type_ == r_and) {
 					item.type_ = r_or;
-					item.content_ = relation_type_words[r_or];
+					item.content_ = Relation::string2int_[relation_type_words[r_or]];
 				} else {
 					item.type_ = r_and;
-					item.content_ = relation_type_words[r_and];
+					item.content_ = Relation::string2int_[relation_type_words[r_and]];
 				}				
 				for (int j = 0; j < item.items_.size(); ++j) {
 					if (item.items_[j].type_ == r_not) {
@@ -201,7 +205,7 @@ Relations Reader::eliminateLogicalWords(Relation r) {
 					} else {
 						Relation not_relation;
 						not_relation.type_ = r_not;
-						not_relation.content_ = relation_type_words[r_not];
+						not_relation.content_ = Relation::string2int_[relation_type_words[r_not]];
 						not_relation.items_.push_back(item.items_[j]);
 						item.items_[j] = not_relation;
 					}
@@ -255,7 +259,7 @@ inline int getOrder(RelationType rt) {
 	}
 }
 
-void Reader::sortDerivationItems(Relation &r) {
+void Reader::sortDerivationItems(Relation & r) {
 	for (int i = 1; i < r.items_.size(); ++i) {
 		bool changed = false;
 		for (int j = i + 1; j < r.items_.size(); ++j) {

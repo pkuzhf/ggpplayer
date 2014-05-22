@@ -15,7 +15,7 @@
 using namespace std;
 
 
-StateMachine::StateMachine(Relations description):prover_(description), cache_(cache_size_) {	
+StateMachine::StateMachine(Relations description):prover_(description) {	
 	Relations rs;
 	rs.insert(rs.end(), prover_.inits_.begin(), prover_.inits_.end());
 	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
@@ -25,7 +25,7 @@ StateMachine::StateMachine(Relations description):prover_(description), cache_(c
 		if(right_props_[i].type_ == r_init){
 			Relation r = right_props_[i];
 			r.type_ = r_true;
-			r.content_ = "true";
+			r.content_ = r_true;
 			current_state_.push_back(r);
 		}
 	}
@@ -56,13 +56,13 @@ bool StateMachine::isTerminal() {
 	return false;
 }
 
-Relations StateMachine::getLegalMoves(string role) {
+Relations StateMachine::getLegalMoves(int role) {
 	
 	Relations rtn;
 	for(int i = 0 ; i < right_props_.size(); ++i){
 		if(right_props_[i].type_ == r_legal && right_props_[i].items_[0].content_ == role){
 			Relation r = right_props_[i];
-			r.content_ = "does";
+			r.content_ = r_does;
 			r.type_ = r_does;
 			rtn.push_back(r);
 		}
@@ -70,7 +70,7 @@ Relations StateMachine::getLegalMoves(string role) {
 	return rtn;
 }
 
-Relation StateMachine::getRandomMove(string role) {
+Relation StateMachine::getRandomMove(int role) {
 	Relations moves = getLegalMoves(role);
 	srand((unsigned)time(NULL));  
 	if (moves.size() == 0) {
@@ -91,7 +91,7 @@ void StateMachine::goOneStep(Relations & move)
 		if(right_props_[i].type_ == r_next){
 			Relation r = right_props_[i];
 			r.type_ = r_true;
-			r.content_ = "true";
+			r.content_ = r_true;
 			current_state_.push_back(r);
 		}
 	}
@@ -113,6 +113,7 @@ Relations StateMachine::randomGo()
 			joint_move.push_back(getRandomMove(role.items_[0].content_));
 		}
 		cout << joint_move[0].toString() << endl;
+		cout << joint_move[1].toString() << endl;
 		goOneStep(joint_move);		
 	}
 	clock_t end = clock();

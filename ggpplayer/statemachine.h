@@ -10,7 +10,6 @@
 
 #include "prover.h"
 #include "relation.h"
-#include "cache.h"
 
 using namespace std;
 
@@ -25,9 +24,9 @@ public:
 	Relations getGoals();
 	bool isTerminal();
 	Relations getInitialState();
-	Relations getLegalMoves(string role);
+	Relations getLegalMoves(int role);
 	//bool getLegalMoves(Moves &moves, const State &state);	
-	Relation getRandomMove(string role);
+	Relation getRandomMove(int role);
 	Prover prover_;
 	void goOneStep(Relations & move);
 	Relations right_props_;
@@ -35,7 +34,6 @@ public:
 private:
 	static const int cache_size_ = 1000;//Ö»±£´æ1000¸östate
 	Relations current_state_;	
-	Cache cache_;
 };
 
 #endif

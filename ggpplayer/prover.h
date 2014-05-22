@@ -5,7 +5,6 @@
 #include <set>
 #include <map>
 #include <string>
-#include "domaingraph.h"
 #include "dependgraph.h"
 #include "relation.h"
 
@@ -22,17 +21,15 @@ public:
 	map<Relation, int> role_num_;
 	vector<Relation> roles_;
 
-	vector<string> key_head_;
+	vector<int> key_head_;
 
 	Prover(Relations relations);
 	void init();
-	string getInitState();
+	
 	int askRole(Relation &role);  // 返回role在所有玩家中的编号 
 	bool askGoal(vector<int> &result, const string &state);
 	bool askTerminal(const string & state);
-	string askLegalActions(int role, const string &state);
-	string askLegalActions(const string &state);
-	string askNextState(const string &currentstate, const string &does);
+
 	void askNextStateByDPG(Relations &currentstate, Relations &does);	
 	Relations generateTrueProps(Relations true_props);
 	Relations statics_;
@@ -45,7 +42,6 @@ private:
 	Relations bases_;
 	Relations inputs_;
 	
-	DomainGraph dg_;
 	DependGraph dpg_;		
 
 	// get by DPG
@@ -54,7 +50,7 @@ private:
 	bool validateInstance(string instance, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances);
 	void findVarDomainInSingleInstance(Relation r, map<string, set<string> > &var_values);
 	string buildNode(string s, int i);
-	bool conditions_satisfied(Relation relation, map<string, string> var_value, vector<string> vars, vector<vector<string> > values, int condition_count , set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances);
+	bool conditions_satisfied(Relation relation, map<int, int> var_value, vector<string> vars, vector<vector<string> > values, int condition_count , set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances);
 	bool contain_var(Relation r, string var);
 	
 	void getStaticRelation();

@@ -12,9 +12,9 @@ using namespace std;
 
 class DependGraph {
 public:
-	vector<string> init_nodes_;
-	vector<vector<string> > nodes_;      
-	map<string, int> node_num_; // string to num
+	vector<int> init_nodes_;
+	vector<vector<int> > nodes_;      
+	map<int, int> node_num_; // string to num
 	vector<vector<int> > init_edges_in_; // 入边的另一个顶点的num
 	vector<vector<int> > init_edges_out_; // 出边的另一个顶点的num
 	
@@ -29,8 +29,8 @@ public:
 
 private:
 	void buildGraphBySingleRelation(Relation & r);
-	void addNode(string node);
-	void addEdge(string head, string tail);
+	void addNode(int node);
+	void addEdge(int head, int tail);
 	void topoSort();
 	int findZeroIn();
 	void deleteLoop();

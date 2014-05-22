@@ -74,18 +74,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="cache.h" />
     <ClInclude Include="dependgraph.h" />
-    <ClInclude Include="domaingraph.h" />
     <ClInclude Include="prover.h" />
     <ClInclude Include="reader.h" />
     <ClInclude Include="relation.h" />
     <ClInclude Include="statemachine.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cache.cpp" />
     <ClCompile Include="dependgraph.cpp" />
-    <ClCompile Include="domaingraph.cpp" />
     <ClCompile Include="ggpplayer.cpp" />
     <ClCompile Include="prover.cpp" />
     <ClCompile Include="reader.cpp" />

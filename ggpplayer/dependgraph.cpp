@@ -209,16 +209,16 @@ int DependGraph::findZeroIn()
 	 return -2;   // there are loops
 }
 
-void DependGraph::addNode(string node) {
+void DependGraph::addNode(int node) {
 	node_num_[node] = nodes_.size();
-	nodes_.push_back(vector<string>());
+	nodes_.push_back(vector<int>());
 	nodes_.at(nodes_.size() - 1).push_back(node);
 	edges_in_.push_back(vector<int>());
 	edges_out_.push_back(vector<int>());
 	MARK.push_back(false);
 }
 
-void DependGraph::addEdge(string head, string tail)
+void DependGraph::addEdge(int head, int tail)
 {
 	if (head == tail) 
 		return;        // delete single loop
