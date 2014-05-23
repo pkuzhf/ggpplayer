@@ -5,6 +5,7 @@
 #include <set>
 #include <map>
 #include <string>
+#include<cmath>
 #include "dependgraph.h"
 #include "relation.h"
 
@@ -15,14 +16,14 @@ typedef struct{
 	size_t operator()(const Relation & r) const{
 		unsigned long __h = 0;
 		string str = r.toString();
-		for (size_t i = 0 ; i < str.size() ; i ++)
+		for (int i = 0 ; i < str.size() ; i += 1)
 			__h = 5*__h + str[i];
 		return size_t(__h);
 	} 
 	enum   
 	{   //   parameters   for   hash   table   
-		bucket_size   =   4,   //   0   <   bucket_size   
-		min_buckets   =   8  //   min_buckets   =   2   ^^   N,   0   <   N   
+		bucket_size   =   8,   //   0   <   bucket_size   
+		min_buckets   =   16  //   min_buckets   =   2   ^^   N,   0   <   N   
 	};   
 	bool operator()(const Relation & a1, const Relation & a2)const{
 		return  a1.toString().compare(a2.toString()) < 0;

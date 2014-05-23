@@ -25,7 +25,7 @@ public:
 	vector<vector<int> > stra_deriv_; // 已经分层的规则，外层vector中第i个元素表示所有最大子语句层数为i的推理规则序号
 
 	void buildGraph(Relations derivations);
-
+	int legal_level_;
 
 private:
 	void buildGraphBySingleRelation(Relation & r);

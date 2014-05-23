@@ -35,18 +35,21 @@ void DependGraph::buildGraph(Relations derivations)
 			addEdge(derivations_[i].items_[0].content_, r.content_);
 		}
 	}	
+	addEdge(r_does, r_legal);
 	for(int i = 0 ; i < nodes_.size(); ++i){
 		init_nodes_.push_back(nodes_[i][0]);
 	}
 	init_edges_in_ = edges_in_;
 	init_edges_out_ = edges_out_;
 	topoSort();
+	
 	node_stra_.resize(node_num_.size());
 	for (int i = 0; i < topo_graph_.size(); ++i) {
 		for (int j = 0; j < topo_graph_[i].size(); ++j) {
 			node_stra_[topo_graph_[i][j]] = i;
 		}
 	}
+	legal_level_ = node_stra_[node_num_[r_legal]];
 	getStraDeriv();
 }
 
