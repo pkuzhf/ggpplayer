@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <set>
+#include <hash_set>
 #include <map>
 #include <string>
 #include "dependgraph.h"
@@ -12,6 +13,29 @@ using namespace std;
 
 class Prover {
 public:
+	static int generate_time;
+	static int time1;
+	static int time2;
+	static int time3;
+	static int time4;
+	static int time5;
+	static int time6;
+	static int time7;
+	static int time8;
+	static int time9;
+	static int time10;
+	static int time11;
+	static int time12;
+	static int time13;
+	static int time14;
+	static int time15;
+	static int time16;
+	static int time17;
+	static int time18;
+	static int time19;
+	static int time20;
+	static int time21;
+
 	map<Relation, int> keyrelation_num_;
 	vector<Relation> keyrelations_;
 
@@ -33,12 +57,14 @@ public:
 	void askNextStateByDPG(Relations &currentstate, Relations &does);	
 	Relations generateTrueProps(Relations true_props);
 	Relations statics_;
+	set<Relation> statics_set_;
 	Relations inits_;
 private:
 	Relations relations_;
 	Relations derivations_;
 	Relations static_derivations_;
 	Relations nonstatic_derivations_;	
+	vector<vector<vector<pair<int, int> > > > non_der_var_values_;
 	Relations bases_;
 	Relations inputs_;
 	
@@ -47,12 +73,6 @@ private:
 	// get by DPG
 	vector<int> static_relation_;
 
-	bool validateInstance(string instance, set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances);
-	void findVarDomainInSingleInstance(Relation r, map<string, set<string> > &var_values);
-	string buildNode(string s, int i);
-	bool conditions_satisfied(Relation relation, map<int, int> var_value, vector<string> vars, vector<vector<string> > values, int condition_count , set<string> &true_instances, set<string> &false_instances, set<string> &validating_instances);
-	bool contain_var(Relation r, string var);
-	
 	void getStaticRelation();
 	void markNonStatic(int index, vector<int> & mark);
 };

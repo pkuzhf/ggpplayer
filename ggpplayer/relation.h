@@ -66,21 +66,20 @@ typedef multiset<Relation> State;
 
 class Relation {
 public:
-	static map<string, int> string2int_;
-	static vector<string> int2string_;
-
+	string s_;
 	int content_;
 	RelationType type_;
 	Relations items_;
-
-	bool matches(const Relation &r, map<int, int> &var_value) const;
+	
+	static map<string, int> string2int_;
+	static vector<string> int2string_;
+	
+	bool matches(const Relation &r, vector<pair<int, int> > &var_value) const;
 	bool equals(const Relation &r) const;
 	Relations findProposions();
 	bool operator<(const Relation &r) const;
 	string toString() const;
-	bool replaceVariables(map<int, int> m);
-	bool validate(State state);
-	bool isLogic();
+	bool replaceVariables(vector<pair<int, int> > &m);		
 };
 
 

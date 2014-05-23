@@ -1,3 +1,4 @@
+#define NEW
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -59,6 +60,14 @@ bool StateMachine::isTerminal() {
 Relations StateMachine::getLegalMoves(int role) {
 	
 	Relations rtn;
+	for (int i = 0; i < prover_.statics_.size(); ++i) {
+		if(prover_.statics_[i].type_ == r_legal && prover_.statics_[i].items_[0].content_ == role){
+			Relation r = prover_.statics_[i];
+			r.content_ = r_does;
+			r.type_ = r_does;
+			rtn.push_back(r);
+		}
+	}
 	for(int i = 0 ; i < right_props_.size(); ++i){
 		if(right_props_[i].type_ == r_legal && right_props_[i].items_[0].content_ == role){
 			Relation r = right_props_[i];
@@ -83,9 +92,16 @@ void StateMachine::goOneStep(Relations & move)
 {
 	Relations rs;
 	rs.insert(rs.end(), move.begin(), move.end());
-	rs.insert(rs.end(), current_state_.begin(), current_state_.end());
+	rs.insert(rs.end(), current_state_.begin(), current_state_.end());	
+#ifdef OLD
 	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
+#endif
 	right_props_ = prover_.generateTrueProps(rs);
+
+	for (int i = 0; i < right_props_.size(); ++i) {
+		right_props_[i].s_ = right_props_[i].toString();
+	}
+
 	current_state_.clear();
 	for(int i = 0  ; i < right_props_.size(); ++i){
 		if(right_props_[i].type_ == r_next){
@@ -96,9 +112,14 @@ void StateMachine::goOneStep(Relations & move)
 		}
 	}
 	rs.clear();
-	rs.insert(rs.end(), current_state_.begin(), current_state_.end());
+	rs.insert(rs.end(), current_state_.begin(), current_state_.end());	
+#ifdef OLD
 	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
+#endif
 	right_props_ = prover_.generateTrueProps(rs);
+	for (int i = 0; i < right_props_.size(); ++i) {
+		right_props_[i].s_ = right_props_[i].toString();
+	}
 }
 
 Relations StateMachine::randomGo()
@@ -113,7 +134,7 @@ Relations StateMachine::randomGo()
 			joint_move.push_back(getRandomMove(role.items_[0].content_));
 		}
 		cout << joint_move[0].toString() << endl;
-		cout << joint_move[1].toString() << endl;
+	//	cout << joint_move[1].toString() << endl;
 		goOneStep(joint_move);		
 	}
 	clock_t end = clock();
