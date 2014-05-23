@@ -89,7 +89,7 @@ private:
 	Relations bases_;
 	Relations inputs_;
 
-	
+	void getSubgoalSequence(vector<vector<vector<pair<int, int> > > > & var_candidates);
 
 	// get by DPG
 	vector<int> static_relation_;

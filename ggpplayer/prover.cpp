@@ -42,6 +42,78 @@ Prover::Prover(Relations relations) : relations_(relations) {
 	init();
 }
 
+void Prover::getSubgoalSequence(vector<vector<vector<pair<int, int> > > > & var_candidates)
+{ 
+	if(var_candidates.size() <= 1) return;
+	vector<vector<int> > subgoals;
+	for(int i = 0 ; i < var_candidates.size(); ++i){
+		vector<int> tt;
+		subgoals.push_back(tt);
+	}
+	for(int i = 0 ; i < var_candidates.size(); ++i){
+		for(int j = 0 ; j < var_candidates[i].size(); ++j){
+			for(int k = 0 ; k  <var_candidates[i][j].size(); ++k){
+				if(find(subgoals[i].begin(), subgoals[i].end(), var_candidates[i][j][k].first) == subgoals[i].end()){
+					subgoals[i].push_back(var_candidates[i][j][k].first);
+				}
+			}
+		}
+	}
+	vector<int> rtn;
+	int maxVar = -1, tempindex = 0;
+	for(int i = 0 ; i  < subgoals.size(); ++i){
+		if(subgoals[i].size() > maxVar){
+			maxVar = subgoals[i].size(); 
+			tempindex = i;
+		}
+	}
+	rtn.push_back(tempindex);  // get the first and largest subgoal
+	set<int> varibles;
+	vector<int> degrees;
+	for(int j = 0 ; j < subgoals.size(); ++j){
+		degrees.push_back(0);
+	}
+	for(int i = 0 ; i < subgoals[tempindex].size(); ++i){
+		varibles.insert(subgoals[tempindex][i]);
+		for(int j = 0 ; j < subgoals.size(); ++j){
+			if(j == tempindex) continue;
+			if(find(subgoals[j].begin(), subgoals[j].end(), subgoals[tempindex][i]) != subgoals[j].end()){
+				degrees[j] ++;
+			}
+		}
+	}
+	subgoals[tempindex].clear();
+	while(rtn.size() < subgoals.size()){
+		int maxdegree = -11;
+		int index = 0;
+		for(int i = 0 ; i < subgoals.size(); ++i){
+			//if(find)
+			if(find(rtn.begin(), rtn.end(), i) == rtn.end() && degrees[i] > maxdegree){
+				maxdegree = degrees[i];
+				index = i;
+			}
+		}
+		rtn.push_back(index);
+		for(int i = 0 ; i < subgoals[index].size(); ++i){
+			if(varibles.find(subgoals[index][i]) == varibles.end()){
+				varibles.insert(subgoals[index][i]);
+				for(int j = 0; j <  subgoals.size(); ++j){
+					if(find(subgoals[j].begin(), subgoals[j].end(), subgoals[index][i]) != subgoals[j].end()){
+						degrees[j]++;
+					}
+				}
+			}
+		}
+		subgoals[index].clear();
+	}
+	int index = 0;
+	vector<vector<vector<pair<int, int> > > > tempV = var_candidates;
+	for(int i = 0 ; i < rtn.size(); ++i){
+		var_candidates[i] = tempV[rtn[i]];
+	}
+}
+
+
 void Prover::init() {	
 	for (int i = 0; i < relations_.size(); ++i) {
 		if (relations_[i].type_ == r_derivation) {
@@ -372,6 +444,10 @@ time1 += clock() - time1start;
 			}
 			time18 += y;
 			time19++;
+
+			// right?
+			getSubgoalSequence(var_candidates);
+			
 			while (true) {
 				int time5s = clock();
 				int time7s = clock();

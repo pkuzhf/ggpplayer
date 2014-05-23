@@ -36,6 +36,7 @@ void DependGraph::buildGraph(Relations derivations)
 		}
 	}	
 	addEdge(r_does, r_legal);
+	addEdge(r_terminal, r_legal);
 	for(int i = 0 ; i < nodes_.size(); ++i){
 		init_nodes_.push_back(nodes_[i][0]);
 	}

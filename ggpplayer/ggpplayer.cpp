@@ -19,7 +19,7 @@ int main() {
 		Relation::int2string_.push_back(relation_type_words[i]);
 	}
 	Reader r;
-	if (!r.scanGDLFile("gdl/2pffa_zerosum.kif")) {
+	if (!r.scanGDLFile("gdl/tic_tac_toe.txt")) {
         cout << "read file failed." << endl;
         return -1;
     }
