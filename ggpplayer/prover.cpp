@@ -59,7 +59,7 @@ void Prover::init() {
 				true_rs.push_back(relations_[i]);
 		}
 	}
-	true_rs = generateTrueProps(true_rs);
+	true_rs = generateTrueProps(true_rs, 0, dpg_.stra_deriv_.size() - 1);
 	for(int i = 0; i < true_rs.size(); ++i){
 		if(true_rs[i].type_ == r_init){
 			inits_.push_back(true_rs[i]);
@@ -256,7 +256,7 @@ int Prover::askRole(Relation &role){
 
 
 
-Relations Prover::generateTrueProps(Relations true_props) {	
+Relations Prover::generateTrueProps(Relations true_props, int start_stra, int end_stra) {	
 int start = clock();
 	map<int, vector<int> > content_relations;
 	set<string> true_props_string;
@@ -270,7 +270,7 @@ int time1start = clock();
 		true_props_string.insert(true_props[i].toString());
 	}
 time1 += clock() - time1start;
-	for (int i = 0; i < dpg_.stra_deriv_.size(); ++i) {
+	for (int i = start_stra; i <= end_stra; ++i) {
 		Relations derivations;
 		for (int j = 0; j < dpg_.stra_deriv_[i].size(); ++j) {
 			Relation d = dpg_.derivations_[dpg_.stra_deriv_[i][j]];
@@ -340,7 +340,7 @@ time1 += clock() - time1start;
 				bool satisfied = true;
 				for (int ii = 0; ii < not_subgoals.size() && satisfied; ++ii) {
 					Relation &not_relation = d.items_[not_subgoals[ii]].items_[0];
-					if (statics_set_.find(not_relation) == statics_set_.end()) {
+					if (statics_set_.find(not_relation) != statics_set_.end()) {
 						satisfied = false;
 						break;
 					}

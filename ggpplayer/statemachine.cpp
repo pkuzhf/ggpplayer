@@ -20,7 +20,7 @@ StateMachine::StateMachine(Relations description):prover_(description) {
 	Relations rs;
 	rs.insert(rs.end(), prover_.inits_.begin(), prover_.inits_.end());
 	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
-	right_props_ = prover_.generateTrueProps(rs);
+	right_props_ = prover_.generateTrueProps(rs, 0, prover_.dpg_.stra_deriv_.size() - 1);
 	current_state_.clear();
 	for(int i = 0  ; i < right_props_.size(); ++i){
 		if(right_props_[i].type_ == r_init){
@@ -31,9 +31,8 @@ StateMachine::StateMachine(Relations description):prover_(description) {
 		}
 	}
 	rs.clear();
-	rs.insert(rs.end(), current_state_.begin(), current_state_.end());
-	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
-	right_props_ = prover_.generateTrueProps(rs);
+	rs.insert(rs.end(), current_state_.begin(), current_state_.end());	
+	right_props_ = prover_.generateTrueProps(rs, 0, prover_.dpg_.legal_level_);
 }
 
 Relations StateMachine::getGoals()
@@ -91,17 +90,23 @@ Relation StateMachine::getRandomMove(int role) {
 void StateMachine::goOneStep(Relations & move)
 {
 	Relations rs;
-	rs.insert(rs.end(), move.begin(), move.end());
-	rs.insert(rs.end(), current_state_.begin(), current_state_.end());	
+	rs.insert(rs.end(), move.begin(), move.end());	
+	rs.insert(rs.end(), right_props_.begin(), right_props_.end());
+	for (int i = 0; i < rs.size(); ++i) {
+		rs[i].s_ = rs[i].toString();
+	}
+
 #ifdef OLD
 	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
 #endif
-	right_props_ = prover_.generateTrueProps(rs);
+	right_props_ = prover_.generateTrueProps(rs, prover_.dpg_.legal_level_ + 1, prover_.dpg_.stra_deriv_.size() - 1);
 
 	for (int i = 0; i < right_props_.size(); ++i) {
 		right_props_[i].s_ = right_props_[i].toString();
 	}
-
+	if (isTerminal()) {
+		return;
+	}
 	current_state_.clear();
 	for(int i = 0  ; i < right_props_.size(); ++i){
 		if(right_props_[i].type_ == r_next){
@@ -111,12 +116,13 @@ void StateMachine::goOneStep(Relations & move)
 			current_state_.push_back(r);
 		}
 	}
+
 	rs.clear();
 	rs.insert(rs.end(), current_state_.begin(), current_state_.end());	
 #ifdef OLD
 	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
 #endif
-	right_props_ = prover_.generateTrueProps(rs);
+	right_props_ = prover_.generateTrueProps(rs, 0, prover_.dpg_.legal_level_);
 	for (int i = 0; i < right_props_.size(); ++i) {
 		right_props_[i].s_ = right_props_[i].toString();
 	}
@@ -134,7 +140,7 @@ Relations StateMachine::randomGo()
 			joint_move.push_back(getRandomMove(role.items_[0].content_));
 		}
 		cout << joint_move[0].toString() << endl;
-	//	cout << joint_move[1].toString() << endl;
+		cout << joint_move[1].toString() << endl;
 		goOneStep(joint_move);		
 	}
 	clock_t end = clock();

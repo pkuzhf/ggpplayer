@@ -75,10 +75,11 @@ public:
 	bool askTerminal(const string & state);
 
 	void askNextStateByDPG(Relations &currentstate, Relations &does);	
-	Relations generateTrueProps(Relations true_props);
+	Relations generateTrueProps(Relations true_props, int start_stra, int end_stra);
 	Relations statics_;
 	hash_set<Relation, RelationCMP> statics_set_;
 	Relations inits_;
+	DependGraph dpg_;
 private:
 	Relations relations_;
 	Relations derivations_;
@@ -88,7 +89,7 @@ private:
 	Relations bases_;
 	Relations inputs_;
 
-	DependGraph dpg_;		
+	
 
 	// get by DPG
 	vector<int> static_relation_;
