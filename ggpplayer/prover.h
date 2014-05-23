@@ -8,7 +8,27 @@
 #include "dependgraph.h"
 #include "relation.h"
 
+
 using namespace std;
+
+typedef struct{
+	size_t operator()(const Relation & r) const{
+		unsigned long __h = 0;
+		string str = r.toString();
+		for (size_t i = 0 ; i < str.size() ; i ++)
+			__h = 5*__h + str[i];
+		return size_t(__h);
+	} 
+	enum   
+	{   //   parameters   for   hash   table   
+		bucket_size   =   4,   //   0   <   bucket_size   
+		min_buckets   =   8  //   min_buckets   =   2   ^^   N,   0   <   N   
+	};   
+	bool operator()(const Relation & a1, const Relation & a2)const{
+		return  a1.toString().compare(a2.toString()) < 0;
+	}
+} RelationCMP;
+
 
 class Prover {
 public:
@@ -35,20 +55,20 @@ public:
 	static int time20;
 	static int time21;
 
-	map<Relation, int> keyrelation_num_;
+	hash_map<Relation, int, RelationCMP> keyrelation_num_;
 	vector<Relation> keyrelations_;
 
-	map<Relation, int> legalaction_num_;
+	hash_map<Relation, int, RelationCMP> legalaction_num_;
 	vector<Relation> legalactions_;
 
-	map<Relation, int> role_num_;
+	hash_map<Relation, int, RelationCMP> role_num_;
 	vector<Relation> roles_;
 
 	vector<int> key_head_;
 
 	Prover(Relations relations);
 	void init();
-	
+
 	int askRole(Relation &role);  // 返回role在所有玩家中的编号 
 	bool askGoal(vector<int> &result, const string &state);
 	bool askTerminal(const string & state);
@@ -56,7 +76,7 @@ public:
 	void askNextStateByDPG(Relations &currentstate, Relations &does);	
 	Relations generateTrueProps(Relations true_props);
 	Relations statics_;
-	set<Relation> statics_set_;
+	hash_set<Relation, RelationCMP> statics_set_;
 	Relations inits_;
 private:
 	Relations relations_;
@@ -66,7 +86,7 @@ private:
 	vector<vector<vector<pair<int, int> > > > non_der_var_values_;
 	Relations bases_;
 	Relations inputs_;
-	
+
 	DependGraph dpg_;		
 
 	// get by DPG

@@ -3,6 +3,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <hash_map>
 #include <string>
 
 #include "relation.h"
@@ -13,7 +14,7 @@ using namespace std;
 
 
 vector<string> Relation::int2string_ = vector<string>();
-map<string, int> Relation::string2int_ = map<string, int>();
+hash_map<string, int> Relation::string2int_ = hash_map<string, int>();
 
 
 bool Relation::operator<(const Relation &r) const{
@@ -109,3 +110,5 @@ bool Relation::replaceVariables(vector<pair<int, int> > &m) {
 	Prover::time16 += clock() - start;
 	return replace_all_vars;
 }
+
+
