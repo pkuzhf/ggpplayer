@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <set>
-#include <hash_set>
 #include <map>
 #include <string>
 #include "dependgraph.h"
