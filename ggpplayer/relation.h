@@ -2,8 +2,6 @@
 #define RELATION_H
 
 #define MAX_ITEM_NUM 50
-#define MAX_SUBGOAL_NUM 50
-#define MAX_VARIABLE_NUM 50
 
 #include <iostream>
 #include <fstream>
@@ -98,20 +96,21 @@ public:
 	short int items_[MAX_ITEM_NUM];
 	short int item_num_;
 	Relation toRelation();
-	bool match(Proposition p, int *variables, int *values, int &len);
-	void remove
-	//void replaceVariables(int *variables, int *values, int len);
-private:
-	void shiftBy(int n);
+	bool matches(Proposition p, vector<int> &variables, vector<int> &values);
+	bool equals(Proposition p);
+	bool headMatches(Proposition p);
+	void removeHead();
+	inline short int type();
+	inline short int head();
+	vector<int> getVarPos();
+	void replaceVariables(vector<int> &variables, vector<int> &values);
 };
 
 class Derivation {
 public:
 	Proposition target_;
-	Proposition subgoals_[MAX_SUBGOAL_NUM];
-	short int subgoal_num_;
-	short int variables_[MAX_VARIABLE_NUM];
-	short int variable_num_;
+	vector<Proposition> subgoals_;
+	vector<int> variables_;
 	Relation toRelation();
 	void prepareVariables();
 };

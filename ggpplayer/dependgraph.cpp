@@ -27,12 +27,12 @@ void DependGraph::buildGraph(vector<Derivation> derivations)
 				continue;
 			}
 			if (r.items_[0] == r_not) {
-				r = r.items_[0];
+				r.removeHead();				
 			}
-			if (node_num_.find(r.content_) == node_num_.end()) {
-				addNode(r.content_);
+			if (node_num_.find(r.items_[0]) == node_num_.end()) {
+				addNode(r.items_[0]);
 			}
-			addEdge(derivations_[i].items_[0].content_, r.content_);
+			addEdge(derivations_[i].target_.items_[0], r.items_[0]);
 		}
 	}	
 	addEdge(r_does, r_legal);
@@ -61,7 +61,7 @@ void DependGraph::getStraDeriv()
 	}
 
 	for(int i = 0 ; i < derivations_.size(); ++i){
-		stra_deriv_[node_stra_[node_num_[derivations_[i].items_[0].content_]]].push_back(i);
+		stra_deriv_[node_stra_[node_num_[derivations_[i].target_.items_[0]]]].push_back(i);
 	}
 }
 

@@ -140,9 +140,8 @@ Proposition Relation::toProposition() {
 Derivation Relation::toDerivation() {
 	Derivation ret;
 	ret.target_ = items_[0].toProposition();
-	ret.subgoal_num_ = items_.size() - 1;
 	for (int i = 1; i < items_.size(); ++i) {
-		ret.subgoals_[i - 1] = items_[i].toProposition();
+		ret.subgoals_.push_back(items_[i].toProposition());
 	}
 	return ret;
 }
@@ -216,11 +215,10 @@ Relation Proposition::toRelation() {
 	return ret;
 }
 
-bool Proposition::match(Proposition p, int *variables, int *values, int &len) {
+bool Proposition::matches(Proposition p, vector<int> &variables, vector<int> &values) {
 	if (item_num_ != p.item_num_) {
 		return false;
 	}
-	len = 0;	
 	for (int i = 0; i < item_num_; ++i) {
 		if (items_[i] != p.items_[i]) {
 			int variable;
@@ -235,7 +233,7 @@ bool Proposition::match(Proposition p, int *variables, int *values, int &len) {
 				return false;
 			}
 			bool find = false;
-			for (int j = 0; j < len; ++j) {
+			for (int j = 0; j < values.size(); ++j) {
 				if (variables[j] == variable) {
 					if (values[j] != value) {
 						return false;
@@ -245,13 +243,77 @@ bool Proposition::match(Proposition p, int *variables, int *values, int &len) {
 				}
 			}
 			if (!find) {
-				variables[len] = variable;
-				values[len] = value;
-				++len;
+				variables.push_back(variable);
+				values.push_back(value);
 			}
 		}
 	}
 	return true;
+}
+
+bool Proposition::equals(Proposition p) {
+	if (item_num_ != p.item_num_) {
+		return false;
+	}
+	for (int i = 0; i < item_num_; ++i) {
+		if (items_[i] != p.items_[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool Proposition::headMatches(Proposition p) {
+	int h = head();
+	if (h != p.head()) {
+		return false;
+	}
+	if (h == r_function) {
+		return true;
+	}
+	if (h == r_true || h == r_next || h == r_not || h == r_init || h == r_base) {
+		return items_[1] == p.items_[1];
+	}
+	if (h == r_legal || h == r_input || h == r_does) {
+		return items_[2] == p.items_[2];
+	}
+}
+
+void Proposition::removeHead() {
+	--item_num_;
+	for (int i = 0; i < item_num_; ++i) {
+		items_[i] = items_[i + 1];
+	}	
+}
+
+inline short int Proposition::type() {
+	return items_[0];
+}
+
+inline short int Proposition::head() {
+	return items_[0];
+}
+
+vector<int> Proposition::getVarPos() {
+	vector<int> ret;
+	for (int i = 0; i < item_num_; ++i) {
+		if (Relation::int2string_[items_[i]][0] == '?') {
+			ret.push_back(i);
+		}
+	}
+	return ret;
+}
+
+void Proposition::replaceVariables(vector<int> &variables, vector<int> &values) {
+	int size = variables.size();
+	for (int i = 0; i < item_num_; ++i) {
+		for (int j = 0; j < size; ++j) {
+			if (items_[i] == variables[j]) {
+				items_[i] = values[j];
+				break;
+			}
+		}
+	}
 }
 
 Relation Derivation::toRelation() {
@@ -259,7 +321,7 @@ Relation Derivation::toRelation() {
 	ret.type_ = r_derivation;
 	ret.content_ = r_derivation;
 	ret.items_.push_back(target_.toRelation());
-	for (int i = 0; i < subgoal_num_; ++i) {
+	for (int i = 0; i < subgoals_.size(); ++i) {
 		ret.items_.push_back(subgoals_[i].toRelation());
 	}
 	return ret;
@@ -269,16 +331,14 @@ void Derivation::prepareVariables() {
 	set<int> variables;
 	for (int i = 0; i < target_.item_num_; ++i) {
 		if (target_.items_[i] == r_variable && variables.find(target_.items_[i]) == variables.end()) {
-			variables_[variable_num_] = target_.items_[i];
-			++variable_num_;
+			variables_.push_back(target_.items_[i]);
 			variables.insert(target_.items_[i]);
 		}
 	}
-	for (int i = 0; i < subgoal_num_; ++i) {
+	for (int i = 0; i < subgoals_.size(); ++i) {
 		for (int j = 0; j < subgoals_[i].item_num_; ++j) {
 			if (subgoals_[i].items_[j] == r_variable && variables.find(subgoals_[i].items_[j]) == variables.end()) {
-				variables_[variable_num_] = subgoals_[i].items_[j];
-				++variable_num_;
+				variables_.push_back(subgoals_[i].items_[j]);
 				variables.insert(subgoals_[i].items_[j]);
 			}
 		}

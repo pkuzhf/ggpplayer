@@ -57,13 +57,13 @@ public:
 	static int time21;
 
 	hash_map<Relation, int, RelationCMP> keyrelation_num_;
-	vector<Relation> keyrelations_;
+	vector<Proposition> keyrelations_;
 
 	hash_map<Relation, int, RelationCMP> legalaction_num_;
-	vector<Relation> legalactions_;
+	vector<Proposition> legalactions_;
 
 	hash_map<Relation, int, RelationCMP> role_num_;
-	vector<Relation> roles_;
+	vector<Proposition> roles_;
 
 	vector<int> key_head_;
 
@@ -73,11 +73,10 @@ public:
 	int askRole(Relation &role);  // 返回role在所有玩家中的编号 
 	bool askGoal(vector<int> &result, const string &state);
 	bool askTerminal(const string & state);
-
-	void askNextStateByDPG(Relations &currentstate, Relations &does);	
-	Relations generateTrueProps(Relations true_props, int start_stra, int end_stra);
+	
+	vector<Proposition> generateTrueProps(vector<Proposition> true_props, int start_stra, int end_stra);
 	vector<Proposition> statics_;
-	hash_set<Relation, RelationCMP> statics_set_;
+	set<Proposition> statics_set_;
 	vector<Proposition> inits_;
 	DependGraph dpg_;
 private:
@@ -85,14 +84,14 @@ private:
 	vector<Derivation> derivations_;
 	vector<Derivation> static_derivations_;
 	vector<Derivation> nonstatic_derivations_;	
-	vector<vector<vector<pair<int, int> > > > non_der_var_values_;
+	vector<vector<vector<int> > > non_der_var_values_;
 	vector<Proposition> bases_;
 	vector<Proposition> inputs_;
 
 	void getSubgoalSequence(vector<vector<vector<pair<int, int> > > > & var_candidates);
 
 	// get by DPG
-	vector<int> static_relation_;
+	vector<int> static_heads_;
 
 	void getStaticRelation();
 	void markNonStatic(int index, vector<int> & mark);

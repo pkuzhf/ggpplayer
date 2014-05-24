@@ -1,4 +1,3 @@
-#define NEW
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -96,9 +95,6 @@ void StateMachine::goOneStep(Relations & move)
 		rs[i].s_ = rs[i].toString();
 	}
 
-#ifdef OLD
-	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
-#endif
 	right_props_ = prover_.generateTrueProps(rs, prover_.dpg_.legal_level_ + 1, prover_.dpg_.stra_deriv_.size() - 1);
 
 	for (int i = 0; i < right_props_.size(); ++i) {
@@ -119,9 +115,6 @@ void StateMachine::goOneStep(Relations & move)
 
 	rs.clear();
 	rs.insert(rs.end(), current_state_.begin(), current_state_.end());	
-#ifdef OLD
-	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
-#endif
 	right_props_ = prover_.generateTrueProps(rs, 0, prover_.dpg_.legal_level_);
 	for (int i = 0; i < right_props_.size(); ++i) {
 		right_props_[i].s_ = right_props_[i].toString();
