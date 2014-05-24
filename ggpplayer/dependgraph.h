@@ -21,10 +21,10 @@ public:
 	vector<vector<int> > topo_graph_;  // 拓扑拍好序的关系图，vector中每个元素是一层，层内是环形的依赖关系网
 	vector<int> node_stra_;
 
-	Relations derivations_; // 推理规则集合
+	vector<Derivation> derivations_; // 推理规则集合
 	vector<vector<int> > stra_deriv_; // 已经分层的规则，外层vector中第i个元素表示所有最大子语句层数为i的推理规则序号
 
-	void buildGraph(Relations derivations);
+	void buildGraph(vector<Derivation> derivations);
 	int legal_level_;
 
 private:

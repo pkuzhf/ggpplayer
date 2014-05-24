@@ -1,6 +1,10 @@
 #ifndef RELATION_H
 #define RELATION_H
 
+#define MAX_ITEM_NUM 50
+#define MAX_SUBGOAL_NUM 50
+#define MAX_VARIABLE_NUM 50
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -66,6 +70,9 @@ class Relation;
 typedef vector<Relation> Relations;
 typedef multiset<Relation> State;
 
+class Proposition;
+class Derivation;
+
 class Relation {
 public:
 	string s_;
@@ -82,7 +89,31 @@ public:
 	bool operator<(const Relation &r) const;
 	string toString() const;
 	bool replaceVariables(vector<pair<int, int> > &m);		
+	Proposition toProposition();
+	Derivation toDerivation();
 };
 
+class Proposition {
+public:
+	short int items_[MAX_ITEM_NUM];
+	short int item_num_;
+	Relation toRelation();
+	bool match(Proposition p, int *variables, int *values, int &len);
+	void remove
+	//void replaceVariables(int *variables, int *values, int len);
+private:
+	void shiftBy(int n);
+};
+
+class Derivation {
+public:
+	Proposition target_;
+	Proposition subgoals_[MAX_SUBGOAL_NUM];
+	short int subgoal_num_;
+	short int variables_[MAX_VARIABLE_NUM];
+	short int variable_num_;
+	Relation toRelation();
+	void prepareVariables();
+};
 
 #endif

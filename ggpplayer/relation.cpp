@@ -112,3 +112,175 @@ bool Relation::replaceVariables(vector<pair<int, int> > &m) {
 }
 
 
+Proposition Relation::toProposition() {
+	Proposition ret;
+	ret.items_[0] = content_;
+	if (type_ == r_legal || type_ == r_input || type_ == r_does) {
+		ret.items_[1] = items_[0].content_;
+		ret.items_[2] = items_[1].content_;
+		for (int i = 0; i < items_[1].items_.size(); ++i) {
+			ret.items_[i + 3] = items_[1].items_[i].content_;
+		}
+		ret.item_num_ = items_[1].items_.size() + 3;	
+	} else if (type_ == r_true || type_ == r_next || type_ == r_not || type_ == r_init || type_ == r_base) {
+		ret.items_[1] = items_[0].content_;
+		for (int i = 0; i < items_[0].items_.size(); ++i) {
+			ret.items_[i + 2] = items_[0].items_[i].content_;
+		}
+		ret.item_num_ = items_[0].items_.size() + 2;	
+	} else {
+		for (int i = 0; i < items_.size(); ++i) {		
+			ret.items_[i + 1] = items_[i].content_;
+		}
+		ret.item_num_ = items_.size() + 1;
+	}	
+	return ret;
+}
+
+Derivation Relation::toDerivation() {
+	Derivation ret;
+	ret.target_ = items_[0].toProposition();
+	ret.subgoal_num_ = items_.size() - 1;
+	for (int i = 1; i < items_.size(); ++i) {
+		ret.subgoals_[i - 1] = items_[i].toProposition();
+	}
+	return ret;
+}
+
+Relation Proposition::toRelation() {
+	Relation ret;
+	ret.content_ = items_[0];
+	if (ret.content_ < relation_type_num) {
+		ret.type_ = (RelationType)ret.content_;
+	} else {
+		ret.type_ = r_function;
+	}
+	if (ret.type_ == r_legal || ret.type_ == r_input || ret.type_ == r_does) {
+		Relation role;
+		role.content_ = items_[1];
+		if (Relation::int2string_[role.content_][0] == '?') {
+			role.type_ = r_variable;
+		} else {
+			role.type_ = r_constant;
+		}		
+		Relation prop;
+		prop.content_ = items_[2];
+		if (prop.content_ < relation_type_num) {
+			prop.type_ = (RelationType)items_[1];
+		} else {
+			prop.type_ = r_function;
+		}
+		for (short int i = 3; i < item_num_; ++i) {
+			Relation item;
+			item.content_ = items_[i];
+			if (Relation::int2string_[item.content_][0] == '?') {
+				item.type_ = r_variable;
+			} else {
+				item.type_ = r_constant;
+			}
+			prop.items_.push_back(item);
+		}
+		ret.items_.push_back(role);
+		ret.items_.push_back(prop);
+	} else if (ret.type_ == r_true || ret.type_ == r_next || ret.type_ == r_not || ret.type_ == r_init || ret.type_ == r_base) {
+		Relation prop;
+		prop.content_ = items_[1];
+		if (prop.content_ < relation_type_num) {
+			prop.type_ = (RelationType)items_[0];
+		} else {
+			prop.type_ = r_function;
+		}
+		for (short int i = 2; i < item_num_; ++i) {
+			Relation item;
+			item.content_ = items_[i];
+			if (Relation::int2string_[item.content_][0] == '?') {
+				item.type_ = r_variable;
+			} else {
+				item.type_ = r_constant;
+			}
+			prop.items_.push_back(item);
+		}
+		ret.items_.push_back(prop);
+	} else {
+		for (short int i = 1; i < item_num_; ++i) {
+			Relation item;
+			item.content_ = items_[i];
+			if (Relation::int2string_[item.content_][0] == '?') {
+				item.type_ = r_variable;
+			} else {
+				item.type_ = r_constant;
+			}
+			ret.items_.push_back(item);
+		}
+	}
+	return ret;
+}
+
+bool Proposition::match(Proposition p, int *variables, int *values, int &len) {
+	if (item_num_ != p.item_num_) {
+		return false;
+	}
+	len = 0;	
+	for (int i = 0; i < item_num_; ++i) {
+		if (items_[i] != p.items_[i]) {
+			int variable;
+			int value;
+			if (items_[i] == r_variable && p.items_[i] == r_constant) {
+				variable = items_[i];
+				value = p.items_[i];
+			} else if (items_[i] == r_constant && p.items_[i] == r_variable) {
+				value = items_[i];
+				variable = p.items_[i];
+			} else {
+				return false;
+			}
+			bool find = false;
+			for (int j = 0; j < len; ++j) {
+				if (variables[j] == variable) {
+					if (values[j] != value) {
+						return false;
+					}
+					find = true;
+					break;
+				}
+			}
+			if (!find) {
+				variables[len] = variable;
+				values[len] = value;
+				++len;
+			}
+		}
+	}
+	return true;
+}
+
+Relation Derivation::toRelation() {
+	Relation ret;
+	ret.type_ = r_derivation;
+	ret.content_ = r_derivation;
+	ret.items_.push_back(target_.toRelation());
+	for (int i = 0; i < subgoal_num_; ++i) {
+		ret.items_.push_back(subgoals_[i].toRelation());
+	}
+	return ret;
+}
+
+void Derivation::prepareVariables() {
+	set<int> variables;
+	for (int i = 0; i < target_.item_num_; ++i) {
+		if (target_.items_[i] == r_variable && variables.find(target_.items_[i]) == variables.end()) {
+			variables_[variable_num_] = target_.items_[i];
+			++variable_num_;
+			variables.insert(target_.items_[i]);
+		}
+	}
+	for (int i = 0; i < subgoal_num_; ++i) {
+		for (int j = 0; j < subgoals_[i].item_num_; ++j) {
+			if (subgoals_[i].items_[j] == r_variable && variables.find(subgoals_[i].items_[j]) == variables.end()) {
+				variables_[variable_num_] = subgoals_[i].items_[j];
+				++variable_num_;
+				variables.insert(subgoals_[i].items_[j]);
+			}
+		}
+	}
+}

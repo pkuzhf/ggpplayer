@@ -14,19 +14,19 @@
 using namespace std;
 
 
-void DependGraph::buildGraph(Relations derivations)
+void DependGraph::buildGraph(vector<Derivation> derivations)
 {
 	derivations_ = derivations;
 	for(int i = 0 ; i < derivations_.size(); ++i){
-		if (node_num_.find(derivations_[i].items_[0].content_) == node_num_.end()) {
-			addNode(derivations_[i].items_[0].content_);
+		if (node_num_.find(derivations_[i].target_.items_[0]) == node_num_.end()) {
+			addNode(derivations_[i].target_.items_[0]);
 		}
-		for(int j = 1; j < derivations_[i].items_.size(); ++j){			
-			Relation r = derivations_[i].items_[j];
-			if (r.type_ == r_distinct) {
+		for(int j = 0; j < derivations_[i].subgoal_num_; ++j){			
+			Proposition r = derivations_[i].subgoals_[j];
+			if (r.items_[0] == r_distinct) {
 				continue;
 			}
-			if (r.type_ == r_not) {
+			if (r.items_[0] == r_not) {
 				r = r.items_[0];
 			}
 			if (node_num_.find(r.content_) == node_num_.end()) {

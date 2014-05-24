@@ -76,18 +76,18 @@ public:
 
 	void askNextStateByDPG(Relations &currentstate, Relations &does);	
 	Relations generateTrueProps(Relations true_props, int start_stra, int end_stra);
-	Relations statics_;
+	vector<Proposition> statics_;
 	hash_set<Relation, RelationCMP> statics_set_;
-	Relations inits_;
+	vector<Proposition> inits_;
 	DependGraph dpg_;
 private:
 	Relations relations_;
-	Relations derivations_;
-	Relations static_derivations_;
-	Relations nonstatic_derivations_;	
+	vector<Derivation> derivations_;
+	vector<Derivation> static_derivations_;
+	vector<Derivation> nonstatic_derivations_;	
 	vector<vector<vector<pair<int, int> > > > non_der_var_values_;
-	Relations bases_;
-	Relations inputs_;
+	vector<Proposition> bases_;
+	vector<Proposition> inputs_;
 
 	void getSubgoalSequence(vector<vector<vector<pair<int, int> > > > & var_candidates);
 
