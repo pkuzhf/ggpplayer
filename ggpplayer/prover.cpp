@@ -483,18 +483,18 @@ time1 += clock() - time1start;
 				time5 += clock() - time5s;
 				int time6s = clock();
 				if (combined) {		
-					time20++;
-					int time8s = clock();
-					vector<pair<int, int> > m;
-					for (int ii = 0; ii <= k; ++ii) {
-						vector<pair<int, int> > &c = var_candidates[ii][idx[ii]];
-						int size = c.size();
-						for (int jj = 0; jj < size; ++jj) {
-							m.push_back(c[jj]);
-						}
-					}
-					time8 += clock() - time8s;					
+					time20++;									
 					if (k == var_candidates.size() - 1) {
+						int time8s = clock();
+						vector<pair<int, int> > m;
+						for (int ii = 0; ii <= k; ++ii) {
+							vector<pair<int, int> > &c = var_candidates[ii][idx[ii]];
+							int size = c.size();
+							for (int jj = 0; jj < size; ++jj) {
+								m.push_back(c[jj]);
+							}
+						}
+						time8 += clock() - time8s;	
 						int time11s = clock();
 						bool check_not_and_distinct = true;
 						vector<int> undetermined_distincts;						
