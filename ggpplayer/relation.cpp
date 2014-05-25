@@ -3,7 +3,7 @@
 #include <vector>
 #include <set>
 #include <map>
-#include <hash_map>
+#include <unordered_map>
 #include <string>
 
 #include "relation.h"
@@ -14,7 +14,7 @@ using namespace std;
 
 
 vector<string> Relation::int2string_ = vector<string>();
-hash_map<string, int> Relation::string2int_ = hash_map<string, int>();
+unordered_map<string, int> Relation::string2int_ = unordered_map<string, int>();
 
 
 bool Relation::operator<(const Relation &r) const{

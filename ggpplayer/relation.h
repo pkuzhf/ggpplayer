@@ -7,9 +7,8 @@
 #include <fstream>
 #include <vector>
 #include <set>
-#include <hash_set>
 #include <map>
-#include<hash_map>
+#include <unordered_map>
 #include <string>
 
 using namespace std;
@@ -78,7 +77,7 @@ public:
 	RelationType type_;
 	Relations items_;
 	
-	static hash_map<string, int> string2int_;
+	static unordered_map<string, int> string2int_;
 	static vector<string> int2string_;
 	
 	bool matches(const Relation &r, vector<pair<int, int> > &var_value) const;
