@@ -36,6 +36,8 @@ void DependGraph::buildGraph(vector<Derivation> derivations)
 		}
 	}	
 	addEdge(r_does, r_legal);
+	addEdge(r_does, r_terminal);
+	addEdge(r_does, r_goal);
 	addEdge(r_terminal, r_legal);
 	for(int i = 0 ; i < nodes_.size(); ++i){
 		init_nodes_.push_back(nodes_[i][0]);
@@ -51,6 +53,8 @@ void DependGraph::buildGraph(vector<Derivation> derivations)
 		}
 	}
 	legal_level_ = node_stra_[node_num_[r_legal]];
+	legal_level_ = max(legal_level_, node_stra_[node_num_[r_terminal]]);
+	legal_level_ = max(legal_level_, node_stra_[node_num_[r_goal]]);
 	getStraDeriv();
 }
 
