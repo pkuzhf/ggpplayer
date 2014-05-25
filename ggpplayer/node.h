@@ -12,8 +12,8 @@ public:
 	static int C; 
 	static double maxScore;
 
-	Relations moves_;
-	Relation mymove_;
+	Propositions moves_;
+	Proposition mymove_;
 	int totalAttemps_;
 	int nPoints_;
 	int nAttemps_;
@@ -23,6 +23,6 @@ public:
 	
 
 	double getScore();
-	Node(Relations & ms, Relation & m, Node * p, bool t, Relations &state); 
+	Node(Propositions & ms, Proposition & m, Node * p, bool t, Propositions &state); 
 	Node();
 };

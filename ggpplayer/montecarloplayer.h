@@ -12,7 +12,7 @@ class MonteCarloPlayer
 {
 public:
 	StateMachine stateMachine_;
-	Relations currentState_;
+	Propositions currentState_;
 	Node TreeRoot_;
 
 	Relation stateMachineSelectMove(int timeout);

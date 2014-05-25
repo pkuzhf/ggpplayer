@@ -76,6 +76,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="dependgraph.h" />
+    <ClInclude Include="montecarloplayer.h" />
+    <ClInclude Include="node.h" />
     <ClInclude Include="prover.h" />
     <ClInclude Include="reader.h" />
     <ClInclude Include="relation.h" />
