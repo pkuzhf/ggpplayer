@@ -346,6 +346,7 @@ time1 += clock() - time1start;
 	for (int i = start_stra; i <= end_stra; ++i) {
 		vector<Derivation> derivations;
 		vector<vector<vector<int> > > der_var_candidates;
+		vector<Proposition> current_stratum_props;
 		for (int j = 0; j < dpg_.stra_deriv_[i].size(); ++j) {
 			Derivation d = dpg_.derivations_[dpg_.stra_deriv_[i][j]];
 			vector<int> lower_stratum_subgoals;
@@ -427,39 +428,33 @@ time1 += clock() - time1start;
 			time2 += clock() - time2s;
 			if (impossible) {
 				continue;
+			}						
+			if (lower_stratum_subgoals.size() == 0) {
+				bool satisfied = true;
+				for (int ii = 0; ii < not_subgoals.size() && satisfied; ++ii) {
+					Proposition not_relation = d.subgoals_[not_subgoals[ii]];
+					not_relation.removeHead();					
+					if (statics_set_.find(not_relation) != statics_set_.end()) {
+						satisfied = false;
+						break;
+					}
+					if (content_relations.find(not_relation.head()) != content_relations.end()) {
+						for (int jj = 0; jj < content_relations[not_relation.head()].size(); ++jj) {
+							Proposition true_prop = true_props[content_relations[not_relation.head()][jj]];
+							vector<int> variables;
+							vector<int> values;
+							if (true_prop.matches(not_relation, variables, values)) {
+								satisfied = false;
+								break;
+							}
+						}
+					}
+				}
+				if (satisfied) {
+					current_stratum_props.push_back(d.target_);
+				}
+				continue; // avoid the while loop below				
 			}
-			int k = 0;
-			
-			//if (lower_stratum_subgoals.size() == 0) {
-			//	bool satisfied = true;
-			//	for (int ii = 0; ii < not_subgoals.size() && satisfied; ++ii) {
-			//		Proposition not_relation = d.subgoals_[not_subgoals[ii]];
-			//		not_relation.removeHead();					
-			//		if (statics_set_.find(not_relation) != statics_set_.end()) {
-			//			satisfied = false;
-			//			break;
-			//		}
-			//		if (content_relations.find(not_relation.head()) != content_relations.end()) {
-			//			for (int jj = 0; jj < content_relations[not_relation.head()].size(); ++jj) {
-			//				Proposition true_prop = true_props[content_relations[not_relation.head()][jj]];
-			//				vector<int> variables;
-			//				vector<int> values;
-			//				if (true_prop.matches(not_relation, variables, values)) {
-			//					satisfied = false;
-			//					break;
-			//				}
-			//			}
-			//		}
-			//	}
-			//	if (satisfied) {
-			//		Derivation d2;
-			//		d2.target_ = d.target_;										
-			//		derivations.push_back(d2);
-			//		vector<int> empty;
-			//		der_var_candidates.push_back(empty);
-			//	}
-			//	k = -1; // avoid the while loop below
-			//}			
 			int time3s = clock();
 			
 			int y = 1;
@@ -471,7 +466,7 @@ time1 += clock() - time1start;
 
 			// right?
 			//getSubgoalSequence(var_candidates);
-			
+			int k = 0;
 			vector<vector<int> > combined_candidates;
 			int variable_size = d.variables_.size();
 			while (true) {
@@ -580,25 +575,28 @@ time1 += clock() - time1start;
 				}
 				time6 += clock() - time6s;
 			}
+			if (combined_candidates.size() == 0) {
+				continue;
+			}
+			if (current_stratum_subgoals.size() == 0) {
+				for (int ii = 0; ii < combined_candidates.size(); ++ii) {
+					Proposition p = d.target_;
+					p.replaceVariables(d.variables_, combined_candidates[ii]);
+					current_stratum_props.push_back(p);
+				}
+				continue;
+			}
 			Derivation d2;
 			d2.target_ = d.target_;
 			for (int ii = 0; ii < current_stratum_subgoals.size(); ++ii) {
 				d2.subgoals_.push_back(d.subgoals_[current_stratum_subgoals[ii]]);
-			}
-			vector<int> undetermined_distincts;
-			vector<bool> valued_variable(variable_size, false);
-			for (int ii = 0; ii < var_candidates.size(); ++ii) {
-				for (int jj = 0; jj < variable_size; ++jj) {
-					if (var_candidates[ii][0][jj]  != -1) {
-						valued_variable[jj] = true;
-					}
-				}
-			}
+			}			
 			// undetermined distinct subgoals
 			for (int ii = 0; ii < distinct_subgoals.size(); ++ii) {							
 				Proposition &distinct = d.subgoals_[distinct_subgoals[ii]];																		
 				for (int jj = 0; jj < variable_size; ++jj) {
-					if ((d.variables_[jj] == distinct.items_[1] || d.variables_[jj] == distinct.items_[2]) && !valued_variable[jj]) {
+					if ((d.variables_[jj] == distinct.items_[1] || d.variables_[jj] == distinct.items_[2]) 
+						&& combined_candidates[0][jj] == -1) {	// combined_candidates has 1 element at least
 						d2.subgoals_.push_back(d.subgoals_[distinct_subgoals[ii]]);
 						break;
 					}
@@ -610,6 +608,54 @@ time1 += clock() - time1start;
 			time3 += clock() - time3s;
 		}
 		int time4s = clock();
+		for (int j = 0; j < current_stratum_props.size(); ++j) { // size of current_stratum_props would be changed in the loop
+			Proposition &p = current_stratum_props[j];
+			for (int k = 0; k < derivations.size(); ++k) {
+				Derivation &d = derivations[k];
+				vector<int> distincts;
+				vector<int> non_distincts;
+				for (int ii = 0; ii < d.subgoals_.size(); ++ii) {
+					Proposition &subgoal = d.subgoals_[ii];
+					if (subgoal.head() == r_distinct) {
+						distincts.push_back(ii);
+					} else {
+						non_distincts.push_back(ii);
+					}
+				}
+				for (int ii = 0; ii < non_distincts.size(); ++ii) {
+					Proposition &subgoal = d.subgoals_[non_distincts[ii]];
+					vector<int> variables;
+					vector<int> values;
+					if (subgoal.headMatches(p) && subgoal.matches(p, variables, values)) {
+						for (int jj = 0; jj < der_var_candidates[k].size(); ++jj) {
+							vector<int> m = der_var_candidates[k][jj];
+							bool combined = true;
+							for (int kk = 0; kk < d.variables_.size() && combined; ++kk) {
+								for (int iii = 0; iii < variables.size(); ++iii) {
+									if (d.variables_[kk] == variables[iii]) {
+										if (m[kk] == -1) {
+											m[kk] = values[iii];
+										} else if (m[kk] != values[iii]) {
+											combined = false;
+										}
+										break;
+									}
+								}
+							}
+							if (combined) {
+								for (int kk = 0; kk < distincts.size(); ++kk) {
+
+								}
+								if (non_distincts.size() == 1) {
+
+								} else {
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		while (true) {
 			int old_true_props_num = true_props.size();
 			vector<Derivation>::iterator j = derivations.begin();
