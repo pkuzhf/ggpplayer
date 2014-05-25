@@ -19,14 +19,14 @@ int main() {
 		Relation::int2string_.push_back(relation_type_words[i]);
 	}
 	Reader r;
-	if (!r.scanGDLFile("gdl/connect_four.txt")) {
+	if (!r.scanGDLFile("gdl/2pffa_zerosum.kif")) {
         cout << "read file failed." << endl;
         return -1;
     }
 	Relations rs;
 	r.getRelations(rs);
 	StateMachine machine(rs);
-	Relations goals = machine.randomGo();
+	Propositions goals = machine.randomGo();
 	cout << "total: " << Prover::generate_time << endl;
 	cout << "time1: " << Prover::time1 << endl;
 	cout << "time2: " << Prover::time2 << endl;
@@ -57,34 +57,34 @@ int main() {
 	cout << "ready" << endl;
 		
 	cin.getline(buf, 10000);
-	if (machine.getRandomMove(role).items_[1].items_.size() == 0) {		
-		cout << machine.getRandomMove(role).items_[1].toString() << endl;
+	if (machine.getRandomMove(role).toRelation().items_[1].items_.size() == 0) {		
+		cout << machine.getRandomMove(role).toRelation().items_[1].toString() << endl;
 	} else {
-		cout << "( " << machine.getRandomMove(role).items_[1].toString() << " )" << endl;
+		cout << "( " << machine.getRandomMove(role).toRelation().items_[1].toString() << " )" << endl;
 	}
 	while (true) {				
 		cin.getline(buf, 10000);	
 		Reader move_reader;
-		move_reader.file_content_ = buf;
-		Relations joint_move;
+		move_reader.file_content_ = buf;		
+		Propositions joint_move;
 		move_reader.getMoves(joint_move);
 		for (int i = 0; i < joint_move.size(); ++i) {
 			Relation does;
 			does.content_ = r_does;
 			does.type_ = r_does;			
-			does.items_.push_back(machine.prover_.roles_[i].items_[0]);
-			does.items_.push_back(joint_move[i]);
-			joint_move[i] = does;
-		}
+			does.items_.push_back(machine.prover_.roles_[i].toRelation().items_[0]);
+			does.items_.push_back(joint_move[i].toRelation());
+			joint_move[i] = does.toProposition();
+		}		
 		machine.goOneStep(joint_move);
 		if (machine.isTerminal()) {
 			//cout << "Terminal." << endl;
 			break;
 		}
-		if (machine.getRandomMove(role).items_[1].items_.size() == 0) {		
-			cout << machine.getRandomMove(role).items_[1].toString() << endl;
+		if (machine.getRandomMove(role).toRelation().items_[1].items_.size() == 0) {		
+			cout << machine.getRandomMove(role).toRelation().items_[1].toString() << endl;
 		} else {
-			cout << "( " << machine.getRandomMove(role).items_[1].toString() << " )" << endl;
+			cout << "( " << machine.getRandomMove(role).toRelation().items_[1].toString() << " )" << endl;
 		}
 	}
 	return 0;

@@ -71,9 +71,6 @@ bool Relation::equals(const Relation &r) const {
 	return true;
 }
 
-
-
-
 string Relation::toString() const {
 	string s = "" + Relation::int2string_[content_];
 	for (int i = 0; i < items_.size(); ++i) {
@@ -111,7 +108,6 @@ bool Relation::replaceVariables(vector<pair<int, int> > &m) {
 	return replace_all_vars;
 }
 
-
 Proposition Relation::toProposition() {
 	Proposition ret;
 	ret.items_[0] = content_;
@@ -127,7 +123,13 @@ Proposition Relation::toProposition() {
 		for (int i = 0; i < items_[0].items_.size(); ++i) {
 			ret.items_[i + 2] = items_[0].items_[i].content_;
 		}
-		ret.item_num_ = items_[0].items_.size() + 2;	
+		ret.item_num_ = items_[0].items_.size() + 2;
+		if (type_ == r_not && items_[0].type_ == r_true) {
+			for (int i = 0; i < items_[0].items_[0].items_.size(); ++i) {
+				ret.items_[ret.item_num_] = items_[0].items_[0].items_[i].content_;
+				++ret.item_num_;
+			}
+		}		
 	} else {
 		for (int i = 0; i < items_.size(); ++i) {		
 			ret.items_[i + 1] = items_[i].content_;
@@ -144,6 +146,22 @@ Derivation Relation::toDerivation() {
 		ret.subgoals_.push_back(items_[i].toProposition());
 	}
 	return ret;
+}
+
+bool Proposition::operator<(const Proposition &p) const{
+	if (item_num_ < p.item_num_) {
+		return true;
+	}else if (item_num_ > p.item_num_) {
+		return false;
+	}
+	for (int i = 0; i < item_num_; ++i) {
+		if(items_[i] < p.items_[i]) {
+			return true;
+		}else if (items_[i] > p.items_[i]) {
+			return false;
+		}
+	}
+	return false;
 }
 
 Relation Proposition::toRelation() {
@@ -181,23 +199,37 @@ Relation Proposition::toRelation() {
 		}
 		ret.items_.push_back(role);
 		ret.items_.push_back(prop);
-	} else if (ret.type_ == r_true || ret.type_ == r_next || ret.type_ == r_not || ret.type_ == r_init || ret.type_ == r_base) {
+	} else if (ret.type_ == r_true || ret.type_ == r_next || ret.type_ == r_init || ret.type_ == r_base) {
 		Relation prop;
 		prop.content_ = items_[1];
-		if (prop.content_ < relation_type_num) {
-			prop.type_ = (RelationType)items_[0];
+		if (prop.content_ == r_true) {
+			prop.type_ = r_true;
+			Relation func;
+			func.content_ = items_[2];
+			func.type_ = r_function;
+			for (short int i = 3; i < item_num_; ++i) {
+				Relation item;
+				item.content_ = items_[i];
+				if (Relation::int2string_[item.content_][0] == '?') {
+					item.type_ = r_variable;
+				} else {
+					item.type_ = r_constant;
+				}
+				func.items_.push_back(item);
+			}
+			prop.items_.push_back(func);
 		} else {
 			prop.type_ = r_function;
-		}
-		for (short int i = 2; i < item_num_; ++i) {
-			Relation item;
-			item.content_ = items_[i];
-			if (Relation::int2string_[item.content_][0] == '?') {
-				item.type_ = r_variable;
-			} else {
-				item.type_ = r_constant;
+			for (short int i = 2; i < item_num_; ++i) {
+				Relation item;
+				item.content_ = items_[i];
+				if (Relation::int2string_[item.content_][0] == '?') {
+					item.type_ = r_variable;
+				} else {
+					item.type_ = r_constant;
+				}
+				prop.items_.push_back(item);
 			}
-			prop.items_.push_back(item);
 		}
 		ret.items_.push_back(prop);
 	} else {
@@ -223,10 +255,10 @@ bool Proposition::matches(Proposition p, vector<int> &variables, vector<int> &va
 		if (items_[i] != p.items_[i]) {
 			int variable;
 			int value;
-			if (items_[i] == r_variable && p.items_[i] == r_constant) {
+			if (isVariable(i) && !p.isVariable(i)) {
 				variable = items_[i];
 				value = p.items_[i];
-			} else if (items_[i] == r_constant && p.items_[i] == r_variable) {
+			} else if (!isVariable(i) && p.isVariable(i)) {
 				value = items_[i];
 				variable = p.items_[i];
 			} else {
@@ -268,15 +300,13 @@ bool Proposition::headMatches(Proposition p) {
 	if (h != p.head()) {
 		return false;
 	}
-	if (h == r_function) {
-		return true;
-	}
 	if (h == r_true || h == r_next || h == r_not || h == r_init || h == r_base) {
 		return items_[1] == p.items_[1];
 	}
 	if (h == r_legal || h == r_input || h == r_does) {
 		return items_[2] == p.items_[2];
 	}
+	return true; //r_function
 }
 
 void Proposition::removeHead() {
@@ -286,12 +316,16 @@ void Proposition::removeHead() {
 	}	
 }
 
-inline short int Proposition::type() {
+inline short int Proposition::head() {
 	return items_[0];
 }
 
-inline short int Proposition::head() {
-	return items_[0];
+void Proposition::setHead(int head) {
+	items_[0] = head;
+}
+	
+void Proposition::setRole(int role) {
+	items_[1] = role;
 }
 
 vector<int> Proposition::getVarPos() {
@@ -316,6 +350,10 @@ void Proposition::replaceVariables(vector<int> &variables, vector<int> &values) 
 	}
 }
 
+inline bool Proposition::isVariable(int idx) {
+	return Relation::int2string_[items_[idx]][0] == '?';
+}
+
 Relation Derivation::toRelation() {
 	Relation ret;
 	ret.type_ = r_derivation;
@@ -330,14 +368,14 @@ Relation Derivation::toRelation() {
 void Derivation::prepareVariables() {
 	set<int> variables;
 	for (int i = 0; i < target_.item_num_; ++i) {
-		if (target_.items_[i] == r_variable && variables.find(target_.items_[i]) == variables.end()) {
+		if (Relation::int2string_[target_.items_[i]][0] == '?' && variables.find(target_.items_[i]) == variables.end()) {
 			variables_.push_back(target_.items_[i]);
 			variables.insert(target_.items_[i]);
 		}
 	}
 	for (int i = 0; i < subgoals_.size(); ++i) {
 		for (int j = 0; j < subgoals_[i].item_num_; ++j) {
-			if (subgoals_[i].items_[j] == r_variable && variables.find(subgoals_[i].items_[j]) == variables.end()) {
+			if (Relation::int2string_[subgoals_[i].items_[j]][0] == '?' && variables.find(subgoals_[i].items_[j]) == variables.end()) {
 				variables_.push_back(subgoals_[i].items_[j]);
 				variables.insert(subgoals_[i].items_[j]);
 			}

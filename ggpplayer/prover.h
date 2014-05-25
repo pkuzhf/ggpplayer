@@ -56,28 +56,28 @@ public:
 	static int time20;
 	static int time21;
 
-	hash_map<Relation, int, RelationCMP> keyrelation_num_;
-	vector<Proposition> keyrelations_;
+	map<Proposition, int> keyrelation_num_;
+	Propositions keyrelations_;
 
-	hash_map<Relation, int, RelationCMP> legalaction_num_;
-	vector<Proposition> legalactions_;
+	map<Proposition, int> legalaction_num_;
+	Propositions legalactions_;
 
-	hash_map<Relation, int, RelationCMP> role_num_;
-	vector<Proposition> roles_;
+	map<Proposition, int> role_num_;
+	Propositions roles_;
 
 	vector<int> key_head_;
 
 	Prover(Relations relations);
 	void init();
 
-	int askRole(Relation &role);  // 返回role在所有玩家中的编号 
+	int askRole(Proposition &role);  // 返回role在所有玩家中的编号 
 	bool askGoal(vector<int> &result, const string &state);
 	bool askTerminal(const string & state);
 	
-	vector<Proposition> generateTrueProps(vector<Proposition> true_props, int start_stra, int end_stra);
-	vector<Proposition> statics_;
+	Propositions generateTrueProps(Propositions true_props, int start_stra, int end_stra);
+	Propositions statics_;
 	set<Proposition> statics_set_;
-	vector<Proposition> inits_;
+	Propositions inits_;
 	DependGraph dpg_;
 private:
 	Relations relations_;
@@ -85,8 +85,8 @@ private:
 	vector<Derivation> static_derivations_;
 	vector<Derivation> nonstatic_derivations_;	
 	vector<vector<vector<int> > > non_der_var_values_;
-	vector<Proposition> bases_;
-	vector<Proposition> inputs_;
+	Propositions bases_;
+	Propositions inputs_;
 
 	void getSubgoalSequence(vector<vector<vector<pair<int, int> > > > & var_candidates);
 

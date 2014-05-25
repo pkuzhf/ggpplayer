@@ -1,7 +1,7 @@
 #ifndef RELATION_H
 #define RELATION_H
 
-#define MAX_ITEM_NUM 50
+#define MAX_ITEM_NUM 20
 
 #include <iostream>
 #include <fstream>
@@ -64,12 +64,12 @@ const string relation_type_words[relation_type_num] = {
 };
 
 class Relation;
-
-typedef vector<Relation> Relations;
-typedef multiset<Relation> State;
-
 class Proposition;
 class Derivation;
+
+typedef vector<Relation> Relations;
+typedef vector<Proposition> Propositions;
+typedef vector<Derivation> Derivations;
 
 class Relation {
 public:
@@ -95,13 +95,17 @@ class Proposition {
 public:
 	short int items_[MAX_ITEM_NUM];
 	short int item_num_;
+
+	bool operator<(const Proposition &r) const;
 	Relation toRelation();
 	bool matches(Proposition p, vector<int> &variables, vector<int> &values);
 	bool equals(Proposition p);
 	bool headMatches(Proposition p);
-	void removeHead();
-	inline short int type();
+	void removeHead();	
 	inline short int head();
+	void setHead(int head);
+	void setRole(int role);
+	inline bool isVariable(int idx);
 	vector<int> getVarPos();
 	void replaceVariables(vector<int> &variables, vector<int> &values);
 };
@@ -109,7 +113,7 @@ public:
 class Derivation {
 public:
 	Proposition target_;
-	vector<Proposition> subgoals_;
+	Propositions subgoals_;
 	vector<int> variables_;
 	Relation toRelation();
 	void prepareVariables();

@@ -21,19 +21,19 @@ public:
 
 public:
 	StateMachine(Relations description);
-	Relations getGoals();
+	Propositions getGoals();
 	bool isTerminal();
-	Relations getInitialState();
-	Relations getLegalMoves(int role);
+	Propositions getInitialState();
+	Propositions getLegalMoves(int role);
 	//bool getLegalMoves(Moves &moves, const State &state);	
-	Relation getRandomMove(int role);
+	Proposition getRandomMove(int role);
 	Prover prover_;
-	void goOneStep(Relations & move);
-	Relations right_props_;
-	Relations randomGo();
+	void goOneStep(Propositions & move);
+	Propositions right_props_;
+	Propositions randomGo();
 private:
 	static const int cache_size_ = 1000;//Ö»±£´æ1000¸östate
-	Relations current_state_;	
+	Propositions current_state_;	
 };
 
 #endif

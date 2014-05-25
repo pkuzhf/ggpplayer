@@ -51,12 +51,12 @@ bool Reader::getRelations(Relations &relations) {
 	return true;
 }
 
-bool Reader::getMoves(Relations &relations) {
+bool Reader::getMoves(Propositions &propositions) {
 	int idx = 0;
 	string substring;
 	while (fetch(file_content_, idx, substring)) {
 		Relation r = getRelation(substring);
-		relations.push_back(r);		
+		propositions.push_back(r.toProposition());
 	}
 	return true;
 }

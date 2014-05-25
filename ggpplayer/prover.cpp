@@ -112,10 +112,6 @@ void Prover::getSubgoalSequence(vector<vector<vector<pair<int, int> > > > & var_
 	}
 }
 
-void fun() {
-
-}
-
 void Prover::init() {	
 	for (int i = 0; i < relations_.size(); ++i) {
 		if (relations_[i].type_ == r_derivation) {
@@ -127,7 +123,7 @@ void Prover::init() {
 	
 	dpg_.buildGraph(derivations_);  // build graph for the first time
 	getStaticRelation();
-	vector<Proposition> true_rs;
+	Propositions true_rs;
 	for(int i = 0 ; i < relations_.size(); ++i){
 		if(relations_[i].type_ == r_role 
 			|| relations_[i].type_ == r_init
@@ -137,11 +133,11 @@ void Prover::init() {
 	}
 	true_rs = generateTrueProps(true_rs, 0, dpg_.stra_deriv_.size() - 1);
 	for(int i = 0; i < true_rs.size(); ++i){
-		if(true_rs[i].type() == r_init){
+		if(true_rs[i].head() == r_init){
 			inits_.push_back(true_rs[i]);
-		} else if(true_rs[i].type() == r_base){
+		} else if(true_rs[i].head() == r_base){
 			bases_.push_back(true_rs[i]);			
-		} else if(true_rs[i].type() == r_input){
+		} else if(true_rs[i].head() == r_input){
 			inputs_.push_back(true_rs[i]);			
 		} else if(find(static_heads_.begin(), static_heads_.end(), true_rs[i].head()) != static_heads_.end()){
 			statics_.push_back(true_rs[i]);	
@@ -176,14 +172,11 @@ void Prover::init() {
 				continue;
 			}
 			vector<vector<int> > candidates;
-			Proposition &subgoal = d.subgoals_[j];
-			vector<int> var_positions = subgoal.getVarPos();			
+			Proposition &subgoal = d.subgoals_[j];			
 			for (int ii = 0; ii < statics_.size(); ++ii) {				
-				vector<int> values;
-				if (subgoal.headMatches(statics_[ii])) {
-					for (int jj = 0; jj < var_positions.size(); ++jj) {
-						values.push_back(statics_[ii].items_[jj]);
-					}					
+				vector<int> variables;
+				vector<int> values;				
+				if (subgoal.headMatches(statics_[ii]) && subgoal.matches(statics_[ii], variables, values)) {					
 					bool duplicated = false;
 					for (int jj = 0; jj < candidates.size(); ++jj) {
 						bool equal = true;
@@ -209,6 +202,7 @@ void Prover::init() {
 			}
 			idx.push_back(0);
 			vector<vector<int> > candidates2;
+			vector<int> var_positions = subgoal.getVarPos();
 			for (int ii = 0; ii < candidates.size(); ++ii) {
 				vector<int> &c = candidates[ii];
 				vector<int> c2;
@@ -256,7 +250,7 @@ void Prover::init() {
 			if (combined) {															
 				if (k == var_candidates.size() - 1) {
 					int size = d.variables_.size();
-					vector<int> m(size);
+					vector<int> m(size, -1);
 					for (int ii = 0; ii <= k; ++ii) {
 						vector<int> &c = var_candidates[ii][idx[ii]];					
 						for (int jj = 0; jj < size; ++jj) {
@@ -272,7 +266,7 @@ void Prover::init() {
 				++idx[k];						
 			}			
 		}
-		for (vector<Proposition>::iterator j = d.subgoals_.begin(); j != d.subgoals_.end(); ) {
+		for (Propositions::iterator j = d.subgoals_.begin(); j != d.subgoals_.end(); ) {
 			if (find(static_heads_.begin(), static_heads_.end(), j->head()) != static_heads_.end()) {
 				j = d.subgoals_.erase(j);
 			} else {
@@ -323,16 +317,20 @@ void Prover::markNonStatic(int index, vector<int> & mark)
 	}
 }
 
-int Prover::askRole(Relation &role){
+int Prover::askRole(Proposition &role){
 	return role_num_[role];
 }
 
 
 
-vector<Proposition> Prover::generateTrueProps(vector<Proposition> true_props, int start_stra, int end_stra) {	
+Propositions Prover::generateTrueProps(Propositions true_props, int start_stra, int end_stra) {	
+	vector<string> input;
+	for (int i = 0; i < true_props.size(); ++i) {
+		input.push_back(true_props[i].toRelation().toString());
+	}
 int start = clock();
 	map<int, vector<int> > content_relations;
-	set<string> true_props_string;
+	set<Proposition> true_props_set;
 int time1start = clock();
 	for (int i = 0; i < true_props.size(); ++i) {
 		if (content_relations.find(true_props[i].head()) == content_relations.end()) {
@@ -340,45 +338,42 @@ int time1start = clock();
 			content_relations[true_props[i].head()] = rs;
 		}
 		content_relations[true_props[i].head()].push_back(i);
-		true_props_string.insert(true_props[i].toRelation().toString());
+		true_props_set.insert(true_props[i]);
 	}
 time1 += clock() - time1start;
 	for (int i = start_stra; i <= end_stra; ++i) {
 		vector<Derivation> derivations;
 		vector<vector<vector<int> > > der_var_candidates;
-		vector<Proposition> current_stratum_props;
+		Propositions current_stratum_props;		
 		for (int j = 0; j < dpg_.stra_deriv_[i].size(); ++j) {
 			Derivation d = dpg_.derivations_[dpg_.stra_deriv_[i][j]];
 			vector<int> lower_stratum_subgoals;
 			vector<int> current_stratum_subgoals;
 			vector<int> not_subgoals;
 			vector<int> distinct_subgoals;
-			vector<vector<vector<int> > > var_candidates;
-			vector<int> idx;
+			vector<vector<vector<int> > > var_candidates;			
 			if (non_der_var_values_.size() > 0 && non_der_var_values_[dpg_.stra_deriv_[i][j]].size() > 0) {
-				var_candidates.push_back(non_der_var_values_[dpg_.stra_deriv_[i][j]]);
-				idx.push_back(0);
+				var_candidates.push_back(non_der_var_values_[dpg_.stra_deriv_[i][j]]);				
 			}
 			bool impossible = false;
 			int time2s = clock();
 			for (int k = 0; k < d.subgoals_.size(); ++k) {								
-				if (d.subgoals_[k].head() == r_not) {
+				Proposition &subgoal = d.subgoals_[k];
+				if (subgoal.head() == r_not) {
 					not_subgoals.push_back(k);
-				} else if (d.subgoals_[k].head() == r_distinct) {
+				} else if (subgoal.head() == r_distinct) {
 					distinct_subgoals.push_back(k);
-				} else if (dpg_.node_stra_[dpg_.node_num_[d.subgoals_[k].head()]] < i) { // lower stratum subgoals					
+				} else if (dpg_.node_stra_[dpg_.node_num_[subgoal.head()]] < i) { // lower stratum subgoals					
 					lower_stratum_subgoals.push_back(k);
-					vector<vector<int> > candidates;
-					Proposition &subgoal = d.subgoals_[k];
+					vector<vector<int> > candidates;					
 					vector<int> var_positions = subgoal.getVarPos();
-					vector<int> &true_rs = content_relations[d.subgoals_[k].head()];
+					vector<int> &true_rs = content_relations[subgoal.head()];
 					for (int ii = 0; ii < true_rs.size(); ++ii) { // scan all true props to generate var-value maps
-						int time17s = clock();						
+						int time17s = clock();
+						Proposition &p = true_props[true_rs[ii]];
+						vector<int> variables;
 						vector<int> values;
-						if (subgoal.headMatches(true_props[true_rs[ii]])) {
-							for (int jj = 0; jj < var_positions.size(); ++jj) {
-								values.push_back(statics_[ii].items_[jj]);
-							}
+						if (subgoal.headMatches(p) && subgoal.matches(p, variables, values)) {							
 							bool duplicated = false;
 							for (int jj = 0; jj < candidates.size(); ++jj) {
 								bool equal = true;
@@ -402,8 +397,7 @@ time1 += clock() - time1start;
 					if (candidates.size() == 0) { // size of candidates should be greater than 0
 						impossible = true;
 						break;
-					}
-					idx.push_back(0);
+					}					
 					vector<vector<int> > candidates2;
 					for (int ii = 0; ii < candidates.size(); ++ii) {
 						vector<int> &c = candidates[ii];
@@ -420,7 +414,7 @@ time1 += clock() - time1start;
 						}
 						candidates2.push_back(c2);
 					}
-					var_candidates.push_back(candidates2);	
+					var_candidates.push_back(candidates2);						
 				} else {
 					current_stratum_subgoals.push_back(k);
 				}
@@ -429,31 +423,48 @@ time1 += clock() - time1start;
 			if (impossible) {
 				continue;
 			}						
-			if (lower_stratum_subgoals.size() == 0) {
-				bool satisfied = true;
-				for (int ii = 0; ii < not_subgoals.size() && satisfied; ++ii) {
-					Proposition not_relation = d.subgoals_[not_subgoals[ii]];
-					not_relation.removeHead();					
-					if (statics_set_.find(not_relation) != statics_set_.end()) {
-						satisfied = false;
-						break;
-					}
-					if (content_relations.find(not_relation.head()) != content_relations.end()) {
-						for (int jj = 0; jj < content_relations[not_relation.head()].size(); ++jj) {
-							Proposition true_prop = true_props[content_relations[not_relation.head()][jj]];
-							vector<int> variables;
-							vector<int> values;
-							if (true_prop.matches(not_relation, variables, values)) {
-								satisfied = false;
-								break;
-							}
-						}
-					}
-				}
-				if (satisfied) {
-					current_stratum_props.push_back(d.target_);
-				}
-				continue; // avoid the while loop below				
+			//if (lower_stratum_subgoals.size() == 0) {
+			//	vector<vector<int> > &candidates = non_der_var_values_[dpg_.stra_deriv_[i][j]];
+			//	for (int k = 0; k < candidates.size(); ++k) {
+			//		bool satisfied = true;					
+			//		for (int ii = 0; ii < not_subgoals.size() && satisfied; ++ii) {
+			//			Proposition not_relation = d.subgoals_[not_subgoals[ii]];
+			//			not_relation.removeHead();
+			//			not_relation.replaceVariables(d.variables_, candidates[k]);
+			//			if (statics_set_.find(not_relation) != statics_set_.end()) {
+			//				satisfied = false;
+			//				break;
+			//			}
+			//			if (content_relations.find(not_relation.head()) != content_relations.end()) {
+			//				for (int jj = 0; jj < content_relations[not_relation.head()].size(); ++jj) {
+			//					Proposition &true_prop = true_props[content_relations[not_relation.head()][jj]];
+			//					if (true_prop.equals(not_relation)) {
+			//						satisfied = false;
+			//						break;
+			//					}
+			//				}
+			//			}
+			//		}
+			//		if (satisfied) {
+			//			Proposition p = d.target_;
+			//			p.replaceVariables(d.variables_, candidates[k]);
+			//			if (current_stratum_props_set.find(p) == current_stratum_props_set.end()) {
+			//				current_stratum_props_set.insert(p);					
+			//				current_stratum_props.push_back(p);
+			//			}
+			//		}					
+			//	}
+			//	continue; // avoid the while loop below				
+			//}
+			if (var_candidates.size() == 0) {
+				vector<int> candidate;
+				vector<vector<int> > candidates;
+				candidates.push_back(candidate);
+				var_candidates.push_back(candidates);				
+			}
+			vector<int> idx;
+			for (int k = 0; k < var_candidates.size(); ++k) {
+				idx.push_back(0);
 			}
 			int time3s = clock();
 			
@@ -468,6 +479,7 @@ time1 += clock() - time1start;
 			//getSubgoalSequence(var_candidates);
 			int k = 0;
 			vector<vector<int> > combined_candidates;
+			set<vector<int> > combined_candidates_set;
 			int variable_size = d.variables_.size();
 			while (true) {
 				int time5s = clock();
@@ -515,9 +527,9 @@ time1 += clock() - time1start;
 						bool check_not_and_distinct = true;						
 						for (int ii = 0; ii < distinct_subgoals.size() && check_not_and_distinct; ++ii) {							
 							Proposition &distinct = d.subgoals_[distinct_subgoals[ii]];														
-							int first;
-							int second;
-							for (int jj = 0; jj < variable_size && (first == -1 || second == -1); ++jj) {
+							int first = distinct.items_[1];
+							int second = distinct.items_[2];
+							for (int jj = 0; jj < variable_size; ++jj) {
 								if (d.variables_[jj] == distinct.items_[1]) {
 									first = m[jj];
 								}
@@ -525,7 +537,7 @@ time1 += clock() - time1start;
 									second = m[jj];
 								}
 							}
-							if (first != -1 && second != -1 && first != second) {
+							if (first != -1 && second != -1 && first == second) {
 								check_not_and_distinct = false;
 							}							
 						}
@@ -539,7 +551,7 @@ time1 += clock() - time1start;
 							for (int jj = 0; jj < var_positions.size(); ++jj) {
 								for (int kk = 0; kk < variable_size; ++kk) {
 									if (d.variables_[kk] == not_relation.items_[var_positions[jj]]) {
-										not_relation.items_[var_positions[jj]] = m[jj];
+										not_relation.items_[var_positions[jj]] = m[kk];
 									}
 								}
 							}
@@ -562,8 +574,11 @@ time1 += clock() - time1start;
 						time12 += clock() - time12s;
 						time11 += clock() - time11s;
 						int time10s = clock();
-						if (check_not_and_distinct) {							
-							combined_candidates.push_back(m);
+						if (check_not_and_distinct) {
+							if (combined_candidates_set.find(m) == combined_candidates_set.end()) {
+								combined_candidates.push_back(m);
+								combined_candidates_set.insert(m);
+							}
 						}
 						time10 += clock() - time10s;
 						++idx[k];
@@ -582,7 +597,16 @@ time1 += clock() - time1start;
 				for (int ii = 0; ii < combined_candidates.size(); ++ii) {
 					Proposition p = d.target_;
 					p.replaceVariables(d.variables_, combined_candidates[ii]);
-					current_stratum_props.push_back(p);
+					if (true_props_set.find(p) == true_props_set.end()) {											
+						if (content_relations.find(p.head()) == content_relations.end()) {
+							vector<int> tmp;
+							content_relations[p.head()] = tmp;
+						}
+						content_relations[p.head()].push_back(true_props.size());
+						true_props.push_back(p);
+						true_props_set.insert(p);
+						current_stratum_props.push_back(p);										
+					}
 				}
 				continue;
 			}
@@ -627,6 +651,8 @@ time1 += clock() - time1start;
 					vector<int> variables;
 					vector<int> values;
 					if (subgoal.headMatches(p) && subgoal.matches(p, variables, values)) {
+						vector<vector<int> > combined_candidates;
+						set<vector<int> > combined_candidates_set;
 						for (int jj = 0; jj < der_var_candidates[k].size(); ++jj) {
 							vector<int> m = der_var_candidates[k][jj];
 							bool combined = true;
@@ -643,13 +669,12 @@ time1 += clock() - time1start;
 								}
 							}
 							if (combined) {
-								bool check_distinct = true;
-								vector<int> undetermined_distincts;
+								bool check_distinct = true;								
 								for (int kk = 0; kk < distincts.size() && check_distinct; ++kk) {									
 									Proposition &distinct = d.subgoals_[distincts[kk]];														
-									int first;
-									int second;
-									for (int iii = 0; iii < d.variables_.size() && (first == -1 || second == -1); ++iii) {
+									int first = distinct.items_[1];
+									int second = distinct.items_[2];
+									for (int iii = 0; iii < d.variables_.size(); ++iii) {
 										if (d.variables_[iii] == distinct.items_[1]) {
 											first = m[iii];
 										}
@@ -657,9 +682,7 @@ time1 += clock() - time1start;
 											second = m[iii];
 										}
 									}
-									if (first == -1 || second == -1) {
-										undetermined_distincts.push_back(distincts[kk]);
-									} else if (first != second) {
+									if (first != -1 && second != -1 && first == second) {
 										check_distinct = false;
 									}									
 								}
@@ -667,92 +690,59 @@ time1 += clock() - time1start;
 									if (non_distincts.size() == 1) {
 										Proposition p = d.target_;
 										p.replaceVariables(d.variables_, m);
-										current_stratum_props.push_back(p);
-									} else {
-										Derivation d2;
-										d2.target_ = d.target_;
-										for (int kk = 0; kk < non_distincts.size(); ++kk) {
-											if (kk != ii) {
-												d2.subgoals_.push_back(d.subgoals_[non_distincts[kk]]);
-											}											
-										}			
-										// undetermined distinct subgoals
-										for (int kk = 0; kk < undetermined_distincts.size(); ++kk) {
-											d2.subgoals_.push_back(d.subgoals_[undetermined_distincts[kk]]);
+										if (true_props_set.find(p) == true_props_set.end()) {											
+											if (content_relations.find(p.head()) == content_relations.end()) {
+												vector<int> tmp;
+												content_relations[p.head()] = tmp;
+											}
+											content_relations[p.head()].push_back(true_props.size());
+											true_props.push_back(p);
+											true_props_set.insert(p);
+											current_stratum_props.push_back(p);										
 										}
-										d2.prepareVariables();
-										derivations.push_back(d2);
-										der_var_candidates.push_back(m);
+									} else {
+										if (combined_candidates_set.find(m) == combined_candidates_set.end()) {
+											combined_candidates.push_back(m);
+											combined_candidates_set.insert(m);
+										}
 									}
 								}
 							}
 						}
-					}
-				}
-			}
-		}
-		while (true) {
-			int old_true_props_num = true_props.size();
-			vector<Derivation>::iterator j = derivations.begin();
-			vector<vector<vector<int> > >::iterator k = der_var_candidates.begin();
-			for (; j != derivations.end(); ) {
-				if (j->subgoals_.size() == 0) {
-					for (int ii = 0; ii < k->size(); ++ii) {
-						Proposition prop = j->target_;
-						prop.replaceVariables(j->variables_, k->at(ii)); 
-						if (true_props_string.find(prop.toRelation().toString()) == true_props_string.end()) {
-							true_props.push_back(prop);
-							true_props_string.insert(prop.toRelation().toString());
-							if (content_relations.find(prop.head()) == content_relations.end()) {
-								vector<int> rs;
-								content_relations[prop.head()] = rs;
-							}
-							content_relations[prop.head()].push_back(true_props.size() - 1);
-						}
-					}					
-					j = derivations.erase(j);
-					k = der_var_candidates.erase(k);
-				} else {
-					++j;
-					++k;
-				}
-			}
-			if (old_true_props_num == true_props.size()) {
-				break;
-			}
-			for (int j = 0; j < derivations.size(); ++j) {				
-				for (Relations::iterator k = derivations[j].items_.begin(); k != derivations[j].items_.end(); ) {
-					Relation p = *k;
-					if (content_relations.find(p.content_) != content_relations.end()) {
-						vector<int> props = content_relations[p.content_];
-						bool find = false;
-						for (int ii = props.size() - 1; ii >= 0; --ii) {
-							if (props[ii] < old_true_props_num) {
-								break;
-							}
-							bool equal = true;
-							for (int jj = 0; jj < p.items_.size(); ++jj) {
-								if (p.items_[jj].content_ != true_props[props[ii]].items_[jj].content_) {
-									equal = false;
-									break;
-								}
-							}
-							if (equal) {
-								find = true;
-								break;
-							}
-						}
-						if (find) {
-							k = derivations[j].items_.erase(k);
+						if (combined_candidates.size() == 0) {
 							continue;
 						}
+						Derivation d2;
+						d2.target_ = d.target_;
+						for (int jj = 0; jj < non_distincts.size(); ++jj) {
+							if (jj != ii) {
+								d2.subgoals_.push_back(d.subgoals_[non_distincts[jj]]);
+							}											
+						}			
+						// undetermined distinct subgoals
+						for (int jj = 0; jj < distincts.size(); ++jj) {
+							Proposition &distinct = d.subgoals_[distincts[jj]];
+							for (int kk = 0; kk < d.variables_.size(); ++kk) {
+								if ((d.variables_[kk] == distinct.items_[1] || d.variables_[kk] == distinct.items_[2]) 
+									&& combined_candidates[0][kk] == -1) {	// combined_candidates has 1 element at least
+									d2.subgoals_.push_back(d.subgoals_[distincts[jj]]);
+									break;
+								}
+							}						
+						}
+						d2.prepareVariables();
+						derivations.push_back(d2);
+						der_var_candidates.push_back(combined_candidates);			
 					}
-					++k;
 				}
 			}
 		}		
 		time4 += clock() - time4s;
 	}
 generate_time += clock() - start;
+	vector<string> output;
+	for (int i = 0; i < true_props.size(); ++i) {
+		output.push_back(true_props[i].toRelation().toString());
+	}
 	return true_props;
 }

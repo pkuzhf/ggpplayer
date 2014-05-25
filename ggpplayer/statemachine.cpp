@@ -16,16 +16,15 @@ using namespace std;
 
 
 StateMachine::StateMachine(Relations description):prover_(description) {	
-	Relations rs;
+	Propositions rs;
 	rs.insert(rs.end(), prover_.inits_.begin(), prover_.inits_.end());
 	rs.insert(rs.end(), prover_.statics_.begin(), prover_.statics_.end());	
 	right_props_ = prover_.generateTrueProps(rs, 0, prover_.dpg_.stra_deriv_.size() - 1);
 	current_state_.clear();
 	for(int i = 0  ; i < right_props_.size(); ++i){
-		if(right_props_[i].type_ == r_init){
-			Relation r = right_props_[i];
-			r.type_ = r_true;
-			r.content_ = r_true;
+		if(right_props_[i].head() == r_init){
+			Proposition r = right_props_[i];
+			r.setHead(r_true);
 			current_state_.push_back(r);
 		}
 	}
@@ -34,11 +33,11 @@ StateMachine::StateMachine(Relations description):prover_(description) {
 	right_props_ = prover_.generateTrueProps(rs, 0, prover_.dpg_.legal_level_);
 }
 
-Relations StateMachine::getGoals()
+Propositions StateMachine::getGoals()
 {
-	Relations rtn;
+	Propositions rtn;
 	for(int i = 0 ; i < right_props_.size(); ++i){
-		if(right_props_[i].type_ == r_goal){
+		if(right_props_[i].head() == r_goal){
 			rtn.push_back(right_props_[i]);
 		}
 	}
@@ -48,37 +47,35 @@ Relations StateMachine::getGoals()
 bool StateMachine::isTerminal() {
 	
 	for(int i = 0 ; i < right_props_.size(); ++i){
-		if(right_props_[i].type_ == r_terminal){
+		if(right_props_[i].head() == r_terminal){
 			return true;
 		}
 	}
 	return false;
 }
 
-Relations StateMachine::getLegalMoves(int role) {
+Propositions StateMachine::getLegalMoves(int role) {
 	
-	Relations rtn;
+	Propositions rtn;
 	for (int i = 0; i < prover_.statics_.size(); ++i) {
-		if(prover_.statics_[i].type_ == r_legal && prover_.statics_[i].items_[0].content_ == role){
-			Relation r = prover_.statics_[i];
-			r.content_ = r_does;
-			r.type_ = r_does;
+		if(prover_.statics_[i].head() == r_legal && prover_.statics_[i].toRelation().items_[0].content_ == role){
+			Proposition r = prover_.statics_[i];
+			r.setHead(r_does);
 			rtn.push_back(r);
 		}
 	}
 	for(int i = 0 ; i < right_props_.size(); ++i){
-		if(right_props_[i].type_ == r_legal && right_props_[i].items_[0].content_ == role){
-			Relation r = right_props_[i];
-			r.content_ = r_does;
-			r.type_ = r_does;
+		if(right_props_[i].head() == r_legal && right_props_[i].toRelation().items_[0].content_ == role){
+			Proposition r = right_props_[i];
+			r.setHead(r_does);
 			rtn.push_back(r);
 		}
 	}
 	return rtn;
 }
 
-Relation StateMachine::getRandomMove(int role) {
-	Relations moves = getLegalMoves(role);
+Proposition StateMachine::getRandomMove(int role) {
+	Propositions moves = getLegalMoves(role);
 	srand((unsigned)time(NULL));  
 	if (moves.size() == 0) {
 		cout << "No legal move." <<endl;
@@ -86,54 +83,43 @@ Relation StateMachine::getRandomMove(int role) {
 	return moves[rand() % moves.size()];
 }
 
-void StateMachine::goOneStep(Relations & move)
+void StateMachine::goOneStep(Propositions & move)
 {
-	Relations rs;
+	Propositions rs;
 	rs.insert(rs.end(), move.begin(), move.end());	
-	rs.insert(rs.end(), right_props_.begin(), right_props_.end());
-	for (int i = 0; i < rs.size(); ++i) {
-		rs[i].s_ = rs[i].toString();
-	}
-
+	rs.insert(rs.end(), right_props_.begin(), right_props_.end());	
 	right_props_ = prover_.generateTrueProps(rs, prover_.dpg_.legal_level_ + 1, prover_.dpg_.stra_deriv_.size() - 1);
-
-	for (int i = 0; i < right_props_.size(); ++i) {
-		right_props_[i].s_ = right_props_[i].toString();
-	}
+	
 	if (isTerminal()) {
 		return;
 	}
 	current_state_.clear();
 	for(int i = 0  ; i < right_props_.size(); ++i){
-		if(right_props_[i].type_ == r_next){
-			Relation r = right_props_[i];
-			r.type_ = r_true;
-			r.content_ = r_true;
+		if(right_props_[i].head() == r_next){
+			Proposition r = right_props_[i];
+			r.setHead(r_true);
 			current_state_.push_back(r);
 		}
 	}
 
 	rs.clear();
 	rs.insert(rs.end(), current_state_.begin(), current_state_.end());	
-	right_props_ = prover_.generateTrueProps(rs, 0, prover_.dpg_.legal_level_);
-	for (int i = 0; i < right_props_.size(); ++i) {
-		right_props_[i].s_ = right_props_[i].toString();
-	}
+	right_props_ = prover_.generateTrueProps(rs, 0, prover_.dpg_.stra_deriv_.size() - 1);	
 }
 
-Relations StateMachine::randomGo()
+Propositions StateMachine::randomGo()
 {
 	clock_t begin = clock();
 	int count = 0;
 	while (!isTerminal()) {
 		count ++;
-		Relations joint_move;
+		Propositions joint_move;
 		for (int i = 0; i < prover_.roles_.size(); ++i) {
-			Relation role = prover_.roles_[i];
-			joint_move.push_back(getRandomMove(role.items_[0].content_));
+			Proposition role = prover_.roles_[i];
+			joint_move.push_back(getRandomMove(role.toRelation().items_[0].content_));
 		}
-		cout << joint_move[0].toString() << endl;
-		cout << joint_move[1].toString() << endl;
+		cout << joint_move[0].toRelation().toString() << endl;
+		cout << joint_move[1].toRelation().toString() << endl;
 		goOneStep(joint_move);		
 	}
 	clock_t end = clock();

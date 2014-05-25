@@ -21,7 +21,7 @@ void DependGraph::buildGraph(vector<Derivation> derivations)
 		if (node_num_.find(derivations_[i].target_.items_[0]) == node_num_.end()) {
 			addNode(derivations_[i].target_.items_[0]);
 		}
-		for(int j = 0; j < derivations_[i].subgoal_num_; ++j){			
+		for(int j = 0; j < derivations_[i].subgoals_.size(); ++j){			
 			Proposition r = derivations_[i].subgoals_[j];
 			if (r.items_[0] == r_distinct) {
 				continue;
