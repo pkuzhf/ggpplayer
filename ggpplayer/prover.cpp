@@ -643,12 +643,47 @@ time1 += clock() - time1start;
 								}
 							}
 							if (combined) {
-								for (int kk = 0; kk < distincts.size(); ++kk) {
-
+								bool check_distinct = true;
+								vector<int> undetermined_distincts;
+								for (int kk = 0; kk < distincts.size() && check_distinct; ++kk) {									
+									Proposition &distinct = d.subgoals_[distincts[kk]];														
+									int first;
+									int second;
+									for (int iii = 0; iii < d.variables_.size() && (first == -1 || second == -1); ++iii) {
+										if (d.variables_[iii] == distinct.items_[1]) {
+											first = m[iii];
+										}
+										if (d.variables_[iii] == distinct.items_[2]) {
+											second = m[iii];
+										}
+									}
+									if (first == -1 || second == -1) {
+										undetermined_distincts.push_back(distincts[kk]);
+									} else if (first != second) {
+										check_distinct = false;
+									}									
 								}
-								if (non_distincts.size() == 1) {
-
-								} else {
+								if (check_distinct) {									
+									if (non_distincts.size() == 1) {
+										Proposition p = d.target_;
+										p.replaceVariables(d.variables_, m);
+										current_stratum_props.push_back(p);
+									} else {
+										Derivation d2;
+										d2.target_ = d.target_;
+										for (int kk = 0; kk < non_distincts.size(); ++kk) {
+											if (kk != ii) {
+												d2.subgoals_.push_back(d.subgoals_[non_distincts[kk]]);
+											}											
+										}			
+										// undetermined distinct subgoals
+										for (int kk = 0; kk < undetermined_distincts.size(); ++kk) {
+											d2.subgoals_.push_back(d.subgoals_[undetermined_distincts[kk]]);
+										}
+										d2.prepareVariables();
+										derivations.push_back(d2);
+										der_var_candidates.push_back(m);
+									}
 								}
 							}
 						}
