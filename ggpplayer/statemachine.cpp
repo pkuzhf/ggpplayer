@@ -126,3 +126,49 @@ Propositions StateMachine::randomGo()
 	cout<< count <<" steps in "<<end - begin<< " ms" <<endl;
 	return getGoals();
 }
+
+void StateMachine::setState(Propositions &currentState)
+{
+	this->
+	current_state_ = currentState;
+	Propositions rs = currentState;
+	right_props_ = prover_.generateTrueProps(rs, 0, prover_.dpg_.legal_level_);
+}
+
+vector<vector<Proposition>> StateMachine::getLegalJointMoves(int role, Proposition mymove)
+{
+	vector<vector<Proposition>> rtn;
+	vector<vector<Proposition>> legalMoves;
+	vector<int> idx;
+	for(int i = 0 ; i < prover_.roles_.size(); ++i){
+		vector<Proposition> t = getLegalMoves(prover_.askRole(prover_.roles_[i]));
+		legalMoves.push_back(t);
+		idx.push_back(0);
+	}
+	while(true){
+		vector<Proposition> jointMove;
+		for(int i = 0 ; i < prover_.roles_.size(); ++i){
+			jointMove.push_back(legalMoves[i][idx[i]]);
+		}
+		rtn.push_back(jointMove);
+		int temp = 0;
+		idx[temp] ++;
+		while(idx[temp] == legalMoves[temp].size()){
+			if(temp == prover_.roles_.size() - 1)
+				break;
+			idx[temp] = 0;
+			temp ++;
+			idx[temp]++;
+		}
+	}
+	return rtn;
+}
+
+int StateMachine::getGoal(int role)
+{
+	for(int i = 0 ; i < right_props_.size(); ++i){
+		if(right_props_[i].head() == r_goal && right_props_[i].items_[0] == role){
+			return atoi(Relation::int2string_[right_props_[i].items_[1]].c_str());
+		}
+	}
+}

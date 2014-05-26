@@ -1,14 +1,17 @@
-#include "MonteCarloPlayer.h"
+#include <iostream>
 #include <vector>
-#include <set>
-#include <map>
+#include <time.h>
 #include <string>
-#include<cmath>
+#include <cmath>
+#include <stdlib.h>
+
 #include "dependgraph.h"
 #include "node.h"
-#include <time.h>
+#include "MonteCarloPlayer.h"
 
-Relation MonteCarloPlayer::stateMachineSelectMove(int timeout)
+using namespace std;
+
+Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 {
 	int start = clock();
 	int finishBy = start + timeout - 1000;
@@ -41,14 +44,14 @@ Relation MonteCarloPlayer::stateMachineSelectMove(int timeout)
 
 		int thePoint;
 		if (!node.isTerminal_) {
-			Relations moves = stateMachine_.getLegalMoves(stateMachine_.getRole());
-			Relations currentState = stateMachine_.current_state_;
+			Propositions moves = stateMachine_.getLegalMoves(roleNum_);
+			Propositions currentState = stateMachine_.current_state_;
 			for (int i = 0; i < moves.size(); i++) {
-				vector<vector<Relation>> jointmoves = stateMachine_.getLegalJointMoves(getRole(), moves[i]);
+				vector<vector<Proposition>> jointmoves = stateMachine_.getLegalJointMoves(roleNum_, moves[i]);
 				vector<Node> nodes;				
 				for (int j = 0; j < jointmoves.size(); j++) {					
 					stateMachine_.goOneStep(jointmoves[j]);
-					nodes.push_back(Node(jointmoves[j], moves[i], &node, stateMachine_.isTerminal, currentState));
+					nodes.push_back(Node(jointmoves[j], moves[i], &node, stateMachine_.isTerminal(), currentState));
 					stateMachine_.setState(currentState);
 				}
 				node.sons_.push_back(nodes);
@@ -59,13 +62,13 @@ Relation MonteCarloPlayer::stateMachineSelectMove(int timeout)
 			stateMachine_.goOneStep(node.moves_);
 
 			if (node.isTerminal_) {					
-				thePoint = stateMachine_.getGoal(getRole());					
+				thePoint = stateMachine_.getGoal(roleNum_);					
 			} else {
 				count++;
 				thePoint = performDepthChargeFromMove();
 			}
 		} else {
-			thePoint = stateMachine_.getGoal(getRole());
+			thePoint = stateMachine_.getGoal(roleNum_);
 		}			
 
 		node.totalAttemps_++;
@@ -90,7 +93,7 @@ Relation MonteCarloPlayer::stateMachineSelectMove(int timeout)
 		}					
 	}
 
-	Relation selection = root.sons_[max][0].mymove_;
+	Proposition selection = root.sons_[max][0].mymove_;
 
 	int stop = clock();
 
@@ -101,7 +104,8 @@ Relation MonteCarloPlayer::stateMachineSelectMove(int timeout)
 
 int MonteCarloPlayer::performDepthChargeFromMove()
 {
-	Relations finalGoals = stateMachine_.randomGo();
+	stateMachine_.randomGo();
 	// wait to be changed
-	return 0;
+	return stateMachine_.getGoal(roleNum_);
 }
+

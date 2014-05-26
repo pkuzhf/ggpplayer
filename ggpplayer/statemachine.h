@@ -31,9 +31,14 @@ public:
 	void goOneStep(Propositions & move);
 	Propositions right_props_;
 	Propositions randomGo();
+	Propositions current_state_;	
+	int roleNum_;
+	int getGoal(int role);
+	void setState(Propositions &currentState);
+	vector<vector<Proposition>> getLegalJointMoves(int role, Proposition mymove);
 private:
 	static const int cache_size_ = 1000;//Ö»±£´æ1000¸östate
-	Propositions current_state_;	
+	
 };
 
 #endif

@@ -1,3 +1,6 @@
+#ifndef Node_H
+#define Node_H
+
 #include <vector>
 #include <set>
 #include <map>
@@ -26,3 +29,5 @@ public:
 	Node(Propositions & ms, Proposition & m, Node * p, bool t, Propositions &state); 
 	Node();
 };
+
+#endif
