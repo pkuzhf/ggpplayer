@@ -26,7 +26,8 @@ StateMachine::StateMachine(Relations description):prover_(description), is_termi
 		p.head_ = r_true;
 		trues_.push_back(p);		
 	}	
-	updateState(prover_.generateTrueProps(trues_, 0, prover_.dpg_.legal_level_));
+	Propositions ps = prover_.generateTrueProps(trues_, 0, prover_.dpg_.legal_level_);
+	updateState(ps);
 }
 
 void StateMachine::updateState(Propositions &ps) {
