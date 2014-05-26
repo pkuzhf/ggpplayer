@@ -56,6 +56,7 @@ void DependGraph::buildGraph(vector<Derivation> derivations)
 			node_stra_[topo_graph_[i][j]] = i;
 		}
 	}
+	legal_level_ = -1;
 	if(node_num_.find(r_legal) != node_num_.end())
 		legal_level_ = node_stra_[node_num_[r_legal]];
 	if(node_num_.find(r_terminal) != node_num_.end())
