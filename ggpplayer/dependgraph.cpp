@@ -35,10 +35,14 @@ void DependGraph::buildGraph(vector<Derivation> derivations)
 			addEdge(derivations_[i].target_.head_, r.head_);
 		}
 	}	
-	addEdge(r_does, r_legal);
-	addEdge(r_does, r_terminal);
-	addEdge(r_does, r_goal);
-	addEdge(r_terminal, r_legal);
+	if(node_num_.find(r_legal) != node_num_.end() && node_num_.find(r_does) != node_num_.end())
+		addEdge(r_does, r_legal);
+	if(node_num_.find(r_terminal) != node_num_.end() && node_num_.find(r_does) != node_num_.end())
+		addEdge(r_does, r_terminal);
+	if(node_num_.find(r_goal) != node_num_.end() && node_num_.find(r_does) != node_num_.end())
+		addEdge(r_does, r_goal);
+	if(node_num_.find(r_legal) != node_num_.end() && node_num_.find(r_terminal) != node_num_.end())
+		addEdge(r_terminal, r_legal);
 	for(int i = 0 ; i < nodes_.size(); ++i){
 		init_nodes_.push_back(nodes_[i][0]);
 	}
@@ -52,9 +56,12 @@ void DependGraph::buildGraph(vector<Derivation> derivations)
 			node_stra_[topo_graph_[i][j]] = i;
 		}
 	}
-	legal_level_ = node_stra_[node_num_[r_legal]];
-	legal_level_ = max(legal_level_, node_stra_[node_num_[r_terminal]]);
-	legal_level_ = max(legal_level_, node_stra_[node_num_[r_goal]]);
+	if(node_num_.find(r_legal) != node_num_.end())
+		legal_level_ = node_stra_[node_num_[r_legal]];
+	if(node_num_.find(r_terminal) != node_num_.end())
+		legal_level_ = max(legal_level_, node_stra_[node_num_[r_terminal]]);
+	if(node_num_.find(r_goal) != node_num_.end())
+		legal_level_ = max(legal_level_, node_stra_[node_num_[r_goal]]);
 	getStraDeriv();
 }
 
