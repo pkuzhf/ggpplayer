@@ -64,7 +64,7 @@ int main() {
 	cout << "ready" << endl;
 		
 	cin.getline(buf, 10000);
-	cout << machine.getRandomMove(role).toString();
+	cout << machine.getRandomMove(role).toString() << endl;
 	
 	while (true) {				
 		cin.getline(buf, 10000);	
@@ -84,12 +84,8 @@ int main() {
 			//cout << "Terminal." << endl;
 			break;
 		}
-		Relation move = machine.getRandomMove(role).toRelation();
-		if (move.items_[1].items_.size() == 0) {		
-			cout << move.items_[1].toString() << endl;
-		} else {
-			cout << "( " << move.items_[1].toString() << " )" << endl;
-		}
+		Proposition move = machine.getRandomMove(role);
+		cout << move.toString() << endl;
 	}
 	return 0;
 }
