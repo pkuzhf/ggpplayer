@@ -18,22 +18,23 @@ using namespace std;
 
 class StateMachine {
 public:
+	Prover prover_;	
+	Propositions trues_;
+	Propositions legals_;
+	Propositions goals_;
+	Propositions tmps_;
+	bool is_terminal_;
 
-public:
-	StateMachine(Relations description);
-	Propositions getGoals();
-	bool isTerminal();
-	Propositions getInitialState();
-	Propositions getLegalMoves(int role);
-	//bool getLegalMoves(Moves &moves, const State &state);	
-	Proposition getRandomMove(int role);
-	Prover prover_;
-	void goOneStep(Propositions & move);
-	Propositions right_props_;
+	StateMachine(Relations description);		
+	void updateState(Propositions &ps);
+	Propositions getLegalMoves(int role);	
+	Proposition getRandomMove(int role);	
+	void goOneStep(Propositions & move);	
 	Propositions randomGo();
-private:
-	static const int cache_size_ = 1000;//Ö»±£´æ1000¸östate
-	Propositions current_state_;	
+	int getGoal(int role);
+	void setState(Propositions &currentState);
+	vector<vector<Proposition>> getLegalJointMoves(int role, Proposition mymove);
+	
 };
 
 #endif

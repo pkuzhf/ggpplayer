@@ -13,34 +13,24 @@
 
 using namespace std;
 
-enum RelationType {
-	r_role = 0,
-	r_init = 1,
-	r_next = 2,
-	r_goal = 3,	
-	r_true = 4,
-	r_legal = 5,
-	r_terminal = 6,
-	r_base = 7,
-	r_input = 8,
-	r_does = 9,
+const int r_role = 0;
+const int r_init = 1;
+const int r_next = 2;
+const int r_goal = 3;	
+const int r_true = 4;
+const int r_legal = 5;
+const int r_terminal = 6;
+const int r_base = 7;
+const int r_input = 8;
+const int r_does = 9;
 
-	r_derivation = 10,
+const int r_derivation = 10;
 	
 	//logic
-	r_or = 11,
-	r_and = 12,
-	r_not = 13,
-	r_distinct = 14,
-
-	r_constant = 100,
-	r_variable = 101,	
-
-	r_function = 103,
-
-	r_other = 200
-};
-
+const int r_or = 11;
+const int r_and = 12;
+const int r_not = 13;
+const int r_distinct = 14;
 
 const int relation_type_num = 15;
 
@@ -72,17 +62,17 @@ typedef vector<Derivation> Derivations;
 
 class Relation {
 public:
+
+	static unordered_map<string, int> symbol2code;
+	static vector<string> code2symbol; // code2symbol may contain some strings of proposition other than symbols
+	static int symbol_table_size;
+
+	static void addSymbol(string symbol);
+
 	string s_;
-	int content_;
-	RelationType type_;
+	int head_;	
 	Relations items_;
-	
-	static unordered_map<string, int> string2int_;
-	static vector<string> int2string_;
-	
-	bool matches(const Relation &r, vector<pair<int, int> > &var_value) const;
-	bool equals(const Relation &r) const;
-	Relations findProposions();
+
 	bool operator<(const Relation &r) const;
 	string toString() const;
 	bool replaceVariables(vector<pair<int, int> > &m);		
@@ -92,21 +82,21 @@ public:
 
 class Proposition {
 public:
-	short int items_[MAX_ITEM_NUM];
-	short int item_num_;
+
+	static Proposition strToProp(string s);
+
+	int head_;
+	bool is_variable_;
+	vector<Proposition> items_;
 
 	bool operator<(const Proposition &r) const;
 	Relation toRelation();
 	bool matches(Proposition p, vector<int> &variables, vector<int> &values);
-	bool equals(Proposition p);
-	bool headMatches(Proposition p);
-	void removeHead();	
-	inline short int head();
-	void setHead(int head);
-	void setRole(int role);
-	inline bool isVariable(int idx);
-	vector<int> getVarPos();
+	bool equals(Proposition p);		
+	void getVariables(vector<int> &variables);
 	void replaceVariables(vector<int> &variables, vector<int> &values);
+	int getPropCode();
+	string toString();
 };
 
 class Derivation {

@@ -1,3 +1,6 @@
+#ifndef MONTECARLOPLAYER
+#define MONTECARLOPLAYER
+
 #include <vector>
 #include <set>
 #include <map>
@@ -12,8 +15,11 @@ class MonteCarloPlayer
 {
 public:
 	StateMachine stateMachine_;
-	Relations currentState_;
+	Propositions currentState_;
 	Node TreeRoot_;
+	int roleNum_;
+	int performDepthChargeFromMove();
+	Proposition stateMachineSelectMove(int timeout);
+};
 
-	Relation stateMachineSelectMove(int timeout);
-}
+#endif

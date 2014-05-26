@@ -1,3 +1,4 @@
+#include <iostream>
 #include <vector>
 #include <set>
 #include <map>
@@ -6,12 +7,12 @@
 #include "dependgraph.h"
 #include "node.h"
 
+using namespace std;
+
 int Node::C = 1;
 double Node::maxScore = 100000000000;
 
 Node::Node(){
-	moves_ = Relations();
-	mymove_ = Relation();
 	totalAttemps_ = 0;
 	nPoints_ = 0;
 	nAttemps_ = 0;
@@ -20,7 +21,7 @@ Node::Node(){
 	parent_ = this;
 }
 
-Node::Node(Relations & ms, Relation & m, Node * p, bool t, Relations &state) {
+Node::Node(Propositions & ms, Proposition & m, Node * p, bool t, Propositions &state) {
 	moves_ = ms;
 	mymove_ = m;
 	nPoints_ = 0;

@@ -56,24 +56,14 @@ public:
 	static int time20;
 	static int time21;
 
-	map<Proposition, int> keyrelation_num_;
-	Propositions keyrelations_;
-
-	map<Proposition, int> legalaction_num_;
-	Propositions legalactions_;
-
-	map<Proposition, int> role_num_;
+	Propositions bases_;
+	Propositions inputs_;
 	Propositions roles_;
 
 	vector<int> key_head_;
 
 	Prover(Relations relations);
 	void init();
-
-	int askRole(Proposition &role);  // 返回role在所有玩家中的编号 
-	bool askGoal(vector<int> &result, const string &state);
-	bool askTerminal(const string & state);
-	
 	Propositions generateTrueProps(Propositions true_props, int start_stra, int end_stra);
 	Propositions statics_;
 	set<Proposition> statics_set_;
@@ -84,16 +74,11 @@ private:
 	vector<Derivation> derivations_;
 	vector<Derivation> static_derivations_;
 	vector<Derivation> nonstatic_derivations_;	
-	vector<vector<vector<int> > > non_der_var_values_;
-	Propositions bases_;
-	Propositions inputs_;
-
+	vector<vector<vector<int> > > non_der_var_values_;	
 	void getSubgoalSequence(vector<vector<vector<pair<int, int> > > > & var_candidates);
+	vector<int> static_heads_; // get by DPG
 
-	// get by DPG
-	vector<int> static_heads_;
-
-	void getStaticRelation();
+	void prepareStaticRelation();
 	void markNonStatic(int index, vector<int> & mark);
 };
 

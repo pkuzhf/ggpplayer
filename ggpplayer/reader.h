@@ -18,11 +18,10 @@ public:
 	bool scanGDLFile(string filename);
 	bool getRelations(Relations &relations);
 	bool getMoves(Propositions &propositions);
-	static Relation getRelation(const string &s, RelationType fathertype = r_function);
-	string file_content_;
+	static Relation getRelation(const string &s);
+	string file_head_;
 private:	
-	static bool fetch(const string &s, int &start, string &result);
-	static RelationType getType(const string &s);
+	static bool fetch(const string &s, int &start, string &result);	
 	Relations eliminateLogicalWords(Relation r);
 	void sortDerivationItems(Relation &r);
 };

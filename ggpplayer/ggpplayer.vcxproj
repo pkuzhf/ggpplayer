@@ -76,6 +76,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="dependgraph.h" />
+    <ClInclude Include="montecarloplayer.h" />
+    <ClInclude Include="node.h" />
     <ClInclude Include="prover.h" />
     <ClInclude Include="reader.h" />
     <ClInclude Include="relation.h" />
@@ -84,6 +86,8 @@
   <ItemGroup>
     <ClCompile Include="dependgraph.cpp" />
     <ClCompile Include="ggpplayer.cpp" />
+    <ClCompile Include="montecarloplayer.cpp" />
+    <ClCompile Include="node.cpp" />
     <ClCompile Include="prover.cpp" />
     <ClCompile Include="reader.cpp" />
     <ClCompile Include="relation.cpp" />
