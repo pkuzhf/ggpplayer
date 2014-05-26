@@ -15,8 +15,13 @@
 using namespace std;
 
 
-StateMachine::StateMachine(Relations description):prover_(description), is_terminal_(false) {	
-	for(int i = 0; i < prover_.inits_.size(); ++i){
+StateMachine::StateMachine(Relations description):prover_(description), is_terminal_(false) {
+	for (int i = 0; i < prover_.statics_.size(); ++i) {
+		if (prover_.statics_[i].head_ == r_legal) {
+			static_legals_.push_back(prover_.statics_[i]);
+		}
+	}
+	for (int i = 0; i < prover_.inits_.size(); ++i){
 		Proposition p = prover_.inits_[i];
 		p.head_ = r_true;
 		trues_.push_back(p);		
@@ -28,20 +33,7 @@ void StateMachine::updateState(Propositions &ps) {
 	trues_.clear();
 	legals_.clear();
 	goals_.clear();
-	tmps_.clear();
-	//for (int i = 0; i < prover_.statics_.size(); ++i) {
-	//	if (prover_.statics_[i].head_ == r_legal) {
-	//		Proposition p = prover_.statics_[i];
-	//		p.head_ = r_does;
-	//		legals_.push_back(p);
-	//	} else if (prover_.statics_[i].head_ == r_goal) {
-	//		Proposition p = prover_.statics_[i];			
-	//		goals_.push_back(p);
-	//	} else if (prover_.statics_[i].head_ == r_true) {
-	//		Proposition p = prover_.statics_[i];			
-	//		trues_.push_back(p);
-	//	}
-	//}
+	tmps_.clear();	
 	for (int i = 0; i < ps.size(); ++i) {
 		Proposition p = ps[i];
 		if (p.head_ == r_next) {
@@ -64,6 +56,13 @@ Propositions StateMachine::getLegalMoves(int role) {
 	for(int i = 0 ; i < legals_.size(); ++i){
 		if (legals_[i].items_[0].head_ == prover_.roles_[role].items_[0].head_) {
 			Proposition p = legals_[i];
+			p.head_ = r_does;
+			rtn.push_back(p);
+		}
+	}
+	for (int i = 0; i < static_legals_.size(); ++i) {
+		if (static_legals_[i].items_[0].head_ == prover_.roles_[role].items_[0].head_) {
+			Proposition p = static_legals_[i];
 			p.head_ = r_does;
 			rtn.push_back(p);
 		}

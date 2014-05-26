@@ -21,6 +21,7 @@ public:
 	Prover prover_;	
 	Propositions trues_;
 	Propositions legals_;
+	Propositions static_legals_;
 	Propositions goals_;
 	Propositions tmps_;
 	bool is_terminal_;
