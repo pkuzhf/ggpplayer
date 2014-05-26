@@ -107,7 +107,6 @@ http.createServer(function (req, res) {
                     console.log('ggp out: ' + data);
                     var end = data[data.length - 1];
                     if (end === '\r' || end === '\n') {
-                        console.log('responsed.');
                         res.end(data.substring(0, data.length - 1));
                     } else {
                         res.write(data);
@@ -128,7 +127,6 @@ http.createServer(function (req, res) {
                     console.log('ggp out: ' + data);
                     var end = data[data.length - 1];
                     if (end === '\r' || end === '\n') {
-                        console.log('responsed.');
                         res.end(data.substring(0, data.length - 1));
                     } else {
                         res.write(data);
