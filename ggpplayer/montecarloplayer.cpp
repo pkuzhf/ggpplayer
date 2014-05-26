@@ -45,13 +45,13 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 		int thePoint;
 		if (!node.isTerminal_) {
 			Propositions moves = stateMachine_.getLegalMoves(roleNum_);
-			Propositions currentState = stateMachine_.current_state_;
+			Propositions currentState = stateMachine_.trues_;
 			for (int i = 0; i < moves.size(); i++) {
 				vector<vector<Proposition>> jointmoves = stateMachine_.getLegalJointMoves(roleNum_, moves[i]);
 				vector<Node> nodes;				
 				for (int j = 0; j < jointmoves.size(); j++) {					
 					stateMachine_.goOneStep(jointmoves[j]);
-					nodes.push_back(Node(jointmoves[j], moves[i], &node, stateMachine_.isTerminal(), currentState));
+					nodes.push_back(Node(jointmoves[j], moves[i], &node, stateMachine_.is_terminal_, currentState));
 					stateMachine_.setState(currentState);
 				}
 				node.sons_.push_back(nodes);

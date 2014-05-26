@@ -114,7 +114,7 @@ void Prover::getSubgoalSequence(vector<vector<vector<pair<int, int> > > > & var_
 
 void Prover::init() {	
 	for (int i = 0; i < relations_.size(); ++i) {
-		if (relations_[i].type_ == r_derivation) {
+		if (relations_[i].head_ == r_derivation) {
 			Derivation d = relations_[i].toDerivation();
 			d.prepareVariables();
 			derivations_.push_back(d);			
@@ -122,44 +122,48 @@ void Prover::init() {
 	}
 	
 	dpg_.buildGraph(derivations_);  // build graph for the first time
-	getStaticRelation();
+	prepareStaticRelation();
 	Propositions true_rs;
 	for(int i = 0 ; i < relations_.size(); ++i){
-		if(relations_[i].type_ == r_role 
-			|| relations_[i].type_ == r_init
-			|| relations_[i].type_ == r_function ){
+		if(relations_[i].head_ == r_role 
+			|| relations_[i].head_ == r_init
+			|| relations_[i].head_ >= relation_type_num){
 				true_rs.push_back(relations_[i].toProposition());
 		}
 	}
 	true_rs = generateTrueProps(true_rs, 0, dpg_.stra_deriv_.size() - 1);
 	for(int i = 0; i < true_rs.size(); ++i){
-		if(true_rs[i].head_ == r_init){
+		if (true_rs[i].head_ == r_init) {
 			inits_.push_back(true_rs[i]);
-		} else if(true_rs[i].head_ == r_base){
+		} else if (true_rs[i].head_ == r_base) {
 			bases_.push_back(true_rs[i]);			
-		} else if(true_rs[i].head_ == r_input){
+		} else if (true_rs[i].head_ == r_input) {
 			inputs_.push_back(true_rs[i]);			
-		} else if(find(static_heads_.begin(), static_heads_.end(), true_rs[i].head_) != static_heads_.end()){
+		} else if (true_rs[i].head_ == r_role) {
+			roles_.push_back(true_rs[i]);
+			statics_.push_back(true_rs[i]);	
+			statics_set_.insert(true_rs[i]);
+		} else if (find(static_heads_.begin(), static_heads_.end(), true_rs[i].head_) != static_heads_.end()) {
 			statics_.push_back(true_rs[i]);	
 			statics_set_.insert(true_rs[i]);
 		}
 	}
 	// add key_head which isn't in base sentence
-	for(int i = 0 ; i < relations_.size(); ++i){
+	/*for(int i = 0 ; i < relations_.size(); ++i){
 		if(relations_[i].type_ == r_base){
-			int temp = relations_[i].items_[0].content_;
+			int temp = relations_[i].items_[0].head_;
 			if(find(key_head_.begin(), key_head_.end(), temp) == key_head_.end()){
 				key_head_.push_back(temp);
 			}
 		} else if(relations_[i].type_ == r_derivation && (relations_[i].items_[0].type_ == r_next)){
-			int temp = relations_[i].items_[0].items_[0].content_;
+			int temp = relations_[i].items_[0].items_[0].head_;
 			if(find(key_head_.begin(), key_head_.end(), temp) == key_head_.end()){
 				key_head_.push_back(temp);
 			}
 		} else if(relations_[i].type_ == r_role){
 			roles_.push_back(relations_[i].toProposition());
 		}
-	}
+	}*/
 	for (int i = 0; i < nonstatic_derivations_.size(); ++i) {
 		vector<vector<int> > tmp;
 		non_der_var_values_.push_back(tmp);
@@ -274,24 +278,16 @@ void Prover::init() {
 				++j;
 			}
 		}
-	}
-
-	for (int i = 0; i < nonstatic_derivations_.size(); ++i) {
-		cout << nonstatic_derivations_[i].toRelation().toString() << endl;
-		cout << non_der_var_values_[i].size() << endl;
-	}
+	}	
 
 	DependGraph dpg2;
 	dpg2.buildGraph(nonstatic_derivations_); 
 	dpg_ = dpg2;
 }
 
-void Prover::getStaticRelation()
+void Prover::prepareStaticRelation()
 {
-	vector<int> mark;
-	for(int i = 0 ; i < dpg_.init_nodes_.size(); ++i){
-		mark.push_back(0);
-	}
+	vector<int> mark(dpg_.init_nodes_.size(), 0);	
 	markNonStatic(dpg_.node_num_[r_does], mark);
 	markNonStatic(dpg_.node_num_[r_true], mark);
 	for(int i = 0 ; i < mark.size(); ++i){
@@ -318,27 +314,21 @@ void Prover::markNonStatic(int index, vector<int> & mark)
 	}
 }
 
-int Prover::askRole(Proposition &role){
-	return role_num_[role];
-}
-
-
-
 Propositions Prover::generateTrueProps(Propositions true_props, int start_stra, int end_stra) {	
 	vector<string> input;
 	for (int i = 0; i < true_props.size(); ++i) {
 		input.push_back(true_props[i].toRelation().toString());
 	}
 int start = clock();
-	map<int, vector<int> > content_relations;
+	map<int, vector<int> > head_relations;
 	set<Proposition> true_props_set;
 int time1start = clock();
 	for (int i = 0; i < true_props.size(); ++i) {
-		if (content_relations.find(true_props[i].head_) == content_relations.end()) {
+		if (head_relations.find(true_props[i].head_) == head_relations.end()) {
 			vector<int> rs;
-			content_relations[true_props[i].head_] = rs;
+			head_relations[true_props[i].head_] = rs;
 		}
-		content_relations[true_props[i].head_].push_back(i);
+		head_relations[true_props[i].head_].push_back(i);
 		true_props_set.insert(true_props[i]);
 	}
 time1 += clock() - time1start;
@@ -367,7 +357,7 @@ time1 += clock() - time1start;
 				} else if (dpg_.node_stra_[dpg_.node_num_[subgoal.head_]] < i) { // lower stratum subgoals					
 					lower_stratum_subgoals.push_back(k);
 					vector<vector<int> > candidates;										
-					vector<int> &true_rs = content_relations[subgoal.head_];
+					vector<int> &true_rs = head_relations[subgoal.head_];
 					for (int ii = 0; ii < true_rs.size(); ++ii) { // scan all true props to generate var-value maps
 						int time17s = clock();
 						Proposition &p = true_props[true_rs[ii]];
@@ -549,11 +539,11 @@ time1 += clock() - time1start;
 					Proposition p = d.target_;
 					p.replaceVariables(d.variables_, combined_candidates[ii]);
 					if (true_props_set.find(p) == true_props_set.end()) {											
-						if (content_relations.find(p.head_) == content_relations.end()) {
+						if (head_relations.find(p.head_) == head_relations.end()) {
 							vector<int> tmp;
-							content_relations[p.head_] = tmp;
+							head_relations[p.head_] = tmp;
 						}
-						content_relations[p.head_].push_back(true_props.size());
+						head_relations[p.head_].push_back(true_props.size());
 						true_props.push_back(p);
 						true_props_set.insert(p);
 						current_stratum_props.push_back(p);										
@@ -642,11 +632,11 @@ time1 += clock() - time1start;
 										Proposition p = d.target_;
 										p.replaceVariables(d.variables_, m);
 										if (true_props_set.find(p) == true_props_set.end()) {											
-											if (content_relations.find(p.head_) == content_relations.end()) {
+											if (head_relations.find(p.head_) == head_relations.end()) {
 												vector<int> tmp;
-												content_relations[p.head_] = tmp;
+												head_relations[p.head_] = tmp;
 											}
-											content_relations[p.head_].push_back(true_props.size());
+											head_relations[p.head_].push_back(true_props.size());
 											true_props.push_back(p);
 											true_props_set.insert(p);
 											current_stratum_props.push_back(p);										

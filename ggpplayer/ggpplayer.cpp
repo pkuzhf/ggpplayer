@@ -14,11 +14,13 @@
 using namespace std;
 
 int main() {
-	for(int i = 0 ; i < relation_type_num; ++i){
+	for(int i = 0 ; i < relation_type_num; ++i){		
 		Relation::addSymbol(relation_type_words[i]);
 	}
 	Reader r;
-	if (!r.scanGDLFile("gdl/connect_four.txt")) {
+	if (!r.scanGDLFile("gdl/lights_out.txt")) {
+	//if (!r.scanGDLFile("gdl/connect_four.txt")) {
+	//if (!r.scanGDLFile("gdl/2pffa_zerosum.kif")) {
         cout << "read file failed." << endl;
         return -1;
     }
@@ -52,7 +54,7 @@ int main() {
 	char buf[10000];
 	cin.getline(buf, 10000);
 	int role;	
-	role = Relation::string2int_[string(buf)];
+	role = Relation::symbol2code[string(buf)];
 	cout << "ready" << endl;
 		
 	cin.getline(buf, 10000);
@@ -64,19 +66,18 @@ int main() {
 	while (true) {				
 		cin.getline(buf, 10000);	
 		Reader move_reader;
-		move_reader.file_content_ = buf;		
+		move_reader.file_head_ = buf;		
 		Propositions joint_move;
 		move_reader.getMoves(joint_move);
 		for (int i = 0; i < joint_move.size(); ++i) {
 			Relation does;
-			does.content_ = r_does;
-			does.type_ = r_does;			
+			does.head_ = r_does;						
 			does.items_.push_back(machine.prover_.roles_[i].toRelation().items_[0]);
 			does.items_.push_back(joint_move[i].toRelation());
 			joint_move[i] = does.toProposition();
 		}		
 		machine.goOneStep(joint_move);
-		if (machine.isTerminal()) {
+		if (machine.is_terminal_) {
 			//cout << "Terminal." << endl;
 			break;
 		}

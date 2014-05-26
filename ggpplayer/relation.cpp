@@ -13,21 +13,20 @@
 
 using namespace std;
 
-
-vector<string> Relation::int2string_ = vector<string>();
-unordered_map<string, int> Relation::string2int_ = unordered_map<string, int>();
-int Relation::symbol_table_size_ = 0; // int2string may contain some strings of proposition other than symbols
+unordered_map<string, int> Relation::symbol2code = unordered_map<string, int>();
+vector<string> Relation::code2symbol = vector<string>(); // Relation::code2symbol may contain some strings of proposition other than symbols
+int Relation::symbol_table_size = 0;
 
 void Relation::addSymbol(string symbol) {
-	string2int_[symbol] = int2string_.size();
-	int2string_.push_back(symbol);
-	++symbol_table_size_;
+	Relation::symbol2code[symbol] = Relation::code2symbol.size();
+	Relation::code2symbol.push_back(symbol);
+	++Relation::symbol_table_size;
 }
 
 bool Relation::operator<(const Relation &r) const{
-	if (content_ < r.content_) {
+	if (head_ < r.head_) {
 		return true;
-	}else if(content_ > r.content_){
+	}else if(head_ > r.head_){
 		return false;
 	}
 	for (int i = 0; i < items_.size() && i < r.items_.size() ; ++i){
@@ -43,43 +42,8 @@ bool Relation::operator<(const Relation &r) const{
 	return false;
 }
 
-bool Relation::matches(const Relation &r, vector<pair<int, int> > &var_value) const {
-	if (items_.size() != r.items_.size()) {
-		return false;
-	}
-	if (type_ != r.type_ || content_ != r.content_) {
-		//if ((type_ == r_constant || type_ == r_function && items_.size() == 0) && r.type_ == r_variable) {
-		if (type_ == r_constant && r.type_ == r_variable) {			
-			var_value.push_back(pair<int, int>(r.content_, content_));			
-		//} else if ((r.type_ == r_constant || r.type_ == r_function && r.items_.size() == 0) && type_ == r_variable) {
-		} else if (r.type_ == r_constant && type_ == r_variable) {
-			var_value.push_back(pair<int, int>(content_, r.content_));			
-		} else {
-			return false;
-		}
-	}
-	for (int i = 0; i < items_.size(); ++i) {
-		if (!items_[i].matches(r.items_[i], var_value)) {
-			return false;
-		}
-	}
-	return true;
-}
-
-bool Relation::equals(const Relation &r) const {
-	if (items_.size() != r.items_.size() || type_ != r.type_ || content_ != r.content_) {
-		return false;
-	}
-	for (int i = 0; i < items_.size(); ++i) {
-		if (!items_[i].equals(r.items_[i])) {
-			return false;
-		}
-	}
-	return true;
-}
-
 string Relation::toString() const {
-	string s = "" + Relation::int2string_[content_];
+	string s = "" + Relation::code2symbol[head_];
 	for (int i = 0; i < items_.size(); ++i) {
 		if (items_[i].items_.size() > 0) {
 			s += " ("+ items_[i].toString() + ")";
@@ -90,35 +54,10 @@ string Relation::toString() const {
 	return s;
 }
 
-bool Relation::replaceVariables(vector<pair<int, int> > &m) {
-	int start = clock();
-	bool replace_all_vars = true;;
-	if (type_ == r_variable) {
-		bool find = false;
-		for (int i = 0; i < m.size(); ++i) {
-			if (m[i].first == content_) {
-				find = true;
-				content_ = m[i].second;
-				type_ = r_constant;
-			}
-		}
-		if (!find) {
-			replace_all_vars = false;
-		}
-	}
-	for (int i = 0; i < items_.size(); ++i) {
-		if (!items_[i].replaceVariables(m)) {
-			replace_all_vars = false;
-		}
-	}
-	Prover::time16 += clock() - start;
-	return replace_all_vars;
-}
-
 Proposition Relation::toProposition() {
 	Proposition ret;
-	ret.head_ = content_;
-	if (type_ == r_variable) {
+	ret.head_ = head_;
+	if (Relation::code2symbol[head_][0] == '?') {
 		ret.is_variable_ = true;
 	} else {
 		ret.is_variable_ = false;
@@ -145,7 +84,7 @@ Proposition Proposition::strToProp(string s) {
 	while (i < size && s[i] == ' ') ++i;
 	int start = i;
 	while (i < size && s[i] != ' ') ++i;
-	ret.head_ = Relation::string2int_[s.substr(start, i - start)];
+	ret.head_ = Relation::symbol2code[s.substr(start, i - start)];
 	while (i < size) {
 		while (i < size && s[i] == ' ') ++i;
 		if (i == size) break;
@@ -189,16 +128,7 @@ bool Proposition::operator<(const Proposition &p) const {
 
 Relation Proposition::toRelation() {
 	Relation ret;
-	ret.content_ = head_;
-	if (ret.content_ < relation_type_num) {
-		ret.type_ = (RelationType)ret.content_;
-	} else if (items_.size() > 0) {
-		ret.type_ = r_function;
-	} else if (is_variable_) {
-		ret.type_ = r_variable;
-	} else {
-		ret.type_ = r_constant;
-	}
+	ret.head_ = head_;	
 	for (int i = 0; i < items_.size(); ++i) {
 		ret.items_.push_back(items_[i].toRelation());
 	}
@@ -269,10 +199,10 @@ void Proposition::replaceVariables(vector<int> &variables, vector<int> &values) 
 				break;
 			}
 		}
-		if (head_ < Relation::symbol_table_size_) {
+		if (head_ < Relation::symbol_table_size) {
 			head_ = value;
 		} else {
-			Proposition p = strToProp(Relation::int2string_[value]);
+			Proposition p = strToProp(Relation::code2symbol[value]);
 			head_ = p.head_;
 			for (int i = 0; i < p.items_.size(); ++i) {
 				items_.push_back(p.items_[i]);
@@ -291,19 +221,19 @@ int Proposition::getPropCode() {
 		return head_;
 	} else {
 		string s = toString();
-		if (Relation::string2int_.find(s) == Relation::string2int_.end()) {
-			Relation::string2int_[s] = Relation::int2string_.size();
-			Relation::int2string_.push_back(s);
+		if (Relation::symbol2code.find(s) == Relation::symbol2code.end()) {
+			Relation::symbol2code[s] = Relation::code2symbol.size();
+			Relation::code2symbol.push_back(s);
 		}	
-		return Relation::string2int_[s];
+		return Relation::symbol2code[s];
 	}	
 }
 
 string Proposition::toString() {	
 	if (items_.size() == 0) {
-		return Relation::int2string_[head_];
+		return Relation::code2symbol[head_];
 	} else {
-		string ret = "( " + Relation::int2string_[head_];
+		string ret = "( " + Relation::code2symbol[head_];
 		for (int i = 0; i < items_.size(); ++i) {
 			ret += " " + items_[i].toString();
 		}
@@ -313,9 +243,8 @@ string Proposition::toString() {
 }
 
 Relation Derivation::toRelation() {
-	Relation ret;
-	ret.type_ = r_derivation;
-	ret.content_ = r_derivation;
+	Relation ret;	
+	ret.head_ = r_derivation;
 	ret.items_.push_back(target_.toRelation());
 	for (int i = 0; i < subgoals_.size(); ++i) {
 		ret.items_.push_back(subgoals_[i].toRelation());
