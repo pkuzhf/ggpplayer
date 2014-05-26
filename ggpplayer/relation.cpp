@@ -202,8 +202,8 @@ Relation Proposition::toRelation() {
 	} else if (ret.type_ == r_true || ret.type_ == r_next || ret.type_ == r_init || ret.type_ == r_base) {
 		Relation prop;
 		prop.content_ = items_[1];
-		if (prop.content_ == r_true) {
-			prop.type_ = r_true;
+		if (prop.content_ == r_true || prop.content_ == r_does) {
+			prop.type_ = (RelationType)prop.content_;
 			Relation func;
 			func.content_ = items_[2];
 			func.type_ = r_function;

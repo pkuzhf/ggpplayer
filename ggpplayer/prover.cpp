@@ -515,7 +515,7 @@ time1 += clock() - time1start;
 					time20++;									
 					if (k == var_candidates.size() - 1) {
 						int time8s = clock();						
-						vector<int> m(variable_size);
+						vector<int> m(variable_size, -1);
 						for (int ii = 0; ii <= k; ++ii) {
 							vector<int> &c = var_candidates[ii][idx[ii]];					
 							for (int jj = 0; jj < variable_size; ++jj) {

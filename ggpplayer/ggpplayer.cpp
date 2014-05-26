@@ -19,7 +19,7 @@ int main() {
 		Relation::int2string_.push_back(relation_type_words[i]);
 	}
 	Reader r;
-	if (!r.scanGDLFile("gdl/connect_four.txt")) {
+	if (!r.scanGDLFile("gdl/blocker.kif")) {
         cout << "read file failed." << endl;
         return -1;
     }
@@ -81,10 +81,11 @@ int main() {
 			//cout << "Terminal." << endl;
 			break;
 		}
-		if (machine.getRandomMove(role).toRelation().items_[1].items_.size() == 0) {		
-			cout << machine.getRandomMove(role).toRelation().items_[1].toString() << endl;
+		Relation move = machine.getRandomMove(role).toRelation();
+		if (move.items_[1].items_.size() == 0) {		
+			cout << move.items_[1].toString() << endl;
 		} else {
-			cout << "( " << machine.getRandomMove(role).toRelation().items_[1].toString() << " )" << endl;
+			cout << "( " << move.items_[1].toString() << " )" << endl;
 		}
 	}
 	return 0;
