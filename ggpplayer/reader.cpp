@@ -71,8 +71,7 @@ Relation Reader::getRelation(const string &s, RelationType default_type) {
 	fetch(s, idx, head);
 	r.type_ = getType(head);
 	if(Relation::string2int_.find(head) == Relation::string2int_.end()){
-		Relation::string2int_[head] = Relation::int2string_.size();
-		Relation::int2string_.push_back(head);
+		Relation::addSymbol(head);
 	}
 	r.content_ = Relation::string2int_[head];
 	if (r.type_ == r_other) {

@@ -79,10 +79,12 @@ public:
 	
 	static unordered_map<string, int> string2int_;
 	static vector<string> int2string_;
-	
+	static int symbol_table_size_;
+
+	static void addSymbol(string symbol);
+
 	bool matches(const Relation &r, vector<pair<int, int> > &var_value) const;
-	bool equals(const Relation &r) const;
-	Relations findProposions();
+	bool equals(const Relation &r) const;	
 	bool operator<(const Relation &r) const;
 	string toString() const;
 	bool replaceVariables(vector<pair<int, int> > &m);		
@@ -92,21 +94,21 @@ public:
 
 class Proposition {
 public:
-	short int items_[MAX_ITEM_NUM];
-	short int item_num_;
+
+	static Proposition strToProp(string s);
+
+	int head_;
+	bool is_variable_;
+	vector<Proposition> items_;
 
 	bool operator<(const Proposition &r) const;
 	Relation toRelation();
 	bool matches(Proposition p, vector<int> &variables, vector<int> &values);
-	bool equals(Proposition p);
-	bool headMatches(Proposition p);
-	void removeHead();	
-	inline short int head();
-	void setHead(int head);
-	void setRole(int role);
-	inline bool isVariable(int idx);
-	vector<int> getVarPos();
+	bool equals(Proposition p);		
+	void getVariables(vector<int> &variables);
 	void replaceVariables(vector<int> &variables, vector<int> &values);
+	int getPropCode();
+	string toString();
 };
 
 class Derivation {

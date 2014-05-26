@@ -18,21 +18,21 @@ void DependGraph::buildGraph(vector<Derivation> derivations)
 {
 	derivations_ = derivations;
 	for(int i = 0 ; i < derivations_.size(); ++i){
-		if (node_num_.find(derivations_[i].target_.items_[0]) == node_num_.end()) {
-			addNode(derivations_[i].target_.items_[0]);
+		if (node_num_.find(derivations_[i].target_.head_) == node_num_.end()) {
+			addNode(derivations_[i].target_.head_);
 		}
 		for(int j = 0; j < derivations_[i].subgoals_.size(); ++j){			
 			Proposition r = derivations_[i].subgoals_[j];
-			if (r.items_[0] == r_distinct) {
+			if (r.head_ == r_distinct) {
 				continue;
 			}
-			if (r.items_[0] == r_not) {
-				r.removeHead();				
+			if (r.head_ == r_not) {
+				r = r.items_[0];			
 			}
-			if (node_num_.find(r.items_[0]) == node_num_.end()) {
-				addNode(r.items_[0]);
+			if (node_num_.find(r.head_) == node_num_.end()) {
+				addNode(r.head_);
 			}
-			addEdge(derivations_[i].target_.items_[0], r.items_[0]);
+			addEdge(derivations_[i].target_.head_, r.head_);
 		}
 	}	
 	addEdge(r_does, r_legal);
@@ -65,7 +65,7 @@ void DependGraph::getStraDeriv()
 	}
 
 	for(int i = 0 ; i < derivations_.size(); ++i){
-		stra_deriv_[node_stra_[node_num_[derivations_[i].target_.items_[0]]]].push_back(i);
+		stra_deriv_[node_stra_[node_num_[derivations_[i].target_.head_]]].push_back(i);
 	}
 }
 

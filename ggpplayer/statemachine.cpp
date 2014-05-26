@@ -22,9 +22,9 @@ StateMachine::StateMachine(Relations description):prover_(description) {
 	right_props_ = prover_.generateTrueProps(rs, 0, prover_.dpg_.stra_deriv_.size() - 1);
 	current_state_.clear();
 	for(int i = 0  ; i < right_props_.size(); ++i){
-		if(right_props_[i].head() == r_init){
+		if(right_props_[i].head_ == r_init){
 			Proposition r = right_props_[i];
-			r.setHead(r_true);
+			r.head_ = r_true;
 			current_state_.push_back(r);
 		}
 	}
@@ -37,7 +37,7 @@ Propositions StateMachine::getGoals()
 {
 	Propositions rtn;
 	for(int i = 0 ; i < right_props_.size(); ++i){
-		if(right_props_[i].head() == r_goal){
+		if(right_props_[i].head_ == r_goal){
 			rtn.push_back(right_props_[i]);
 		}
 	}
@@ -47,7 +47,7 @@ Propositions StateMachine::getGoals()
 bool StateMachine::isTerminal() {
 	
 	for(int i = 0 ; i < right_props_.size(); ++i){
-		if(right_props_[i].head() == r_terminal){
+		if(right_props_[i].head_ == r_terminal){
 			return true;
 		}
 	}
@@ -58,16 +58,16 @@ Propositions StateMachine::getLegalMoves(int role) {
 	
 	Propositions rtn;
 	for (int i = 0; i < prover_.statics_.size(); ++i) {
-		if(prover_.statics_[i].head() == r_legal && prover_.statics_[i].toRelation().items_[0].content_ == role){
+		if(prover_.statics_[i].head_ == r_legal && prover_.statics_[i].toRelation().items_[0].content_ == role){
 			Proposition r = prover_.statics_[i];
-			r.setHead(r_does);
+			r.head_ = r_does;
 			rtn.push_back(r);
 		}
 	}
 	for(int i = 0 ; i < right_props_.size(); ++i){
-		if(right_props_[i].head() == r_legal && right_props_[i].toRelation().items_[0].content_ == role){
+		if(right_props_[i].head_ == r_legal && right_props_[i].toRelation().items_[0].content_ == role){
 			Proposition r = right_props_[i];
-			r.setHead(r_does);
+			r.head_ = r_does;
 			rtn.push_back(r);
 		}
 	}
@@ -95,9 +95,9 @@ void StateMachine::goOneStep(Propositions & move)
 	}
 	current_state_.clear();
 	for(int i = 0  ; i < right_props_.size(); ++i){
-		if(right_props_[i].head() == r_next){
+		if(right_props_[i].head_ == r_next){
 			Proposition r = right_props_[i];
-			r.setHead(r_true);
+			r.head_ = r_true;
 			current_state_.push_back(r);
 		}
 	}

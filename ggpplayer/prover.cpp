@@ -133,13 +133,13 @@ void Prover::init() {
 	}
 	true_rs = generateTrueProps(true_rs, 0, dpg_.stra_deriv_.size() - 1);
 	for(int i = 0; i < true_rs.size(); ++i){
-		if(true_rs[i].head() == r_init){
+		if(true_rs[i].head_ == r_init){
 			inits_.push_back(true_rs[i]);
-		} else if(true_rs[i].head() == r_base){
+		} else if(true_rs[i].head_ == r_base){
 			bases_.push_back(true_rs[i]);			
-		} else if(true_rs[i].head() == r_input){
+		} else if(true_rs[i].head_ == r_input){
 			inputs_.push_back(true_rs[i]);			
-		} else if(find(static_heads_.begin(), static_heads_.end(), true_rs[i].head()) != static_heads_.end()){
+		} else if(find(static_heads_.begin(), static_heads_.end(), true_rs[i].head_) != static_heads_.end()){
 			statics_.push_back(true_rs[i]);	
 			statics_set_.insert(true_rs[i]);
 		}
@@ -168,7 +168,7 @@ void Prover::init() {
 		vector<int> idx;
 		bool impossible = false;		
 		for (int j = 0; j < d.subgoals_.size(); ++j) {
-			if (find(static_heads_.begin(), static_heads_.end(), d.subgoals_[j].head()) == static_heads_.end()) {
+			if (find(static_heads_.begin(), static_heads_.end(), d.subgoals_[j].head_) == static_heads_.end()) {
 				continue;
 			}
 			vector<vector<int> > candidates;
@@ -176,7 +176,7 @@ void Prover::init() {
 			for (int ii = 0; ii < statics_.size(); ++ii) {				
 				vector<int> variables;
 				vector<int> values;				
-				if (subgoal.headMatches(statics_[ii]) && subgoal.matches(statics_[ii], variables, values)) {					
+				if (subgoal.matches(statics_[ii], variables, values)) {					
 					bool duplicated = false;
 					for (int jj = 0; jj < candidates.size(); ++jj) {
 						bool equal = true;
@@ -202,14 +202,15 @@ void Prover::init() {
 			}
 			idx.push_back(0);
 			vector<vector<int> > candidates2;
-			vector<int> var_positions = subgoal.getVarPos();
+			vector<int> variables;
+			subgoal.getVariables(variables);
 			for (int ii = 0; ii < candidates.size(); ++ii) {
 				vector<int> &c = candidates[ii];
 				vector<int> c2;
 				for (int jj = 0; jj < d.variables_.size(); ++jj) {
 					int val = -1;
-					for (int kk = 0; kk < var_positions.size(); ++kk) {
-						if (subgoal.items_[var_positions[kk]] == d.variables_[jj]) {
+					for (int kk = 0; kk < variables.size(); ++kk) {
+						if (variables[kk] == d.variables_[jj]) {
 							val = c[kk];
 							break;
 						}
@@ -267,7 +268,7 @@ void Prover::init() {
 			}			
 		}
 		for (Propositions::iterator j = d.subgoals_.begin(); j != d.subgoals_.end(); ) {
-			if (find(static_heads_.begin(), static_heads_.end(), j->head()) != static_heads_.end()) {
+			if (find(static_heads_.begin(), static_heads_.end(), j->head_) != static_heads_.end()) {
 				j = d.subgoals_.erase(j);
 			} else {
 				++j;
@@ -299,7 +300,7 @@ void Prover::getStaticRelation()
 		}
 	}
 	for(int i = 0 ; i < derivations_.size(); ++i){
-		if(find(static_heads_.begin(), static_heads_.end(), derivations_[i].target_.head()) == static_heads_.end()){
+		if(find(static_heads_.begin(), static_heads_.end(), derivations_[i].target_.head_) == static_heads_.end()){
 			nonstatic_derivations_.push_back(derivations_[i]);
 		}else {
 			static_derivations_.push_back(derivations_[i]);
@@ -333,11 +334,11 @@ int start = clock();
 	set<Proposition> true_props_set;
 int time1start = clock();
 	for (int i = 0; i < true_props.size(); ++i) {
-		if (content_relations.find(true_props[i].head()) == content_relations.end()) {
+		if (content_relations.find(true_props[i].head_) == content_relations.end()) {
 			vector<int> rs;
-			content_relations[true_props[i].head()] = rs;
+			content_relations[true_props[i].head_] = rs;
 		}
-		content_relations[true_props[i].head()].push_back(i);
+		content_relations[true_props[i].head_].push_back(i);
 		true_props_set.insert(true_props[i]);
 	}
 time1 += clock() - time1start;
@@ -359,21 +360,20 @@ time1 += clock() - time1start;
 			int time2s = clock();
 			for (int k = 0; k < d.subgoals_.size(); ++k) {								
 				Proposition &subgoal = d.subgoals_[k];
-				if (subgoal.head() == r_not) {
+				if (subgoal.head_ == r_not) {
 					not_subgoals.push_back(k);
-				} else if (subgoal.head() == r_distinct) {
+				} else if (subgoal.head_ == r_distinct) {
 					distinct_subgoals.push_back(k);
-				} else if (dpg_.node_stra_[dpg_.node_num_[subgoal.head()]] < i) { // lower stratum subgoals					
+				} else if (dpg_.node_stra_[dpg_.node_num_[subgoal.head_]] < i) { // lower stratum subgoals					
 					lower_stratum_subgoals.push_back(k);
-					vector<vector<int> > candidates;					
-					vector<int> var_positions = subgoal.getVarPos();
-					vector<int> &true_rs = content_relations[subgoal.head()];
+					vector<vector<int> > candidates;										
+					vector<int> &true_rs = content_relations[subgoal.head_];
 					for (int ii = 0; ii < true_rs.size(); ++ii) { // scan all true props to generate var-value maps
 						int time17s = clock();
 						Proposition &p = true_props[true_rs[ii]];
 						vector<int> variables;
 						vector<int> values;
-						if (subgoal.headMatches(p) && subgoal.matches(p, variables, values)) {							
+						if (subgoal.matches(p, variables, values)) {							
 							bool duplicated = false;
 							for (int jj = 0; jj < candidates.size(); ++jj) {
 								bool equal = true;
@@ -399,13 +399,15 @@ time1 += clock() - time1start;
 						break;
 					}					
 					vector<vector<int> > candidates2;
+					vector<int> variables;
+					subgoal.getVariables(variables);
 					for (int ii = 0; ii < candidates.size(); ++ii) {
 						vector<int> &c = candidates[ii];
 						vector<int> c2;
 						for (int jj = 0; jj < d.variables_.size(); ++jj) {
 							int val = -1;
-							for (int kk = 0; kk < var_positions.size(); ++kk) {
-								if (subgoal.items_[var_positions[kk]] == d.variables_[jj]) {
+							for (int kk = 0; kk < variables.size(); ++kk) {
+								if (variables[kk] == d.variables_[jj]) {
 									val = c[kk];
 									break;
 								}
@@ -423,39 +425,6 @@ time1 += clock() - time1start;
 			if (impossible) {
 				continue;
 			}						
-			//if (lower_stratum_subgoals.size() == 0) {
-			//	vector<vector<int> > &candidates = non_der_var_values_[dpg_.stra_deriv_[i][j]];
-			//	for (int k = 0; k < candidates.size(); ++k) {
-			//		bool satisfied = true;					
-			//		for (int ii = 0; ii < not_subgoals.size() && satisfied; ++ii) {
-			//			Proposition not_relation = d.subgoals_[not_subgoals[ii]];
-			//			not_relation.removeHead();
-			//			not_relation.replaceVariables(d.variables_, candidates[k]);
-			//			if (statics_set_.find(not_relation) != statics_set_.end()) {
-			//				satisfied = false;
-			//				break;
-			//			}
-			//			if (content_relations.find(not_relation.head()) != content_relations.end()) {
-			//				for (int jj = 0; jj < content_relations[not_relation.head()].size(); ++jj) {
-			//					Proposition &true_prop = true_props[content_relations[not_relation.head()][jj]];
-			//					if (true_prop.equals(not_relation)) {
-			//						satisfied = false;
-			//						break;
-			//					}
-			//				}
-			//			}
-			//		}
-			//		if (satisfied) {
-			//			Proposition p = d.target_;
-			//			p.replaceVariables(d.variables_, candidates[k]);
-			//			if (current_stratum_props_set.find(p) == current_stratum_props_set.end()) {
-			//				current_stratum_props_set.insert(p);					
-			//				current_stratum_props.push_back(p);
-			//			}
-			//		}					
-			//	}
-			//	continue; // avoid the while loop below				
-			//}
 			if (var_candidates.size() == 0) {
 				vector<int> candidate;
 				vector<vector<int> > candidates;
@@ -527,13 +496,13 @@ time1 += clock() - time1start;
 						bool check_not_and_distinct = true;						
 						for (int ii = 0; ii < distinct_subgoals.size() && check_not_and_distinct; ++ii) {							
 							Proposition &distinct = d.subgoals_[distinct_subgoals[ii]];														
-							int first = distinct.items_[1];
-							int second = distinct.items_[2];
+							int first = distinct.items_[0].head_;
+							int second = distinct.items_[1].head_;
 							for (int jj = 0; jj < variable_size; ++jj) {
-								if (d.variables_[jj] == distinct.items_[1]) {
+								if (d.variables_[jj] == distinct.items_[0].head_) {
 									first = m[jj];
 								}
-								if (d.variables_[jj] == distinct.items_[2]) {
+								if (d.variables_[jj] == distinct.items_[1].head_) {
 									second = m[jj];
 								}
 							}
@@ -544,32 +513,14 @@ time1 += clock() - time1start;
 						int time12s = clock();
 						for (int ii = 0; ii < not_subgoals.size() && check_not_and_distinct; ++ii) {
 							int time14s = clock();
-							Proposition not_relation = d.subgoals_[not_subgoals[ii]]; // 改成引用 对比tmp和m
-							not_relation.removeHead();
+							Proposition not_relation = d.subgoals_[not_subgoals[ii]].items_[0];
 							time15 += clock() - time14s;
-							vector<int> var_positions = not_relation.getVarPos();
-							for (int jj = 0; jj < var_positions.size(); ++jj) {
-								for (int kk = 0; kk < variable_size; ++kk) {
-									if (d.variables_[kk] == not_relation.items_[var_positions[jj]]) {
-										not_relation.items_[var_positions[jj]] = m[kk];
-									}
-								}
-							}
-							if (statics_set_.find(not_relation) != statics_set_.end()) {
+							not_relation.replaceVariables(d.variables_, m);
+							if (true_props_set.find(not_relation) != true_props_set.end() || statics_set_.find(not_relation) != statics_set_.end()) {
 								check_not_and_distinct = false;
 								break;
 							}
 							time14 += clock() - time14s;
-							int time13s = clock();
-							vector<int> &not_rs = content_relations[not_relation.head()];
-							int size = not_rs.size();
-							for (int jj = 0; jj < size; ++jj) {																																
-								if (true_props[not_rs[jj]].equals(not_relation)) {									
-									check_not_and_distinct = false;									
-									break;
-								}																
-							}
-							time13 += clock() - time13s;
 						}
 						time12 += clock() - time12s;
 						time11 += clock() - time11s;
@@ -598,11 +549,11 @@ time1 += clock() - time1start;
 					Proposition p = d.target_;
 					p.replaceVariables(d.variables_, combined_candidates[ii]);
 					if (true_props_set.find(p) == true_props_set.end()) {											
-						if (content_relations.find(p.head()) == content_relations.end()) {
+						if (content_relations.find(p.head_) == content_relations.end()) {
 							vector<int> tmp;
-							content_relations[p.head()] = tmp;
+							content_relations[p.head_] = tmp;
 						}
-						content_relations[p.head()].push_back(true_props.size());
+						content_relations[p.head_].push_back(true_props.size());
 						true_props.push_back(p);
 						true_props_set.insert(p);
 						current_stratum_props.push_back(p);										
@@ -619,7 +570,7 @@ time1 += clock() - time1start;
 			for (int ii = 0; ii < distinct_subgoals.size(); ++ii) {							
 				Proposition &distinct = d.subgoals_[distinct_subgoals[ii]];																		
 				for (int jj = 0; jj < variable_size; ++jj) {
-					if ((d.variables_[jj] == distinct.items_[1] || d.variables_[jj] == distinct.items_[2]) 
+					if ((d.variables_[jj] == distinct.items_[0].head_ || d.variables_[jj] == distinct.items_[1].head_) 
 						&& combined_candidates[0][jj] == -1) {	// combined_candidates has 1 element at least
 						d2.subgoals_.push_back(d.subgoals_[distinct_subgoals[ii]]);
 						break;
@@ -640,7 +591,7 @@ time1 += clock() - time1start;
 				vector<int> non_distincts;
 				for (int ii = 0; ii < d.subgoals_.size(); ++ii) {
 					Proposition &subgoal = d.subgoals_[ii];
-					if (subgoal.head() == r_distinct) {
+					if (subgoal.head_ == r_distinct) {
 						distincts.push_back(ii);
 					} else {
 						non_distincts.push_back(ii);
@@ -650,7 +601,7 @@ time1 += clock() - time1start;
 					Proposition &subgoal = d.subgoals_[non_distincts[ii]];
 					vector<int> variables;
 					vector<int> values;
-					if (subgoal.headMatches(p) && subgoal.matches(p, variables, values)) {
+					if (subgoal.matches(p, variables, values)) {
 						vector<vector<int> > combined_candidates;
 						set<vector<int> > combined_candidates_set;
 						for (int jj = 0; jj < der_var_candidates[k].size(); ++jj) {
@@ -672,13 +623,13 @@ time1 += clock() - time1start;
 								bool check_distinct = true;								
 								for (int kk = 0; kk < distincts.size() && check_distinct; ++kk) {									
 									Proposition &distinct = d.subgoals_[distincts[kk]];														
-									int first = distinct.items_[1];
-									int second = distinct.items_[2];
+									int first = distinct.items_[0].head_;
+									int second = distinct.items_[1].head_;
 									for (int iii = 0; iii < d.variables_.size(); ++iii) {
-										if (d.variables_[iii] == distinct.items_[1]) {
+										if (d.variables_[iii] == distinct.items_[0].head_) {
 											first = m[iii];
 										}
-										if (d.variables_[iii] == distinct.items_[2]) {
+										if (d.variables_[iii] == distinct.items_[1].head_) {
 											second = m[iii];
 										}
 									}
@@ -691,11 +642,11 @@ time1 += clock() - time1start;
 										Proposition p = d.target_;
 										p.replaceVariables(d.variables_, m);
 										if (true_props_set.find(p) == true_props_set.end()) {											
-											if (content_relations.find(p.head()) == content_relations.end()) {
+											if (content_relations.find(p.head_) == content_relations.end()) {
 												vector<int> tmp;
-												content_relations[p.head()] = tmp;
+												content_relations[p.head_] = tmp;
 											}
-											content_relations[p.head()].push_back(true_props.size());
+											content_relations[p.head_].push_back(true_props.size());
 											true_props.push_back(p);
 											true_props_set.insert(p);
 											current_stratum_props.push_back(p);										
@@ -723,7 +674,7 @@ time1 += clock() - time1start;
 						for (int jj = 0; jj < distincts.size(); ++jj) {
 							Proposition &distinct = d.subgoals_[distincts[jj]];
 							for (int kk = 0; kk < d.variables_.size(); ++kk) {
-								if ((d.variables_[kk] == distinct.items_[1] || d.variables_[kk] == distinct.items_[2]) 
+								if ((d.variables_[kk] == distinct.items_[0].head_ || d.variables_[kk] == distinct.items_[1].head_) 
 									&& combined_candidates[0][kk] == -1) {	// combined_candidates has 1 element at least
 									d2.subgoals_.push_back(d.subgoals_[distincts[jj]]);
 									break;

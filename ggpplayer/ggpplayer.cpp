@@ -15,8 +15,7 @@ using namespace std;
 
 int main() {
 	for(int i = 0 ; i < relation_type_num; ++i){
-		Relation::string2int_[relation_type_words[i]] = i;
-		Relation::int2string_.push_back(relation_type_words[i]);
+		Relation::addSymbol(relation_type_words[i]);
 	}
 	Reader r;
 	if (!r.scanGDLFile("gdl/connect_four.txt")) {
