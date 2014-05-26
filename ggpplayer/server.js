@@ -102,7 +102,7 @@ http.createServer(function (req, res) {
                     console.log(err);
                 }
                 ggp_exe = spawn('./ggp');
-                ggp_exe.stdout.on('data', function (data) {
+                ggp_exe.stdout.once('data', function (data) {
                     data = String(data);
                     console.log('ggp out: ' + data);
                     var end = data[data.length - 1];
@@ -123,7 +123,7 @@ http.createServer(function (req, res) {
         case 'play' :
             if (ggp_exe) {
                 console.log('ggp in: ' + request.move);
-                ggp_exe.stdout.on('data', function (data) {
+                ggp_exe.stdout.once('data', function (data) {
                     data = String(data);
                     console.log('ggp out: ' + data);
                     var end = data[data.length - 1];
