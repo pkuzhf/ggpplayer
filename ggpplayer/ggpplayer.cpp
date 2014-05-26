@@ -55,14 +55,17 @@ int main() {
 	cin.getline(buf, 10000);
 	int role;	
 	role = Relation::symbol2code[string(buf)];
+	for (int i = 0; i < machine.prover_.roles_.size(); ++i) {
+		if (machine.prover_.roles_[i].items_[0].head_ == role) {
+			role = i;
+			break;
+		}
+	}
 	cout << "ready" << endl;
 		
 	cin.getline(buf, 10000);
-	if (machine.getRandomMove(role).toRelation().items_[1].items_.size() == 0) {		
-		cout << machine.getRandomMove(role).toRelation().items_[1].toString() << endl;
-	} else {
-		cout << "( " << machine.getRandomMove(role).toRelation().items_[1].toString() << " )" << endl;
-	}
+	cout << machine.getRandomMove(role).toString();
+	
 	while (true) {				
 		cin.getline(buf, 10000);	
 		Reader move_reader;
