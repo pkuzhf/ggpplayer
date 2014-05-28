@@ -145,11 +145,18 @@ bool Proposition::matches(Proposition p, vector<int> &variables, vector<int> &va
 		} else if (p.is_variable_) {
 			variable = p.head_;
 			value = getPropCode();
+		}		
+		for (int i = 0; i < variables.size(); ++i) {
+			if (variables[i] == variable) {
+				if (values[i] == value) {
+					return true;
+				} else {
+					return false;					
+				}
+			}
 		}
-		if (find(variables.begin(), variables.end(), variable) == variables.end()) {
-			variables.push_back(variable);
-			values.push_back(value);
-		}
+		variables.push_back(variable);
+		values.push_back(value);		
 		return true;
 	} else {
 		if (head_ != p.head_ || items_.size() != p.items_.size()) {
