@@ -60,7 +60,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 				cout << "6 go"<<endl;
 				stateMachine_.setState(node->parent_->nodeState_);
 				cout << "2 go" <<endl;
-				stateMachine_.goOneStep(stateMachine_.getLegalJointMoves(roleNum_, stateMachine_.legals_[max])[tempRand]);	
+				stateMachine_.goOneStep(stateMachine_.getLegalJointMoves(roleNum_, stateMachine_.getLegalMoves(roleNum_)[max])[tempRand]);	
 				cout<<"pp"<<endl;
 				node->nodeState_ = stateMachine_.trues_;
 			}	
