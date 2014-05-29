@@ -20,6 +20,9 @@ MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum):stateMachine_(rs)
 
 Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 {
+	if(stateMachine_.legals_.size() == 1){
+		return stateMachine_.legals_[0];
+	}
 	int start = clock();
 	int finishBy = start + timeout;
 
@@ -105,7 +108,9 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 	int stop = clock();
 
 
-	cout<< "UCT simu times: " <<(double)count / (stop - start) * 1000<<endl;
+	//cout<< "UCT simu times: " <<(double)count / (stop - start) * 1000<<endl;
+	cout<< "UCT simu times: " <<count<<endl;
+	stateMachine_.setState(currentState_);
 	return selection;
 }
 

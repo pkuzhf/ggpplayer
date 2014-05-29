@@ -38,10 +38,12 @@ int main() {
 	MonteCarloPlayer Mplayer2(rs, 1);
 	while(!Mplayer1.stateMachine_.is_terminal_){
 		Propositions moves;
-		moves.push_back(Mplayer1.stateMachineSelectMove(1000));
-		moves.push_back(Mplayer2.stateMachineSelectMove(1000));
+		moves.push_back(Mplayer1.stateMachineSelectMove(10000));
+		moves.push_back(Mplayer2.stateMachineSelectMove(10000));
 		Mplayer1.goOneStep(moves);
 		Mplayer2.goOneStep(moves);
+		cout<<"real moves:"<< moves[0].toString()<<endl;
+		cout<<"real moves:"<< moves[1].toString()<<endl;
 	}
 	//
 
