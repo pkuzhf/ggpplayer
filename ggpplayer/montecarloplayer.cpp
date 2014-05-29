@@ -38,7 +38,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 				}
 			}
 
-			node = node.sons_[max][rand() * node.sons_[max].size()];		
+			node = node.sons_[max][rand() % node.sons_[max].size()];		
 			stateMachine_.goOneStep(node.moves_);				
 		};
 
@@ -57,8 +57,8 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 				node.sons_.push_back(nodes);
 			}
 
-			vector<Node> nodes = node.sons_[rand() * node.sons_.size()];
-			node = nodes[rand() * nodes.size()];
+			vector<Node> nodes = node.sons_[rand() %  node.sons_.size()];
+			node = nodes[rand() % nodes.size()];
 			stateMachine_.goOneStep(node.moves_);
 
 			if (node.isTerminal_) {					
