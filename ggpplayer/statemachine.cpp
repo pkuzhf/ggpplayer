@@ -144,11 +144,16 @@ vector<vector<Proposition>> StateMachine::getLegalJointMoves(int role, Propositi
 {
 	vector<vector<Proposition>> rtn;
 	vector<vector<Proposition>> legalMoves;
-	vector<int> idx;
+	vector<int> idx(prover_.roles_.size(), 0);
 	for(int i = 0 ; i < prover_.roles_.size(); ++i){
-		vector<Proposition> t = getLegalMoves(i);
-		legalMoves.push_back(t);
-		idx.push_back(0);
+		if (i == role) {
+			vector<Proposition> t;
+			t.push_back(mymove);
+			legalMoves.push_back(t);
+		} else {
+			vector<Proposition> t = getLegalMoves(i);
+			legalMoves.push_back(t);		
+		}
 	}
 	while(true){
 		vector<Proposition> jointMove;

@@ -685,5 +685,6 @@ generate_time += clock() - start;
 	for (int i = 0; i < true_props.size(); ++i) {
 		output.push_back(true_props[i].toRelation().toString());
 	}
+	cout << "prover" << endl;
 	return true_props;
 }

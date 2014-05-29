@@ -48,11 +48,10 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 					maxscore = totalScores / nodes.size();
 				}
 			}
-
 			node = &node->sons_[max][rand() % node->sons_[max].size()];		
 			stateMachine_.goOneStep(node->moves_);				
 		};
-
+		
 		int thePoint;
 		if (!node->isTerminal_) {
 			Propositions moves = stateMachine_.getLegalMoves(roleNum_);
@@ -123,6 +122,7 @@ int MonteCarloPlayer::performDepthChargeFromMove()
 
 void MonteCarloPlayer::goOneStep(Propositions moves)
 {
+	stateMachine_.setState(currentState_);
 	stateMachine_.goOneStep(moves);
 	currentState_ = stateMachine_.trues_;
 	is_terminal_ = stateMachine_.is_terminal_;
