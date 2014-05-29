@@ -16,6 +16,7 @@ MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum):stateMachine_(rs)
 {
 	roleNum_ = rolenum;
 	currentState_ = stateMachine_.trues_;
+	is_terminal_ = false;
 }
 
 Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
@@ -110,7 +111,6 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 
 	//cout<< "UCT simu times: " <<(double)count / (stop - start) * 1000<<endl;
 	cout<< "UCT simu times: " <<count<<endl;
-	stateMachine_.setState(currentState_);
 	return selection;
 }
 
@@ -125,4 +125,5 @@ void MonteCarloPlayer::goOneStep(Propositions moves)
 {
 	stateMachine_.goOneStep(moves);
 	currentState_ = stateMachine_.trues_;
+	is_terminal_ = stateMachine_.is_terminal_;
 }

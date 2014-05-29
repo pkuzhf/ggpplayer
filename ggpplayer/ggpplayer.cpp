@@ -36,7 +36,7 @@ int main() {
 	// check montecarlo player
 	MonteCarloPlayer Mplayer1(rs, 0);
 	MonteCarloPlayer Mplayer2(rs, 1);
-	while(!Mplayer1.stateMachine_.is_terminal_){
+	while(!Mplayer1.is_terminal_){
 		Propositions moves;
 		moves.push_back(Mplayer1.stateMachineSelectMove(20000));
 		moves.push_back(Mplayer2.stateMachineSelectMove(20000));

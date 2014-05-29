@@ -16,6 +16,7 @@ class MonteCarloPlayer
 public:
 	StateMachine stateMachine_;
 	Propositions currentState_;
+	bool is_terminal_;
 	Node TreeRoot_;
 	int roleNum_;
 	MonteCarloPlayer(Relations rs, int rolenum);

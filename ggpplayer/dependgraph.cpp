@@ -16,10 +16,14 @@ using namespace std;
 
 void DependGraph::buildGraph(vector<Derivation> derivations)
 {
+	vector<vector<int> > edges_in_; // 入边的另一个顶点的num
+	vector<vector<int> > edges_out_; // 出边的另一个顶点的num
+	vector<bool> MARK;
+
 	derivations_ = derivations;
 	for(int i = 0 ; i < derivations_.size(); ++i){
 		if (node_num_.find(derivations_[i].target_.head_) == node_num_.end()) {
-			addNode(derivations_[i].target_.head_);
+			addNode(derivations_[i].target_.head_, edges_in_, edges_out_, MARK);
 		}
 		for(int j = 0; j < derivations_[i].subgoals_.size(); ++j){			
 			Proposition r = derivations_[i].subgoals_[j];
@@ -30,25 +34,24 @@ void DependGraph::buildGraph(vector<Derivation> derivations)
 				r = r.items_[0];			
 			}
 			if (node_num_.find(r.head_) == node_num_.end()) {
-				addNode(r.head_);
+				addNode(r.head_, edges_in_, edges_out_, MARK);
 			}
-			addEdge(derivations_[i].target_.head_, r.head_);
+			addEdge(derivations_[i].target_.head_, r.head_, edges_in_, edges_out_);
 		}
 	}	
 	if(node_num_.find(r_legal) != node_num_.end() && node_num_.find(r_does) != node_num_.end())
-		addEdge(r_does, r_legal);
+		addEdge(r_does, r_legal, edges_in_, edges_out_);
 	if(node_num_.find(r_terminal) != node_num_.end() && node_num_.find(r_does) != node_num_.end())
-		addEdge(r_does, r_terminal);
+		addEdge(r_does, r_terminal, edges_in_, edges_out_);
 	if(node_num_.find(r_goal) != node_num_.end() && node_num_.find(r_does) != node_num_.end())
-		addEdge(r_does, r_goal);
+		addEdge(r_does, r_goal, edges_in_, edges_out_);
 	if(node_num_.find(r_legal) != node_num_.end() && node_num_.find(r_terminal) != node_num_.end())
-		addEdge(r_terminal, r_legal);
+		addEdge(r_terminal, r_legal, edges_in_, edges_out_);
 	for(int i = 0 ; i < nodes_.size(); ++i){
 		init_nodes_.push_back(nodes_[i][0]);
 	}
-	init_edges_in_ = edges_in_;
 	init_edges_out_ = edges_out_;
-	topoSort();
+	topoSort(edges_in_, edges_out_, MARK);
 	
 	node_stra_.resize(node_num_.size());
 	for (int i = 0; i < topo_graph_.size(); ++i) {
@@ -77,13 +80,13 @@ void DependGraph::getStraDeriv()
 	}
 }
 
-void DependGraph::topoSort()
+void DependGraph::topoSort(vector<vector<int> > & edges_in_, vector<vector<int> >& edges_out_, vector<bool> & MARK)
 {
 	while(true){
-		int zero_in_index = findZeroIn();
+		int zero_in_index = findZeroIn(edges_in_, edges_out_, MARK);
 		if(zero_in_index == -1) break;
 		if(zero_in_index == -2){
-			deleteLoop();
+			deleteLoop(edges_in_, edges_out_, MARK);
 			continue;
 		}
 		MARK[zero_in_index] = true;
@@ -99,7 +102,7 @@ void DependGraph::topoSort()
 	}
 }
 
-void DependGraph::deleteLoop()
+void DependGraph::deleteLoop(vector<vector<int> > & edges_in_, vector<vector<int> >& edges_out_, vector<bool> & MARK)
 {
 	int index = 0; 
 	for(int i = 0 ; i < node_num_.size(); ++i){
@@ -175,7 +178,7 @@ void DependGraph::deleteLoop()
 	}
 }
 
-int DependGraph::findZeroIn()
+int DependGraph::findZeroIn(vector<vector<int> > & edges_in_, vector<vector<int> >& edges_out_, vector<bool> & MARK)
 {
 	bool b = false;
 	for(int i = 0 ;i < node_num_.size(); ++i){
@@ -191,7 +194,7 @@ int DependGraph::findZeroIn()
 	 return -2;   // there are loops
 }
 
-void DependGraph::addNode(int node) {
+void DependGraph::addNode(int node, vector<vector<int> > & edges_in_, vector<vector<int> >& edges_out_, vector<bool> & MARK) {
 	node_num_[node] = nodes_.size();
 	nodes_.push_back(vector<int>());
 	nodes_.at(nodes_.size() - 1).push_back(node);
@@ -200,15 +203,13 @@ void DependGraph::addNode(int node) {
 	MARK.push_back(false);
 }
 
-void DependGraph::addEdge(int head, int tail)
+void DependGraph::addEdge(int head, int tail,vector<vector<int> > & edges_in_, vector<vector<int> >& edges_out_)
 {
 	if (head == tail) 
 		return;        // delete single loop
 
 	if (find(edges_in_[node_num_[head]].begin(), edges_in_[node_num_[head]].end(), node_num_[tail]) == edges_in_[node_num_[head]].end() ){
-
 		edges_in_[node_num_[head]].push_back(node_num_[tail]);
 		edges_out_[node_num_[tail]].push_back(node_num_[head]);
-
 	}
 }
