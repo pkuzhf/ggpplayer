@@ -4,6 +4,7 @@
 #include <set>
 #include <map>
 #include <string>
+#include <time.h>
 
 #include "reader.h"
 #include "relation.h"
@@ -15,6 +16,7 @@
 using namespace std;
 
 int main() {
+	srand(time(0));
 	for(int i = 0 ; i < relation_type_num; ++i){		
 		Relation::addSymbol(relation_type_words[i]);
 	}

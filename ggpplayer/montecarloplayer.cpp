@@ -26,13 +26,19 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 	}
 	int start = clock();
 	int finishBy = start + timeout;
+	Propositions legalmoves;
 
-	Node root;        
+	Node root;  
+	root.nodeState_ = currentState_;
 
 	int count = 0;
-	
+
 	while (clock() < finishBy) {
+		cout << "5 go"<<endl;
 		stateMachine_.setState(currentState_);
+		if(legalmoves.size() == 0){
+			legalmoves = stateMachine_.getLegalMoves(roleNum_);
+		}
 		Node *node = &root;
 		while (node->sons_.size() != 0) {
 			int max = 0;
@@ -48,29 +54,37 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 					maxscore = totalScores / nodes.size();
 				}
 			}
-			node = &node->sons_[max][rand() % node->sons_[max].size()];		
-			stateMachine_.goOneStep(node->moves_);				
-		};
-		
+			int tempRand = rand() % node->sons_[max].size();
+			node = &node->sons_[max][tempRand];		
+			if(node->sons_.size() == 0 && node->nodeState_.size() == 0){
+				cout << "6 go"<<endl;
+				stateMachine_.setState(node->parent_->nodeState_);
+				cout << "2 go" <<endl;
+				stateMachine_.goOneStep(stateMachine_.getLegalJointMoves(roleNum_, stateMachine_.legals_[max])[tempRand]);	
+				cout<<"pp"<<endl;
+				node->nodeState_ = stateMachine_.trues_;
+			}	
+		}
+
 		int thePoint;
 		if (!node->isTerminal_) {
 			Propositions moves = stateMachine_.getLegalMoves(roleNum_);
-			Propositions currentState = stateMachine_.trues_;
 			for (int i = 0; i < moves.size(); i++) {
 				vector<vector<Proposition>> jointmoves = stateMachine_.getLegalJointMoves(roleNum_, moves[i]);
 				vector<Node> nodes;				
 				for (int j = 0; j < jointmoves.size(); j++) {					
-					stateMachine_.goOneStep(jointmoves[j]);
-					nodes.push_back(Node(jointmoves[j], moves[i], node, stateMachine_.is_terminal_, stateMachine_.trues_));
-					stateMachine_.setState(currentState);
+					nodes.push_back(Node(node));
 				}
 				node->sons_.push_back(nodes);
 			}
-
-			vector<Node> &nodes = node->sons_[rand() %  node->sons_.size()];
-			node = &nodes[rand() % nodes.size()];
-			stateMachine_.goOneStep(node->moves_);
-
+			int mymove = rand() %  node->sons_.size();
+			vector<Node> &nodes = node->sons_[mymove];
+			int tempRand = rand() % nodes.size();
+			node = &nodes[tempRand];
+			cout<< "1 go"<<endl;
+			stateMachine_.goOneStep(stateMachine_.getLegalJointMoves(roleNum_, stateMachine_.legals_[mymove])[tempRand]);
+			node->nodeState_ = stateMachine_.trues_;
+			node->isTerminal_ = stateMachine_.is_terminal_;
 			if (node->isTerminal_) {					
 				thePoint = stateMachine_.getGoal(roleNum_);					
 			} else {
@@ -103,8 +117,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 		}					
 	}
 
-	Proposition selection = root.sons_[max][0].mymove_;
-
+	Proposition selection = legalmoves[max];
 	int stop = clock();
 
 
@@ -122,7 +135,9 @@ int MonteCarloPlayer::performDepthChargeFromMove()
 
 void MonteCarloPlayer::goOneStep(Propositions moves)
 {
+	cout << "4 go"<<endl;
 	stateMachine_.setState(currentState_);
+	cout << "3 go" <<endl;
 	stateMachine_.goOneStep(moves);
 	currentState_ = stateMachine_.trues_;
 	is_terminal_ = stateMachine_.is_terminal_;

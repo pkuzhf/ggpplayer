@@ -18,20 +18,12 @@ Node::Node(){
 	nAttemps_ = 0;
 
 	isTerminal_ = false;
-	sons_ = vector<vector<Node>>();
 	parent_ = NULL;
 }
 
-Node::Node(Propositions & ms, Proposition & m, Node * p, bool t, Propositions &state) {
-	totalAttemps_ = 0;
-	nPoints_ = 0;
-	nAttemps_ = 0;
-
-	isTerminal_ = t;	
-	moves_ = ms;
-	mymove_ = m;
+Node::Node(Node * p) {
+	Node();
 	parent_ = p;
-	
 }
 
 double Node::getScore(){
