@@ -32,13 +32,13 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 	root.nodeState_ = currentState_;
 
 	int count = 0;
-
+	stateMachine_.setState(currentState_);
+	if(legalmoves.size() == 0){
+		legalmoves = stateMachine_.getLegalMoves(roleNum_);
+	}
 	while (clock() < finishBy) {
 		cout << "5 go"<<endl;
 		stateMachine_.setState(currentState_);
-		if(legalmoves.size() == 0){
-			legalmoves = stateMachine_.getLegalMoves(roleNum_);
-		}
 		Node *node = &root;
 		while (node->sons_.size() != 0) {
 			int max = 0;

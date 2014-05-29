@@ -22,7 +22,12 @@ Node::Node(){
 }
 
 Node::Node(Node * p) {
-	Node();
+	totalAttemps_ = 0;
+	nPoints_ = 0;
+	nAttemps_ = 0;
+
+	isTerminal_ = false;
+	parent_ = NULL;
 	parent_ = p;
 }
 
