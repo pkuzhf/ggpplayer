@@ -25,9 +25,10 @@ public:
 
 	StateMachine(Relations description);		
 	void updateState(Propositions &ps);
+	void updateLegals(Propositions &ps);
 	Propositions getLegalMoves(int role);	
 	Proposition getRandomMove(int role);	
-	void goOneStep(Propositions & move);	
+	void goOneStep(Propositions & move);		
 	Propositions randomGo();
 	int getGoal(int role);
 	void setState(Propositions &currentState);

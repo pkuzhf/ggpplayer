@@ -29,12 +29,12 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 	
 	while (clock() < finishBy) {
 		stateMachine_.setState(currentState_);
-		Node node = root;
-		while (node.sons_.size() != 0) {
+		Node *node = &root;
+		while (node->sons_.size() != 0) {
 			int max = 0;
 			double maxscore = 0;
-			for (int i = 0; i < node.sons_.size(); i++) {
-				vector<Node> nodes = node.sons_[i];
+			for (int i = 0; i < node->sons_.size(); i++) {
+				vector<Node> &nodes = node->sons_[i];
 				double totalScores = 0;
 				for (int j = 0; j < nodes.size(); j++) {
 					totalScores += nodes[j].getScore();
@@ -45,12 +45,12 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 				}
 			}
 
-			node = node.sons_[max][rand() % node.sons_[max].size()];		
-			stateMachine_.goOneStep(node.moves_);				
+			node = &node->sons_[max][rand() % node->sons_[max].size()];		
+			stateMachine_.goOneStep(node->moves_);				
 		};
 
 		int thePoint;
-		if (!node.isTerminal_) {
+		if (!node->isTerminal_) {
 			Propositions moves = stateMachine_.getLegalMoves(roleNum_);
 			Propositions currentState = stateMachine_.trues_;
 			for (int i = 0; i < moves.size(); i++) {
@@ -58,17 +58,17 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 				vector<Node> nodes;				
 				for (int j = 0; j < jointmoves.size(); j++) {					
 					stateMachine_.goOneStep(jointmoves[j]);
-					nodes.push_back(Node(jointmoves[j], moves[i], &node, stateMachine_.is_terminal_, stateMachine_.trues_));
+					nodes.push_back(Node(jointmoves[j], moves[i], node, stateMachine_.is_terminal_, stateMachine_.trues_));
 					stateMachine_.setState(currentState);
 				}
-				node.sons_.push_back(nodes);
+				node->sons_.push_back(nodes);
 			}
 
-			vector<Node> nodes = node.sons_[rand() %  node.sons_.size()];
-			node = nodes[rand() % nodes.size()];
-			stateMachine_.goOneStep(node.moves_);
+			vector<Node> &nodes = node->sons_[rand() %  node->sons_.size()];
+			node = &nodes[rand() % nodes.size()];
+			stateMachine_.goOneStep(node->moves_);
 
-			if (node.isTerminal_) {					
+			if (node->isTerminal_) {					
 				thePoint = stateMachine_.getGoal(roleNum_);					
 			} else {
 				count++;
@@ -78,11 +78,11 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 			thePoint = stateMachine_.getGoal(roleNum_);
 		}			
 
-		node.totalAttemps_++;
-		while (node.parent_ != &node) {
-			node.nPoints_ += thePoint;
-			node.nAttemps_++;				
-			node = *node.parent_;
+		node->totalAttemps_++;
+		while (node->parent_ != NULL) {
+			node->nPoints_ += thePoint;
+			node->nAttemps_++;				
+			node = node->parent_;
 		}
 	}	
 
