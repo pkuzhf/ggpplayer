@@ -11,17 +11,24 @@
 
 using namespace std;
 
+
+MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum):stateMachine_(rs)
+{
+	roleNum_ = rolenum;
+	currentState_ = stateMachine_.trues_;
+}
+
 Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 {
 	int start = clock();
-	int finishBy = start + timeout - 1000;
+	int finishBy = start + timeout;
 
 	Node root;        
 
 	int count = 0;
 	
 	while (clock() < finishBy) {
-
+		stateMachine_.setState(currentState_);
 		Node node = root;
 		while (node.sons_.size() != 0) {
 			int max = 0;
@@ -51,7 +58,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 				vector<Node> nodes;				
 				for (int j = 0; j < jointmoves.size(); j++) {					
 					stateMachine_.goOneStep(jointmoves[j]);
-					nodes.push_back(Node(jointmoves[j], moves[i], &node, stateMachine_.is_terminal_, currentState));
+					nodes.push_back(Node(jointmoves[j], moves[i], &node, stateMachine_.is_terminal_, stateMachine_.trues_));
 					stateMachine_.setState(currentState);
 				}
 				node.sons_.push_back(nodes);
@@ -109,3 +116,8 @@ int MonteCarloPlayer::performDepthChargeFromMove()
 	return stateMachine_.getGoal(roleNum_);
 }
 
+void MonteCarloPlayer::goOneStep(Propositions moves)
+{
+	stateMachine_.goOneStep(moves);
+	currentState_ = stateMachine_.trues_;
+}

@@ -18,8 +18,10 @@ public:
 	Propositions currentState_;
 	Node TreeRoot_;
 	int roleNum_;
+	MonteCarloPlayer(Relations rs, int rolenum);
 	int performDepthChargeFromMove();
 	Proposition stateMachineSelectMove(int timeout);
+	void goOneStep(Propositions moves);
 };
 
 #endif
