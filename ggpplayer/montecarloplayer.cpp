@@ -40,8 +40,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 	int count = 0;	
 	legalmoves = stateMachine_.getLegalMoves(roleNum_);
 
-	while (clock() < finishBy) {
-		cout << "5 go"<<endl;
+	while (clock() < finishBy) {		
 		stateMachine_.setState(currentState_);
 		Node *node = &root;
 		while (node->sons_.size() != 0) {
@@ -61,12 +60,9 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 			int tempRand = rand() % node->sons_[max].size();
 			node = &node->sons_[max][tempRand];		
 			if(node->sons_.size() == 0) {
-				if (node->nodeState_.size() == 0){
-					cout << "6 go"<<endl;
-					stateMachine_.setState(node->parent_->nodeState_);
-					cout << "2 go" <<endl;
-					stateMachine_.goOneStep(stateMachine_.getLegalJointMoves(roleNum_, max)[tempRand]);	
-					cout<<"pp"<<endl;
+				if (node->nodeState_.size() == 0){				
+					stateMachine_.setState(node->parent_->nodeState_);				
+					stateMachine_.goOneStep(stateMachine_.getLegalJointMoves(roleNum_, max)[tempRand]);						
 					node->nodeState_ = stateMachine_.trues_;
 					node->isTerminal_ = stateMachine_.is_terminal_;
 				} else {
@@ -89,8 +85,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 			int mymove = rand() %  node->sons_.size();
 			vector<Node> &nodes = node->sons_[mymove];
 			int tempRand = rand() % nodes.size();
-			node = &nodes[tempRand];
-			cout<< "1 go"<<endl;
+			node = &nodes[tempRand];			
 			stateMachine_.goOneStep(stateMachine_.getLegalJointMoves(roleNum_, mymove)[tempRand]);
 			node->nodeState_ = stateMachine_.trues_;
 			node->isTerminal_ = stateMachine_.is_terminal_;
@@ -131,7 +126,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 
 
 	//cout<< "UCT simu times: " <<(double)count / (stop - start) * 1000<<endl;
-	cout<< "UCT simu times: " <<count<<endl;
+	//cout<< "UCT simu times: " <<count<<endl;
 	return selection;
 }
 
@@ -143,10 +138,8 @@ int MonteCarloPlayer::performDepthChargeFromMove()
 }
 
 void MonteCarloPlayer::goOneStep(Propositions moves)
-{
-	cout << "4 go"<<endl;
-	stateMachine_.setState(currentState_);
-	cout << "3 go" <<endl;
+{	
+	stateMachine_.setState(currentState_);	
 	stateMachine_.goOneStep(moves);
 	currentState_ = stateMachine_.trues_;
 	is_terminal_ = stateMachine_.is_terminal_;

@@ -56,7 +56,7 @@ int main() {
 	cout << "ready" << endl;
 		
 	cin.getline(buf, 10000);
-	cout << Mplayer.stateMachineSelectMove(runtime).toString() << endl;
+	cout << Mplayer.stateMachineSelectMove(runtime).items_[1].toString() << endl;
 	
 	while (true) {				
 		cin.getline(buf, 10000);	
