@@ -21,7 +21,7 @@ int main() {
 		Relation::addSymbol(relation_type_words[i]);
 	}
 	Reader r;
-	if (!r.scanGDLFile("gdl/rule.txt")) {
+	if (!r.scanGDLFile("gdl/biddingTicTacToe_10coins.kif")) {
 	//if (!r.scanGDLFile("gdl/connect_four.txt")) {
 	//if (!r.scanGDLFile("gdl/2pffa_zerosum.kif")) {
         cout << "read file failed." << endl;
@@ -29,7 +29,8 @@ int main() {
     }
 	Relations rs;
 	r.getRelations(rs);
-	//StateMachine machine(rs);
+	StateMachine machine(rs);
+	machine.randomGo();
 	char buf[10000];
 	cin.getline(buf, 10000);
 	int role, runtime;

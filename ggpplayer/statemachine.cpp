@@ -53,7 +53,7 @@ void StateMachine::updateLegals(Propositions &ps) {
 			goals_.push_back(p);
 		} else if (p.head_ == r_terminal) {
 			is_terminal_ = true;
-		} else {
+		} else if (p.head_ != r_true) {
 			tmps_.push_back(p);
 		}
 	}
@@ -119,7 +119,7 @@ Propositions StateMachine::randomGo()
 			joint_move.push_back(getRandomMove(i));
 		}
 		for (int i = 0; i < joint_move.size(); ++i) {
-			//cout << joint_move[i].toString() << endl;
+			cout << joint_move[i].toString() << endl;
 		}		
 		goOneStep(joint_move);		
 	}
