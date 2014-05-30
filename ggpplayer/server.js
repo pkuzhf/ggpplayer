@@ -101,7 +101,7 @@ http.createServer(function (req, res) {
                 if (err) {
                     console.log(err);
                 }
-                ggp_exe = spawn('./ggp');
+                ggp_exe = spawn('./ggpplayer.exe');
                 ggp_exe.stdout.once('data', function (data) {
                     data = String(data);
                     console.log('ggp out: ' + data);
