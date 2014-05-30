@@ -101,7 +101,7 @@ http.createServer(function (req, res) {
                 if (err) {
                     console.log(err);
                 }
-                ggp_exe = spawn('./ggpplayer.exe');
+                ggp_exe = spawn('./ggp');
                 ggp_exe.stdout.once('data', function (data) {
                     data = String(data);
                     console.log('ggp out: ' + data);
@@ -117,6 +117,7 @@ http.createServer(function (req, res) {
                     ggp_exe = null;
                 });
                 ggp_exe.stdin.write(request.role + '\n');
+                ggp_exe.stdin.write(request.playclock + '\n');
             });
             break;
         case 'play' :
