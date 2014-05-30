@@ -32,7 +32,7 @@ public:
 	Propositions randomGo();
 	int getGoal(int role);
 	void setState(Propositions &currentState);
-	vector<vector<Proposition>> getLegalJointMoves(int role, Proposition mymove);
+	vector<vector<Proposition>> getLegalJointMoves(int role, int mymove);
 	
 };
 

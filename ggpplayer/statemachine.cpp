@@ -46,7 +46,7 @@ void StateMachine::updateState(Propositions &ps) {
 
 void StateMachine::updateLegals(Propositions &ps) {		
 	for (int i = 0; i < ps.size(); ++i) {
-		Proposition p = ps[i];
+		Proposition &p = ps[i];
 		if (p.head_ == r_legal) {
 			legals_.push_back(p);
 		} else if (p.head_ == r_goal) {
@@ -140,7 +140,7 @@ void StateMachine::setState(Propositions &currentState)
 	updateLegals(ps);
 }
 
-vector<vector<Proposition>> StateMachine::getLegalJointMoves(int role, Proposition mymove)
+vector<vector<Proposition>> StateMachine::getLegalJointMoves(int role, int mymove)
 {
 	vector<vector<Proposition>> rtn;
 	vector<vector<Proposition>> legalMoves;
@@ -148,7 +148,7 @@ vector<vector<Proposition>> StateMachine::getLegalJointMoves(int role, Propositi
 	for(int i = 0 ; i < prover_.roles_.size(); ++i){
 		if (i == role) {
 			vector<Proposition> t;
-			t.push_back(mymove);
+			t.push_back(getLegalMoves(role)[mymove]);
 			legalMoves.push_back(t);
 		} else {
 			vector<Proposition> t = getLegalMoves(i);
