@@ -53,13 +53,6 @@ int main() {
 	}*/
 	
 
-	for (int i = 0; i < Mplayer.stateMachine_.prover_.roles_.size(); ++i) {
-		if (Mplayer.stateMachine_.prover_.roles_[i].items_[0].head_ == role) {
-			Mplayer.roleNum_ = i;
-			role = i;
-			break;
-		}
-	}
 	cout << "ready" << endl;
 		
 	cin.getline(buf, 10000);

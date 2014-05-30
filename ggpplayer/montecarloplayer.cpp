@@ -14,9 +14,14 @@ using namespace std;
 
 MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum):stateMachine_(rs)
 {
-	roleNum_ = rolenum;
 	currentState_ = stateMachine_.trues_;
 	is_terminal_ = false;
+	for (int i = 0; i < stateMachine_.prover_.roles_.size(); ++i) {
+		if (stateMachine_.prover_.roles_[i].items_[0].head_ == rolenum) {
+			roleNum_ = i;
+			break;
+		}
+	}
 }
 
 Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
