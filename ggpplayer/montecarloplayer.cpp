@@ -125,7 +125,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 	int stop = clock();
 
 
-	//cout<< "UCT simu times: " <<(double)count / (stop - start) * 1000<<endl;
+	//cout<< "UCT simu times: " <<(double)count / (stop - start) * CLOCKS_PER_SEC <<endl;
 	//cout<< "UCT simu times: " <<count<<endl;
 	return selection;
 }

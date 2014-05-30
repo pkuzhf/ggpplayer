@@ -319,10 +319,8 @@ Propositions Prover::generateTrueProps(Propositions true_props, int start_stra, 
 	for (int i = 0; i < true_props.size(); ++i) {
 		input.push_back(true_props[i].toRelation().toString());
 	}
-int start = clock();
 	map<int, vector<int> > head_relations;
 	set<Proposition> true_props_set;
-int time1start = clock();
 	for (int i = 0; i < true_props.size(); ++i) {
 		if (head_relations.find(true_props[i].head_) == head_relations.end()) {
 			vector<int> rs;
@@ -331,7 +329,6 @@ int time1start = clock();
 		head_relations[true_props[i].head_].push_back(i);
 		true_props_set.insert(true_props[i]);
 	}
-time1 += clock() - time1start;
 	for (int i = start_stra; i <= end_stra; ++i) {
 		vector<Derivation> derivations;
 		vector<vector<vector<int> > > der_var_candidates;
@@ -347,7 +344,6 @@ time1 += clock() - time1start;
 				var_candidates.push_back(non_der_var_values_[dpg_.stra_deriv_[i][j]]);				
 			}
 			bool impossible = false;
-			int time2s = clock();
 			for (int k = 0; k < d.subgoals_.size(); ++k) {								
 				Proposition &subgoal = d.subgoals_[k];
 				if (subgoal.head_ == r_not) {
@@ -359,7 +355,6 @@ time1 += clock() - time1start;
 					vector<vector<int> > candidates;										
 					vector<int> &true_rs = head_relations[subgoal.head_];
 					for (int ii = 0; ii < true_rs.size(); ++ii) { // scan all true props to generate var-value maps
-						int time17s = clock();
 						Proposition &p = true_props[true_rs[ii]];
 						vector<int> variables;
 						vector<int> values;
@@ -382,7 +377,6 @@ time1 += clock() - time1start;
 								candidates.push_back(values);
 							}
 						}
-						time17 += clock() - time17s;
 					}
 					if (candidates.size() == 0) { // size of candidates should be greater than 0
 						impossible = true;
@@ -411,7 +405,6 @@ time1 += clock() - time1start;
 					current_stratum_subgoals.push_back(k);
 				}
 			}
-			time2 += clock() - time2s;
 			if (impossible) {
 				continue;
 			}						
@@ -425,14 +418,11 @@ time1 += clock() - time1start;
 			for (int k = 0; k < var_candidates.size(); ++k) {
 				idx.push_back(0);
 			}
-			int time3s = clock();
 			
 			int y = 1;
 			for (int x = 0; x < var_candidates.size(); ++x) {
 				y *= var_candidates[x].size();
 			}
-			time18 += y;
-			time19++;
 
 			// right?
 			//getSubgoalSequence(var_candidates);
@@ -441,8 +431,6 @@ time1 += clock() - time1start;
 			set<vector<int> > combined_candidates_set;
 			int variable_size = d.variables_.size();
 			while (true) {
-				int time5s = clock();
-				int time7s = clock();
 				while (k >= 0 && idx[k] == var_candidates[k].size()) {
 					idx[k] = 0;
 					--k;
@@ -450,13 +438,10 @@ time1 += clock() - time1start;
 						++idx[k];
 					}
 				}
-				time7 += clock() - time7s;
 				if (k < 0) {
-					time5 += clock() - time5s;
 					break;
 				}
 				bool combined = true;
-				int time9s = clock();
 				vector<int> &c1 = var_candidates[k][idx[k]];				
 				for (int ii = 0; ii < k && combined; ++ii) {
 					vector<int> &c2 = var_candidates[ii][idx[ii]];
@@ -467,13 +452,8 @@ time1 += clock() - time1start;
 						}
 					}
 				}
-				time9 += clock() - time9s;
-				time5 += clock() - time5s;
-				int time6s = clock();
 				if (combined) {		
-					time20++;									
 					if (k == var_candidates.size() - 1) {
-						int time8s = clock();						
 						vector<int> m(variable_size, -1);
 						for (int ii = 0; ii <= k; ++ii) {
 							vector<int> &c = var_candidates[ii][idx[ii]];					
@@ -481,8 +461,6 @@ time1 += clock() - time1start;
 								m[jj] = c[jj] == -1 ? m[jj] : c[jj];
 							}										
 						}
-						time8 += clock() - time8s;	
-						int time11s = clock();
 						bool check_not_and_distinct = true;						
 						for (int ii = 0; ii < distinct_subgoals.size() && check_not_and_distinct; ++ii) {							
 							Proposition &distinct = d.subgoals_[distinct_subgoals[ii]];														
@@ -500,28 +478,20 @@ time1 += clock() - time1start;
 								check_not_and_distinct = false;
 							}							
 						}
-						int time12s = clock();
 						for (int ii = 0; ii < not_subgoals.size() && check_not_and_distinct; ++ii) {
-							int time14s = clock();
 							Proposition not_relation = d.subgoals_[not_subgoals[ii]].items_[0];
-							time15 += clock() - time14s;
 							not_relation.replaceVariables(d.variables_, m);
 							if (true_props_set.find(not_relation) != true_props_set.end() || statics_set_.find(not_relation) != statics_set_.end()) {
 								check_not_and_distinct = false;
 								break;
 							}
-							time14 += clock() - time14s;
 						}
-						time12 += clock() - time12s;
-						time11 += clock() - time11s;
-						int time10s = clock();
 						if (check_not_and_distinct) {
 							if (combined_candidates_set.find(m) == combined_candidates_set.end()) {
 								combined_candidates.push_back(m);
 								combined_candidates_set.insert(m);
 							}
 						}
-						time10 += clock() - time10s;
 						++idx[k];
 					} else {						
 						++k;
@@ -529,7 +499,6 @@ time1 += clock() - time1start;
 				} else {
 					++idx[k];						
 				}
-				time6 += clock() - time6s;
 			}
 			if (combined_candidates.size() == 0) {
 				continue;
@@ -570,9 +539,7 @@ time1 += clock() - time1start;
 			d2.prepareVariables();
 			derivations.push_back(d2);
 			der_var_candidates.push_back(combined_candidates);			
-			time3 += clock() - time3s;
 		}
-		int time4s = clock();
 		for (int j = 0; j < current_stratum_props.size(); ++j) { // size of current_stratum_props would be changed in the loop
 			Proposition &p = current_stratum_props[j];
 			for (int k = 0; k < derivations.size(); ++k) {
@@ -678,9 +645,7 @@ time1 += clock() - time1start;
 				}
 			}
 		}		
-		time4 += clock() - time4s;
 	}
-generate_time += clock() - start;
 	vector<string> output;
 	for (int i = 0; i < true_props.size(); ++i) {
 		output.push_back(true_props[i].toRelation().toString());
