@@ -7,7 +7,7 @@
 
 #include "dependgraph.h"
 #include "node.h"
-#include "MonteCarloPlayer.h"
+#include "montecarloplayer.h"
 
 using namespace std;
 
