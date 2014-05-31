@@ -62,8 +62,7 @@ public:
 
 	vector<int> key_head_;
 
-	Prover(Relations relations);
-	void init();
+	Prover(Relations relations);	
 	Propositions generateTrueProps(Propositions true_props, int start_stra, int end_stra);
 	Propositions statics_;
 	set<Proposition> statics_set_;
@@ -80,6 +79,11 @@ private:
 
 	void prepareStaticRelation();
 	void markNonStatic(int index, vector<int> & mark);
+	int compareCombination(vector<int> &comb_a, vector<int> &comb_b, vector<int> &keys);
+	void quickSortCombinations(vector<vector<int> > &combinations, vector<int> keys, vector<int> &idx, int left, int right);
+	vector<int> sortCombinations(vector<vector<int> > &combinations, vector<int> keys);
+	vector<vector<int> > mergeTwoCombinations(vector<vector<int> > &a, vector<vector<int> > &b, vector<int> &idx_a, vector<int> &idx_b, vector<int> keys);
+	vector<vector<int> > mergeMultipleCombinations(vector<vector<vector<int> > > &multiple_combinations, vector<vector<vector<int> > > &multiple_not_combinations, vector<vector<vector<int> > > &distincts);
 };
 
 #endif

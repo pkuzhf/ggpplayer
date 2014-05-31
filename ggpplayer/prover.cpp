@@ -38,81 +38,6 @@ int Prover::time21 = 0;
 
 
 Prover::Prover(Relations relations) : relations_(relations) {
-	init();
-}
-
-void Prover::getSubgoalSequence(vector<vector<vector<pair<int, int> > > > & var_candidates)
-{ 
-	if(var_candidates.size() <= 1) return;
-	vector<vector<int> > subgoals;
-	for(int i = 0 ; i < var_candidates.size(); ++i){
-		vector<int> tt;
-		subgoals.push_back(tt);
-	}
-	for(int i = 0 ; i < var_candidates.size(); ++i){
-		for(int j = 0 ; j < var_candidates[i].size(); ++j){
-			for(int k = 0 ; k  <var_candidates[i][j].size(); ++k){
-				if(find(subgoals[i].begin(), subgoals[i].end(), var_candidates[i][j][k].first) == subgoals[i].end()){
-					subgoals[i].push_back(var_candidates[i][j][k].first);
-				}
-			}
-		}
-	}
-	vector<int> rtn;
-	int maxVar = -1, tempindex = 0;
-	for(int i = 0 ; i  < subgoals.size(); ++i){
-		if(subgoals[i].size() > maxVar){
-			maxVar = subgoals[i].size(); 
-			tempindex = i;
-		}
-	}
-	rtn.push_back(tempindex);  // get the first and largest subgoal
-	set<int> varibles;
-	vector<int> degrees;
-	for(int j = 0 ; j < subgoals.size(); ++j){
-		degrees.push_back(0);
-	}
-	for(int i = 0 ; i < subgoals[tempindex].size(); ++i){
-		varibles.insert(subgoals[tempindex][i]);
-		for(int j = 0 ; j < subgoals.size(); ++j){
-			if(j == tempindex) continue;
-			if(find(subgoals[j].begin(), subgoals[j].end(), subgoals[tempindex][i]) != subgoals[j].end()){
-				degrees[j] ++;
-			}
-		}
-	}
-	subgoals[tempindex].clear();
-	while(rtn.size() < subgoals.size()){
-		int maxdegree = -11;
-		int index = 0;
-		for(int i = 0 ; i < subgoals.size(); ++i){
-			//if(find)
-			if(find(rtn.begin(), rtn.end(), i) == rtn.end() && degrees[i] > maxdegree){
-				maxdegree = degrees[i];
-				index = i;
-			}
-		}
-		rtn.push_back(index);
-		for(int i = 0 ; i < subgoals[index].size(); ++i){
-			if(varibles.find(subgoals[index][i]) == varibles.end()){
-				varibles.insert(subgoals[index][i]);
-				for(int j = 0; j <  subgoals.size(); ++j){
-					if(find(subgoals[j].begin(), subgoals[j].end(), subgoals[index][i]) != subgoals[j].end()){
-						degrees[j]++;
-					}
-				}
-			}
-		}
-		subgoals[index].clear();
-	}
-	int index = 0;
-	vector<vector<vector<pair<int, int> > > > tempV = var_candidates;
-	for(int i = 0 ; i < rtn.size(); ++i){
-		var_candidates[i] = tempV[rtn[i]];
-	}
-}
-
-void Prover::init() {	
 	for (int i = 0; i < relations_.size(); ++i) {
 		if (relations_[i].head_ == r_derivation) {
 			Derivation d = relations_[i].toDerivation();
@@ -283,6 +208,107 @@ void Prover::init() {
 	DependGraph dpg2;
 	dpg2.buildGraph(nonstatic_derivations_); 
 	dpg_ = dpg2;
+}
+
+int Prover::compareCombination(vector<int> &comb_a, vector<int> &comb_b, vector<int> &keys) {
+	for (int i = 0; i < keys.size(); ++i) {
+		if (comb_a[keys[i]] < comb_b[keys[i]]) {
+			return -1;
+		} else if (comb_a[keys[i]] > comb_b[keys[i]]) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+void Prover::quickSortCombinations(vector<vector<int> > &combinations, vector<int> keys, vector<int> &idx, int left, int right) {
+	if (left >= right) return;
+	int pos = rand() % (right - left + 1) + left;
+	int x = idx[pos];
+	idx[pos] = idx[left];
+	int i = left;
+	int j = right;
+	while (i < j) {
+		while (i < j && compareCombination(combinations[x], combinations[idx[j]], keys) == -1) {
+			--j;
+		}
+		if (i < j) {
+			idx[i] = idx[j];
+			++i;
+		}
+		while (i < j && compareCombination(combinations[idx[i]], combinations[x], keys) == -1) {
+			++i;
+		}
+		if (i < j) {
+			idx[j] = idx[i];
+			--j;
+		}
+	}
+	idx[i] = x;
+	quickSortCombinations(combinations, keys, idx, left, i - 1);
+	quickSortCombinations(combinations, keys, idx, i + 1, right);
+}
+
+vector<int> Prover::sortCombinations(vector<vector<int> > &combinations, vector<int> keys) {
+	vector<int> idx;
+	for (int i = 0; i < combinations.size(); ++i) {
+		idx.push_back(i);
+	}
+	quickSortCombinations(combinations, keys, idx, 0, idx.size() - 1);
+	return idx;
+}
+
+vector<vector<int> > Prover::mergeTwoCombinations(
+	vector<vector<int> > &a, 
+	vector<vector<int> > &b, 
+	vector<int> &idx_a, 
+	vector<int> &idx_b, 
+	vector<int> keys) {
+
+	vector<vector<int> > ret;
+	int a_begin = 0;
+	int b_begin = 0;
+	while (a_begin < idx_a.size() && b_begin < idx_b.size()) {
+		int compare = compareCombination(a[idx_a[a_begin]], b[idx_b[b_begin]], keys);
+		if (compare == -1) {
+			++a_begin;
+		} if (compare == 1) {
+			++b_begin;
+		} else {
+			int a_end = a_begin;
+			int b_end = b_begin;
+			while (compareCombination(a[idx_a[a_begin]], a[idx_a[a_end]], keys) == 0) {
+				++a_end;
+			}
+			while (compareCombination(b[idx_b[b_begin]], b[idx_b[b_end]], keys) == 0) {
+				++b_end;
+			}
+			for (int i = a_begin; i < a_end; ++i) {
+				for (int j = b_begin; j < b_end; ++j) {
+					vector<int> &c1 = a[idx_a[i]];
+					vector<int> &c2 = b[idx_b[j]];
+					int size = c1.size();
+					vector<int> c3(size, -1);
+					for (int k = 0; k < size; ++k) {
+						if (c1[k] != -1) c3[k] = c1[k];
+						if (c2[k] != -1) c3[k] = c2[k];
+					}
+					ret.push_back(c3);
+				}
+			}
+			a_begin = a_end;
+			b_begin = b_end;
+		}
+	}
+	return ret;
+}
+
+vector<vector<int> > Prover::mergeMultipleCombinations(
+	vector<vector<vector<int> > > &multiple_combinations, 
+	vector<vector<vector<int> > > &multiple_not_combinations,
+	vector<vector<vector<int> > > &distincts) {
+
+
 }
 
 void Prover::prepareStaticRelation()
@@ -542,9 +568,6 @@ Propositions Prover::generateTrueProps(Propositions true_props, int start_stra, 
 		}
 		for (int j = 0; j < current_stratum_props.size(); ++j) { // size of current_stratum_props would be changed in the loop
 			Proposition &p = current_stratum_props[j];
-			if (true_props.size() >= 186) {
-				cout << "break point" << endl;
-			}
 			for (int k = 0; k < derivations.size(); ++k) {
 				Derivation &d = derivations[k];
 				vector<int> distincts;
