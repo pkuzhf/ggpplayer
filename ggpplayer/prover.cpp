@@ -221,7 +221,7 @@ int Prover::compareCombination(vector<int> &comb_a, vector<int> &comb_b, vector<
 	return 0;
 }
 
-void Prover::quickSortCombinations(vector<vector<int> > &combinations, vector<int> keys, vector<int> &idx, int left, int right) {
+void Prover::quickSortCombinations(vector<vector<int> > &combinations, vector<int> &keys, vector<int> &idx, int left, int right) {
 	if (left >= right) return;
 	int pos = rand() % (right - left + 1) + left;
 	int x = idx[pos];
@@ -229,7 +229,7 @@ void Prover::quickSortCombinations(vector<vector<int> > &combinations, vector<in
 	int i = left;
 	int j = right;
 	while (i < j) {
-		while (i < j && compareCombination(combinations[x], combinations[idx[j]], keys) == -1) {
+		while (i < j && compareCombination(combinations[x], combinations[idx[j]], keys) <= 0) {
 			--j;
 		}
 		if (i < j) {
@@ -249,7 +249,7 @@ void Prover::quickSortCombinations(vector<vector<int> > &combinations, vector<in
 	quickSortCombinations(combinations, keys, idx, i + 1, right);
 }
 
-vector<int> Prover::sortCombinations(vector<vector<int> > &combinations, vector<int> keys) {
+vector<int> Prover::sortCombinations(vector<vector<int> > &combinations, vector<int> &keys) {
 	vector<int> idx;
 	for (int i = 0; i < combinations.size(); ++i) {
 		idx.push_back(i);
@@ -263,7 +263,7 @@ vector<vector<int> > Prover::mergeTwoCombinations(
 	vector<vector<int> > &b, 
 	vector<int> &idx_a, 
 	vector<int> &idx_b, 
-	vector<int> keys) {
+	vector<int> &keys) {
 
 	vector<vector<int> > ret;
 	int a_begin = 0;
@@ -303,12 +303,88 @@ vector<vector<int> > Prover::mergeTwoCombinations(
 	return ret;
 }
 
+long long Prover::calcCombineCost(
+	vector<vector<int> > &a, 
+	vector<vector<int> > &b, 
+	vector<int> &keys,
+	vector<int> &idx_a,
+	vector<int> &idx_b) {
+
+	long long ret = 0;
+	int a_begin = 0;
+	int b_begin = 0;
+	while (a_begin < idx_a.size() && b_begin < idx_b.size()) {
+		int compare = compareCombination(a[idx_a[a_begin]], b[idx_b[b_begin]], keys);
+		if (compare == -1) {
+			++a_begin;
+		} if (compare == 1) {
+			++b_begin;
+		} else {
+			int a_end = a_begin;
+			int b_end = b_begin;
+			while (compareCombination(a[idx_a[a_begin]], a[idx_a[a_end]], keys) == 0) {
+				++a_end;
+			}
+			while (compareCombination(b[idx_b[b_begin]], b[idx_b[b_end]], keys) == 0) {
+				++b_end;
+			}
+			ret += (a_end - a_begin) * (b_end - b_begin);			
+			a_begin = a_end;
+			b_begin = b_end;
+		}
+	}
+	return ret;
+}
+
+vector<int> getCommonKeys(vector<int> &a, vector<int> &b) {
+	vector<int> ret;
+	for (int i = 0; i < a.size(); ++i) {
+		if (a[i] != -1 && b[i] != -1) {
+			ret.push_back(i);
+		}
+	}
+	return ret;
+}
+
 vector<vector<int> > Prover::mergeMultipleCombinations(
 	vector<vector<vector<int> > > &multiple_combinations, 
 	vector<vector<vector<int> > > &multiple_not_combinations,
 	vector<vector<vector<int> > > &distincts) {
 
+	int size = multiple_combinations.size();
+	vector<vector<long long> > combine_cost(size, vector<long long>(size, -1));
+	vector<vector<vector<int> > > keys(size, vector<vector<int> >(size, vector<int>()));
+	vector<vector<pair<vector<int>, vector<int> > > > idxes(size, vector<pair<vector<int>, vector<int> > >(size, pair<vector<int>, vector<int> >()));
+	for (int i = 0; i < size; ++i) {		
+		for (int j = i + 1; j < size; ++j) {
+			vector<vector<int> > &a = multiple_combinations[i];
+			vector<vector<int> > &b = multiple_combinations[j];
+			if (a.size() > 0 && b.size() > 0) {
+				keys[i][j] = getCommonKeys(a[0], b[0]);
+			}
+			idxes[i][j].first = sortCombinations(a, keys[i][j]);
+			idxes[i][j].second = sortCombinations(b, keys[i][j]);
+			combine_cost[i][j] = calcCombineCost(a, b, keys[i][j], idxes[i][j].first, idxes[i][j].second);			
+		}
+	}
+	vector<bool> deleted(size, false);
+	for (int i = 0; i < size - 1; ++i) {
+		long long min_cost = -1;
+		int c1 = -1;
+		int c2 = -1;
+		for (int j = 0; j < size; ++j) {
+			if (deleted[j]) continue;
+			for (int k = j + 1; k < size; ++k) {
+				if (deleted[k]) continue;
+				if (combine_cost[j][k] < min_cost || min_cost == -1) {
+					min_cost = combine_cost[j][k];
+					c1 = j;
+					c2 = k;
+				}
+			}
+		}
 
+	}
 }
 
 void Prover::prepareStaticRelation()

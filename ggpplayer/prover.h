@@ -80,9 +80,10 @@ private:
 	void prepareStaticRelation();
 	void markNonStatic(int index, vector<int> & mark);
 	int compareCombination(vector<int> &comb_a, vector<int> &comb_b, vector<int> &keys);
-	void quickSortCombinations(vector<vector<int> > &combinations, vector<int> keys, vector<int> &idx, int left, int right);
-	vector<int> sortCombinations(vector<vector<int> > &combinations, vector<int> keys);
-	vector<vector<int> > mergeTwoCombinations(vector<vector<int> > &a, vector<vector<int> > &b, vector<int> &idx_a, vector<int> &idx_b, vector<int> keys);
+	void quickSortCombinations(vector<vector<int> > &combinations, vector<int> &keys, vector<int> &idx, int left, int right);
+	vector<int> sortCombinations(vector<vector<int> > &combinations, vector<int> &keys);
+	vector<vector<int> > mergeTwoCombinations(vector<vector<int> > &a, vector<vector<int> > &b, vector<int> &idx_a, vector<int> &idx_b, vector<int> &keys);
+	long long calcCombineCost(vector<vector<int> > &a, vector<vector<int> > &b, vector<int> &keys, vector<int> &idx_a, vector<int> &idx_b);
 	vector<vector<int> > mergeMultipleCombinations(vector<vector<vector<int> > > &multiple_combinations, vector<vector<vector<int> > > &multiple_not_combinations, vector<vector<vector<int> > > &distincts);
 };
 
