@@ -522,6 +522,7 @@ Propositions Prover::generateTrueProps(Propositions true_props, int start_stra, 
 			}
 			Derivation d2;
 			d2.target_ = d.target_;
+			d2.variables_ = d.variables_;
 			for (int ii = 0; ii < current_stratum_subgoals.size(); ++ii) {
 				d2.subgoals_.push_back(d.subgoals_[current_stratum_subgoals[ii]]);
 			}			
@@ -536,12 +537,14 @@ Propositions Prover::generateTrueProps(Propositions true_props, int start_stra, 
 					}
 				}						
 			}
-			d2.prepareVariables();
 			derivations.push_back(d2);
 			der_var_candidates.push_back(combined_candidates);			
 		}
 		for (int j = 0; j < current_stratum_props.size(); ++j) { // size of current_stratum_props would be changed in the loop
 			Proposition &p = current_stratum_props[j];
+			if (true_props.size() >= 186) {
+				cout << "break point" << endl;
+			}
 			for (int k = 0; k < derivations.size(); ++k) {
 				Derivation &d = derivations[k];
 				vector<int> distincts;
@@ -622,6 +625,7 @@ Propositions Prover::generateTrueProps(Propositions true_props, int start_stra, 
 						}
 						Derivation d2;
 						d2.target_ = d.target_;
+						d2.variables_ = d.variables_;
 						for (int jj = 0; jj < non_distincts.size(); ++jj) {
 							if (jj != ii) {
 								d2.subgoals_.push_back(d.subgoals_[non_distincts[jj]]);
@@ -638,7 +642,6 @@ Propositions Prover::generateTrueProps(Propositions true_props, int start_stra, 
 								}
 							}						
 						}
-						d2.prepareVariables();
 						derivations.push_back(d2);
 						der_var_candidates.push_back(combined_candidates);			
 					}
