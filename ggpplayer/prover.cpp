@@ -383,7 +383,27 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 				}
 			}
 		}
-
+		multiple_combinations[c1] = mergeTwoCombinations(multiple_combinations[c1], multiple_combinations[c2], idxes[c1][c2].first, idxes[c1][c2].second, keys[c1][c2]);
+		deleted[c2] = true;
+		for (int j = 0; j < size; ++j) {
+			if (deleted[j] || j == c1) continue;
+			int x = min(j, c1);
+			int y = max(j, c1);			
+			vector<vector<int> > &a = multiple_combinations[x];
+			vector<vector<int> > &b = multiple_combinations[y];			
+			keys[x][y].clear();
+			if (a.size() > 0 && b.size() > 0) {
+				keys[x][y] = getCommonKeys(a[0], b[0]);
+			}
+			idxes[x][y].first = sortCombinations(a, keys[x][y]);
+			idxes[x][y].second = sortCombinations(b, keys[x][y]);
+			combine_cost[x][y] = calcCombineCost(a, b, keys[x][y], idxes[x][y].first, idxes[x][y].second);	
+		}
+	}
+	for (int i = 0; i < size; ++i) {
+		if (!deleted[i]) {
+			return multiple_combinations[i];
+		}
 	}
 }
 
