@@ -102,7 +102,7 @@ void StateMachine::goOneStep(Propositions & move)
 	}
 	
 	ps.clear();
-	ps.insert(ps.end(), trues_.begin(), trues_.end());	
+	ps.insert(ps.end(), trues_.begin(), trues_.end());		
 	ps = prover_.generateTrueProps(ps, 0, prover_.dpg_.legal_level_);	
 
 	updateLegals(ps);
