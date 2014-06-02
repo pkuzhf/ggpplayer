@@ -21,9 +21,9 @@ int main() {
 		Relation::addSymbol(relation_type_words[i]);
 	}
 	Reader r;
-	//if (!r.scanGDLFile("gdl/reversi.kif")) {
-	if (!r.scanGDLFile("gdl/lights_out.txt")) {
-	//if (!r.scanGDLFile("gdl/2pffa_zerosum.kif")) {
+	//if (!r.scanGDLFile("gdl/breakthroughWalls.kif")) {
+	//if (!r.scanGDLFile("gdl/connect_four.txt")) {
+	if (!r.scanGDLFile("gdl/dotsAndBoxes.kif")) {
         cout << "read file failed." << endl;
         return -1;
     }
@@ -31,6 +31,20 @@ int main() {
 	r.getRelations(rs);
 	StateMachine machine(rs);
 	machine.randomGo();
+	cout << "generate: " << Prover::generate_time << endl;
+	cout << "time1: " << Prover::time1 << endl;
+	cout << "time2: " << Prover::time2 << endl;
+	cout << "time3: " << Prover::time3 << endl;
+	cout << "time4: " << Prover::time4 << endl;
+	cout << "time5: " << Prover::time5 << endl;
+	cout << "time6: " << Prover::time6 << endl;
+	cout << "time7: " << Prover::time7 << endl;
+	cout << "time8: " << Prover::time8 << endl;
+	cout << "time9: " << Prover::time9 << endl;
+	cout << "time10: " << Prover::time10 << endl;
+	cout << "time11: " << Prover::time11 << endl;
+	cout << "time12: " << Prover::time12 << endl;
+	cout << "time13: " << Prover::time13 << endl;
 	char buf[10000];
 	cin.getline(buf, 10000);
 	int role, runtime;

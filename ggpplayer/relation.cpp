@@ -135,7 +135,7 @@ Relation Proposition::toRelation() {
 	return ret;
 }
 
-bool Proposition::matches(Proposition p, vector<int> &variables, vector<int> &values) {	
+bool Proposition::matches(Proposition &p, vector<int> &variables, vector<int> &values) {	
 	if (is_variable_ || p.is_variable_) {
 		int variable;
 		int value;

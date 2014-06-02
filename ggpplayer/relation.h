@@ -91,7 +91,7 @@ public:
 
 	bool operator<(const Proposition &r) const;
 	Relation toRelation();
-	bool matches(Proposition p, vector<int> &variables, vector<int> &values);
+	bool matches(Proposition &p, vector<int> &variables, vector<int> &values);
 	bool equals(Proposition p);		
 	void getVariables(vector<int> &variables);
 	void replaceVariables(vector<int> &variables, vector<int> &values);

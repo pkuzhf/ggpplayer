@@ -26,7 +26,8 @@ StateMachine::StateMachine(Relations description):prover_(description), is_termi
 		p.head_ = r_true;
 		trues_.push_back(p);		
 	}	
-	Propositions ps = prover_.generateTrueProps(trues_, 0, prover_.dpg_.legal_level_);
+	Propositions ps = trues_;
+	prover_.generateTrueProps(ps, 0, prover_.dpg_.legal_level_);
 	updateLegals(ps);
 }
 
@@ -93,7 +94,7 @@ void StateMachine::goOneStep(Propositions & move)
 	ps.insert(ps.end(), move.begin(), move.end());	
 	ps.insert(ps.end(), tmps_.begin(), tmps_.end());
 	ps.insert(ps.end(), trues_.begin(), trues_.end());
-	ps = prover_.generateTrueProps(ps, prover_.dpg_.legal_level_ + 1, prover_.dpg_.stra_deriv_.size() - 1);
+	prover_.generateTrueProps(ps, prover_.dpg_.legal_level_ + 1, prover_.dpg_.stra_deriv_.size() - 1);
 	
 	updateState(ps);
 
@@ -103,7 +104,7 @@ void StateMachine::goOneStep(Propositions & move)
 	
 	ps.clear();
 	ps.insert(ps.end(), trues_.begin(), trues_.end());		
-	ps = prover_.generateTrueProps(ps, 0, prover_.dpg_.legal_level_);	
+	prover_.generateTrueProps(ps, 0, prover_.dpg_.legal_level_);	
 
 	updateLegals(ps);
 }
@@ -136,7 +137,7 @@ void StateMachine::setState(Propositions &currentState)
 	is_terminal_ = false;
 	trues_ = currentState;	
 	Propositions ps = trues_;
-	ps = prover_.generateTrueProps(ps, 0, prover_.dpg_.legal_level_);
+	prover_.generateTrueProps(ps, 0, prover_.dpg_.legal_level_);
 	updateLegals(ps);
 }
 
