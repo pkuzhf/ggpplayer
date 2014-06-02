@@ -274,6 +274,10 @@ vector<vector<int> > Prover::delNotCombinations(vector<vector<int> > &c, vector<
 			++i;
 		}
 	}
+	while (i < idx_c.size()) {
+		ret.push_back(c[idx_c[i]]);
+		++i;
+	}
 	return ret;
 }
 
@@ -286,15 +290,15 @@ vector<vector<int> > Prover::mergeTwoCombinations(vector<vector<int> > &a, vecto
 		int compare = compareCombination(a[idx_a[a_begin]], b[idx_b[b_begin]], keys);
 		if (compare == -1) {
 			++a_begin;
-		} if (compare == 1) {
+		} else if (compare == 1) {
 			++b_begin;
 		} else {
 			int a_end = a_begin;
 			int b_end = b_begin;
-			while (compareCombination(a[idx_a[a_begin]], a[idx_a[a_end]], keys) == 0) {
+			while (a_end < idx_a.size() && compareCombination(a[idx_a[a_begin]], a[idx_a[a_end]], keys) == 0) {
 				++a_end;
 			}
-			while (compareCombination(b[idx_b[b_begin]], b[idx_b[b_end]], keys) == 0) {
+			while (b_end < idx_b.size() && compareCombination(b[idx_b[b_begin]], b[idx_b[b_end]], keys) == 0) {
 				++b_end;
 			}
 			for (int i = a_begin; i < a_end; ++i) {
@@ -331,20 +335,43 @@ long long Prover::calcCombineCost(
 		int compare = compareCombination(a[idx_a[a_begin]], b[idx_b[b_begin]], keys);
 		if (compare == -1) {
 			++a_begin;
-		} if (compare == 1) {
+		} else if (compare == 1) {
 			++b_begin;
 		} else {
 			int a_end = a_begin;
 			int b_end = b_begin;
-			while (compareCombination(a[idx_a[a_begin]], a[idx_a[a_end]], keys) == 0) {
+			while (a_end < idx_a.size() && compareCombination(a[idx_a[a_begin]], a[idx_a[a_end]], keys) == 0) {
 				++a_end;
 			}
-			while (compareCombination(b[idx_b[b_begin]], b[idx_b[b_end]], keys) == 0) {
+			while (b_end < idx_b.size() && compareCombination(b[idx_b[b_begin]], b[idx_b[b_end]], keys) == 0) {
 				++b_end;
 			}
 			ret += (a_end - a_begin) * (b_end - b_begin);			
 			a_begin = a_end;
 			b_begin = b_end;
+		}
+	}
+	return ret;
+}
+
+vector<int> Prover::getCombination(vector<int> all_variables, vector<int> &variables, vector<int> values) {
+	vector<int> ret(all_variables.size(), -1);
+	for (int i = 0; i < all_variables.size(); ++i) {
+		for (int j = 0; j < variables.size(); ++j) {
+			if (all_variables[i] == variables[j]) {
+				ret[i] = values[j];
+				break;
+			}
+		}
+	}
+	return ret;
+}
+
+vector<int> Prover::getKeys(vector<int> &combination) {
+	vector<int> ret;
+	for (int i = 0; i < combination.size(); ++i) {
+		if (combination[i] != -1) {
+			ret.push_back(i);
 		}
 	}
 	return ret;
@@ -360,6 +387,22 @@ vector<int> getCommonKeys(vector<int> &a, vector<int> &b) {
 	return ret;
 }
 
+void Prover::uniqCombinations(vector<vector<int> > combinations) {
+	vector<vector<int> > new_c;
+	vector<int> idx;
+	vector<int> keys;
+	if (combinations.size() > 0) {
+		keys = getKeys(combinations[0]);
+	}
+	idx = sortCombinations(combinations, keys);
+	for (int i = 0; i < idx.size(); ++i) {
+		if (i == 0 || compareCombination(combinations[idx[i]], combinations[idx[i - 1]], keys) != 0) {
+			new_c.push_back(combinations[idx[i]]);
+		}
+	}
+	combinations = new_c;
+}
+
 vector<vector<int> > Prover::mergeMultipleCombinations(
 	vector<vector<vector<int> > > &multiple_combinations, 
 	vector<vector<vector<int> > > &multiple_not_combinations,
@@ -367,9 +410,12 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 	vector<pair<int, int> > &constant_distincts) {
 
 	int size = multiple_combinations.size();
-	for (int i = 0; i < multiple_combinations.size(); ++i) {
+	if (size == 0) {
+		return vector<vector<int> >();
+	}
+	for (int i = 0; i < size; ++i) {
 		vector<vector<int> > &c = multiple_combinations[i];		
-		for (vector<vector<int> >::iterator j = c.begin(); j != c.end(); ++j) {
+		for (vector<vector<int> >::iterator j = c.begin(); j != c.end(); ) {
 			bool deleted = false;
 			for (int k = 0; k < constant_distincts.size() && !deleted; ++k) {
 				pair<int, int> d = constant_distincts[k];
@@ -410,9 +456,10 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 	vector<bool> deleted(size, false);	
 	vector<vector<int> > not_keys(multiple_not_combinations.size(), vector<int>());
 	vector<vector<int> > not_idxes(multiple_not_combinations.size(), vector<int>());
+	vector<bool> not_used(multiple_not_combinations.size(), false);
 	for (int i = 0; i < multiple_not_combinations.size(); ++i) {
 		if (multiple_not_combinations[i].size() == 0) {
-			deleted[i] = true;
+			not_used[i] = true;
 		} else {
 			for (int j = 0; j < multiple_not_combinations[i][0].size(); ++j) {
 				if (multiple_not_combinations[i][0][j] != -1) {
@@ -422,8 +469,6 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 			not_idxes[i] = sortCombinations(multiple_not_combinations[i], not_keys[i]);
 		}		
 	}
-
-	vector<bool> not_used(multiple_not_combinations.size(), false);			
 	for (int i = 0; i < size - 1; ++i) {
 		long long min_cost = -1;
 		int c1 = -1;
@@ -439,15 +484,15 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 				}
 			}
 		}
-		vector<vector<int> > &new_c = multiple_combinations[c1];
-		new_c = mergeTwoCombinations(multiple_combinations[c1], multiple_combinations[c2], idxes[c1][c2].first, idxes[c1][c2].second, keys[c1][c2]);
+		vector<vector<int> > new_c;
+		new_c = mergeTwoCombinations(multiple_combinations[c1], multiple_combinations[c2], idxes[c1][c2].first, idxes[c1][c2].second, keys[c1][c2]);		
 		if (new_c.size() > 0) {
 			for (int j = 0; j < multiple_not_combinations.size(); ++j) {
 				if (not_used[j]) continue;
 				vector<vector<int> > &not_c = multiple_not_combinations[j];
 				bool matched = true;				
 				for (int k = 0; k < not_keys[j].size(); ++k) {
-					if (not_c[0][k] != -1 && new_c[0][k] == -1) {
+					if (not_c[0][not_keys[j][k]] != -1 && new_c[0][not_keys[j][k]] == -1) {
 						matched = false;
 						break;						
 					}
@@ -458,7 +503,7 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 					not_used[j] = true;
 				}
 			}
-			for (vector<vector<int> >::iterator j = new_c.begin(); j != new_c.end(); ++j) {
+			for (vector<vector<int> >::iterator j = new_c.begin(); j != new_c.end();) {
 				bool deleted = false;				
 				for (int k = 0; k < variable_distincts.size() && !deleted; ++k) {
 					pair<int, int> d = variable_distincts[k];
@@ -473,6 +518,7 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 				}
 			}
 		}
+		multiple_combinations[c1] = new_c;
 		deleted[c2] = true;
 		for (int j = 0; j < size; ++j) {
 			if (deleted[j] || j == c1) continue;
@@ -574,19 +620,13 @@ Propositions Prover::generateTrueProps(Propositions true_props, int start_stra, 
 						for (int ii = 0; ii < ps.size(); ++ii) {
 							vector<int> variables;
 							vector<int> values;
-							if (true_props[ps[ii]].matches(subgoal.items_[0], variables, values)) {
-								vector<int> c(d.variables_.size(), -1);
-								for (int jj = 0; jj < d.variables_.size(); ++jj) {									
-									for (int kk = 0; kk < variables.size(); ++kk) {
-										if (d.variables_[jj] == variables[kk]) {
-											c[jj] = values[kk];
-										}
-									}				
-								}
+							if (true_props[ps[ii]].matches(subgoal.items_[0], variables, values)) {								
+								vector<int> c = getCombination(d.variables_, variables, values);								
 								not_combinations.push_back(c);
 							}
 						}
-					}
+						multiple_not_combinations.push_back(not_combinations);
+					}					
 				} else if (subgoal.head_ == r_distinct) {
 					//distinct_subgoals.push_back(k);
 					int first = -1;
@@ -617,14 +657,7 @@ Propositions Prover::generateTrueProps(Propositions true_props, int start_stra, 
 						vector<int> variables;
 						vector<int> values;
 						if (subgoal.matches(p, variables, values)) {
-							vector<int> c(d.variables_.size(), -1);
-							for (int jj = 0; jj < d.variables_.size(); ++jj) {									
-								for (int kk = 0; kk < variables.size(); ++kk) {
-									if (d.variables_[jj] == variables[kk]) {
-										c[jj] = values[kk];
-									}
-								}				
-							}
+							vector<int> c = getCombination(d.variables_, variables, values);
 							combinations.push_back(c);
 						}
 					}
@@ -639,6 +672,12 @@ Propositions Prover::generateTrueProps(Propositions true_props, int start_stra, 
 			}
 			if (impossible) {
 				continue;
+			}
+			for (int k = 0; k < multiple_combinations.size(); ++k) {
+				uniqCombinations(multiple_combinations[k]);
+			}
+			for (int k = 0; k < multiple_not_combinations.size(); ++k) {
+				uniqCombinations(multiple_not_combinations[k]);
 			}
 			if (current_stratum_subgoals.size() == 0) {
 				vector<vector<int>> new_combinations = mergeMultipleCombinations(multiple_combinations, 
@@ -667,110 +706,52 @@ Propositions Prover::generateTrueProps(Propositions true_props, int start_stra, 
 				der_multiple_combinations.push_back(multiple_combinations);
 				der_multiple_not_combinations.push_back(multiple_not_combinations);
 				der_constant_distincts.push_back(constant_distincts);
-				der_constant_distincts.push_back(variable_distincts);
+				der_variable_distincts.push_back(variable_distincts);
 			}	
 		}
 		for (int j = 0; j < current_stratum_props.size(); ++j) { // size of current_stratum_props would be changed in the loop
 			Proposition &p = current_stratum_props[j];
 			for (int k = 0; k < derivations.size(); ++k) {
-				Derivation &d = derivations[k];
-				vector<int> distincts;
-				vector<int> non_distincts;
+				Derivation &d = derivations[k];				
 				for (int ii = 0; ii < d.subgoals_.size(); ++ii) {
 					Proposition &subgoal = d.subgoals_[ii];
-					if (subgoal.head_ == r_distinct) {
-						distincts.push_back(ii);
-					} else {
-						non_distincts.push_back(ii);
-					}
-				}
-				for (int ii = 0; ii < non_distincts.size(); ++ii) {
-					Proposition &subgoal = d.subgoals_[non_distincts[ii]];
 					vector<int> variables;
 					vector<int> values;
-					if (subgoal.matches(p, variables, values)) {
-						vector<vector<int> > combined_candidates;
-						set<vector<int> > combined_candidates_set;
-						for (int jj = 0; jj < der_multiple_combinations[k].size(); ++jj) {
-							vector<int> m = der_multiple_combinations[k][jj];
-							bool combined = true;
-							for (int kk = 0; kk < d.variables_.size() && combined; ++kk) {
-								for (int iii = 0; iii < variables.size(); ++iii) {
-									if (d.variables_[kk] == variables[iii]) {
-										if (m[kk] == -1) {
-											m[kk] = values[iii];
-										} else if (m[kk] != values[iii]) {
-											combined = false;
-										}
-										break;
+					if (subgoal.matches(p, variables, values)) {						
+						vector<int> c = getCombination(d.variables_, variables, values);
+						vector<vector<vector<int> > > new_multiple_combinations = der_multiple_combinations[k];
+						new_multiple_combinations.push_back(vector<vector<int> >(1, c));
+						if (d.subgoals_.size() == 1) {
+							vector<vector<int>> new_combinations = mergeMultipleCombinations(new_multiple_combinations, 
+								der_multiple_not_combinations[k], der_variable_distincts[k], der_constant_distincts[k]);
+							for (int ii = 0; ii < new_combinations.size(); ++ii) {
+								Proposition p = d.target_;
+								p.replaceVariables(d.variables_, new_combinations[ii]);
+								if (true_props_set.find(p) == true_props_set.end()) {											
+									if (head_propositions.find(p.head_) == head_propositions.end()) {							
+										head_propositions[p.head_] = vector<int>();
 									}
+									head_propositions[p.head_].push_back(true_props.size());
+									true_props.push_back(p);
+									true_props_set.insert(p);
+									current_stratum_props.push_back(p);										
 								}
 							}
-							if (combined) {
-								bool check_distinct = true;								
-								for (int kk = 0; kk < distincts.size() && check_distinct; ++kk) {									
-									Proposition &distinct = d.subgoals_[distincts[kk]];														
-									int first = distinct.items_[0].head_;
-									int second = distinct.items_[1].head_;
-									for (int iii = 0; iii < d.variables_.size(); ++iii) {
-										if (d.variables_[iii] == distinct.items_[0].head_) {
-											first = m[iii];
-										}
-										if (d.variables_[iii] == distinct.items_[1].head_) {
-											second = m[iii];
-										}
-									}
-									if (first != -1 && second != -1 && first == second) {
-										check_distinct = false;
-									}									
-								}
-								if (check_distinct) {									
-									if (non_distincts.size() == 1) {
-										Proposition p = d.target_;
-										p.replaceVariables(d.variables_, m);
-										if (true_props_set.find(p) == true_props_set.end()) {											
-											if (head_propositions.find(p.head_) == head_propositions.end()) {
-												vector<int> tmp;
-												head_propositions[p.head_] = tmp;
-											}
-											head_propositions[p.head_].push_back(true_props.size());
-											true_props.push_back(p);
-											true_props_set.insert(p);
-											current_stratum_props.push_back(p);										
-										}
-									} else {
-										if (combined_candidates_set.find(m) == combined_candidates_set.end()) {
-											combined_candidates.push_back(m);
-											combined_candidates_set.insert(m);
-										}
-									}
-								}
-							}
-						}
-						if (combined_candidates.size() == 0) {
-							continue;
-						}
-						Derivation d2;
-						d2.target_ = d.target_;
-						d2.variables_ = d.variables_;
-						for (int jj = 0; jj < non_distincts.size(); ++jj) {
-							if (jj != ii) {
-								d2.subgoals_.push_back(d.subgoals_[non_distincts[jj]]);
-							}											
-						}			
-						// undetermined distinct subgoals
-						for (int jj = 0; jj < distincts.size(); ++jj) {
-							Proposition &distinct = d.subgoals_[distincts[jj]];
-							for (int kk = 0; kk < d.variables_.size(); ++kk) {
-								if ((d.variables_[kk] == distinct.items_[0].head_ || d.variables_[kk] == distinct.items_[1].head_) 
-									&& combined_candidates[0][kk] == -1) {	// combined_candidates has 1 element at least
-									d2.subgoals_.push_back(d.subgoals_[distincts[jj]]);
-									break;
-								}
-							}						
-						}
-						derivations.push_back(d2);
-						der_multiple_combinations.push_back(combined_candidates);			
+						} else {
+							Derivation d2;
+							d2.target_ = d.target_;
+							d2.variables_ = d.variables_;
+							for (int ii = 0; ii < d.subgoals_.size(); ++ii) {
+								if (ii != k) {
+									d2.subgoals_.push_back(d.subgoals_[ii]);
+								}											
+							}							
+							derivations.push_back(d2);
+							der_multiple_combinations.push_back(new_multiple_combinations);
+							der_multiple_not_combinations.push_back(der_multiple_not_combinations[k]);
+							der_constant_distincts.push_back(der_constant_distincts[k]);
+							der_variable_distincts.push_back(der_variable_distincts[k]);
+						}						
 					}
 				}
 			}

@@ -124,7 +124,7 @@ Propositions StateMachine::randomGo()
 		goOneStep(joint_move);		
 	}
 	clock_t end = clock();
-	//cout<< count <<" steps in "<<end - begin<< " ms" <<endl;
+	cout<< count <<" steps in "<<end - begin<< " ms" <<endl;
 	return goals_;
 }
 

@@ -80,6 +80,9 @@ private:
 	void prepareStaticRelation();
 	void markNonStatic(int index, vector<int> & mark);
 
+	vector<int> getCombination(vector<int> all_variables, vector<int> &variables, vector<int> values);
+	vector<int> getKeys(vector<int> &combination);
+	void uniqCombinations(vector<vector<int> > combinations);
 	int compareCombination(vector<int> &comb_a, vector<int> &comb_b, vector<int> &keys);
 	void quickSortCombinations(vector<vector<int> > &combinations, vector<int> &keys, vector<int> &idx, int left, int right);
 	vector<int> sortCombinations(vector<vector<int> > &combinations, vector<int> &keys);

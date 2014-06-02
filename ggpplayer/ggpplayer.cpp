@@ -22,7 +22,7 @@ int main() {
 	}
 	Reader r;
 	//if (!r.scanGDLFile("gdl/reversi.kif")) {
-	if (!r.scanGDLFile("gdl/connect_four.txt")) {
+	if (!r.scanGDLFile("gdl/lights_out.txt")) {
 	//if (!r.scanGDLFile("gdl/2pffa_zerosum.kif")) {
         cout << "read file failed." << endl;
         return -1;
