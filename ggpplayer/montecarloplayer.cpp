@@ -71,7 +71,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 			}	
 		}
 
-		int thePoint;
+		int thePoint = -1;
 		if (!node->isTerminal_) {
 			int move_size = stateMachine_.getLegalMoves(roleNum_).size();
 			for (int i = 0; i < move_size; i++) {
@@ -93,17 +93,20 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 				thePoint = stateMachine_.getGoal(roleNum_);					
 			} else {
 				count++;
-				thePoint = performDepthChargeFromMove();
+				if (stateMachine_.randomGo(finishBy)) {
+					thePoint = stateMachine_.getGoal(roleNum_);
+				}				
 			}
 		} else {
 			thePoint = stateMachine_.getGoal(roleNum_);
 		}			
-
-		node->totalAttemps_++;
-		while (node->parent_ != NULL) {
-			node->nPoints_ += thePoint;
-			node->nAttemps_++;				
-			node = node->parent_;
+		if (thePoint != -1) {
+			node->totalAttemps_++;
+			while (node->parent_ != NULL) {
+				node->nPoints_ += thePoint;
+				node->nAttemps_++;				
+				node = node->parent_;
+			}
 		}
 	}	
 
@@ -128,13 +131,6 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 	//cout<< "UCT simu times: " <<(double)count / (stop - start) * CLOCKS_PER_SEC <<endl;
 	//cout<< "UCT simu times: " <<count<<endl;
 	return selection;
-}
-
-int MonteCarloPlayer::performDepthChargeFromMove()
-{
-	stateMachine_.randomGo();
-	// wait to be changed
-	return stateMachine_.getGoal(roleNum_);
 }
 
 void MonteCarloPlayer::goOneStep(Propositions moves)

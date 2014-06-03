@@ -109,9 +109,9 @@ void StateMachine::goOneStep(Propositions & move)
 	updateLegals(ps);
 }
 
-Propositions StateMachine::randomGo()
+bool StateMachine::randomGo(int time_limit)
 {
-	clock_t begin = clock();
+	//clock_t begin = clock();
 	int count = 0;
 	while (!is_terminal_) {
 		count ++;
@@ -123,11 +123,14 @@ Propositions StateMachine::randomGo()
 			cout << joint_move[i].toString() << endl;
 		}		
 		goOneStep(joint_move);
+		if (clock() > time_limit) {
+			return false;
+		}
 	//	if (count > 5) break;
 	}
-	clock_t end = clock();
-	cout<< count <<" steps in "<<end - begin<< " ms" <<endl;
-	return goals_;
+	//clock_t end = clock();
+	//cout<< count <<" steps in "<<end - begin<< " ms" <<endl;
+	return true;
 }
 
 void StateMachine::setState(Propositions &currentState)
