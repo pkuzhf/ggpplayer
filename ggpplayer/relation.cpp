@@ -26,18 +26,20 @@ void Relation::addSymbol(string symbol) {
 bool Relation::operator<(const Relation &r) const{
 	if (head_ < r.head_) {
 		return true;
-	}else if(head_ > r.head_){
+	} else if (head_ > r.head_) {
 		return false;
 	}
-	for (int i = 0; i < items_.size() && i < r.items_.size() ; ++i){
-		if(items_[i] < r.items_[i]) {
+	if (items_.size() < r.items_.size()){
+		return true;
+	} else {		
+		return false;
+	}
+	for (int i = 0; i < items_.size() && i < r.items_.size() ; ++i) {
+		if (items_[i] < r.items_[i]) {
 			return true;
-		}else if(r.items_[i] < items_[i]){
+		}else if (r.items_[i] < items_[i]) {
 			return false;
 		}
-	}
-	if(items_.size() < r.items_.size()){
-		return true;
 	}
 	return false;
 }
@@ -103,6 +105,18 @@ Proposition Proposition::strToProp(string s) {
 		}		
 	}
 	return ret;
+}
+
+bool Proposition::operator==(const Proposition &p) const {
+	if (head_ != p.head_ || items_.size() != p.items_.size()) {
+		return false;
+	}
+	for (int i = 0; i < items_.size(); ++i) {
+		if (!(items_[i] == p.items_[i])) {
+			return false;
+		}
+	}
+	return true;
 }
 
 bool Proposition::operator<(const Proposition &p) const {

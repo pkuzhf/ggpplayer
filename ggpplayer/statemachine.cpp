@@ -99,7 +99,7 @@ void StateMachine::goOneStep(Propositions & move)
 	updateState(ps);
 
 	if (is_terminal_) {
-		return;
+		return; // impossible
 	}
 	
 	ps.clear();
@@ -122,7 +122,8 @@ Propositions StateMachine::randomGo()
 		for (int i = 0; i < joint_move.size(); ++i) {
 			cout << joint_move[i].toString() << endl;
 		}		
-		goOneStep(joint_move);		
+		goOneStep(joint_move);
+	//	if (count > 5) break;
 	}
 	clock_t end = clock();
 	cout<< count <<" steps in "<<end - begin<< " ms" <<endl;

@@ -89,7 +89,8 @@ public:
 	bool is_variable_;
 	vector<Proposition> items_;
 
-	bool operator<(const Proposition &r) const;
+	bool operator<(const Proposition &p) const;
+	bool operator==(const Proposition &p) const;
 	Relation toRelation();
 	bool matches(Proposition &p, vector<int> &variables, vector<int> &values);
 	bool equals(Proposition p);		
@@ -106,6 +107,25 @@ public:
 	vector<int> variables_;
 	Relation toRelation();
 	void prepareVariables();
+};
+
+struct hash_Proposition {
+	enum   
+	{   //   parameters   for   hash   table   
+		bucket_size   =   4,   //   0   <   bucket_size   
+		min_buckets   =   8  //   min_buckets   =   2   ^^   N,   0   <   N   
+	};   
+	size_t operator()(const class Proposition & a) const {	
+		int prime = 10000001;
+		int sum = a.head_;
+		for (int i = 0; i < a.items_.size(); ++i) {
+			sum = (sum * operator()(a.items_[i])) % prime;
+		}
+		return sum;
+	}
+	bool operator()(const class Proposition & a1, const class Proposition & a2) const {
+		return  a1 < a2;
+	}
 };
 
 #endif

@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <unordered_set>
 
 #include "prover.h"
 #include "relation.h"
@@ -68,9 +69,11 @@ Prover::Prover(Relations relations) : relations_(relations) {
 			roles_.push_back(true_rs[i]);
 			statics_.push_back(true_rs[i]);	
 			statics_set_.insert(true_rs[i]);
+			head_statics_[true_rs[i].head_].push_back(statics_.size() - 1);
 		} else if (find(static_heads_.begin(), static_heads_.end(), true_rs[i].head_) != static_heads_.end()) {
 			statics_.push_back(true_rs[i]);	
 			statics_set_.insert(true_rs[i]);
+			head_statics_[true_rs[i].head_].push_back(statics_.size() - 1);
 		}
 	}
 	// add key_head which isn't in base sentence
@@ -418,8 +421,7 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 	vector<vector<vector<int> > > multiple_combinations, 
 	vector<vector<vector<int> > > &multiple_not_combinations,
 	vector<pair<int, int> > &variable_distincts,
-	vector<pair<int, int> > &constant_distincts) {
-
+	vector<pair<int, int> > &constant_distincts) {	
 	int size = multiple_combinations.size();
 	if (size == 0) {
 		return vector<vector<int> >();
@@ -548,7 +550,7 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 		} else {
 			++j;
 		}
-	}	
+	}		
 	return ret;
 }
 
@@ -581,36 +583,29 @@ void Prover::markNonStatic(int index, vector<int> & mark)
 	}
 }
 
-void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end_stra) {
+void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end_stra) {	
 	static int true_props_size = true_props.size() * 10;
-	true_props.reserve(true_props_size * 2);
-	time6 += true_props.size();	
-	int start = clock();
-	true_props.insert(true_props.begin(), statics_.begin(), statics_.end());
-	vector<string> input;
+	true_props.reserve(true_props_size * 2);		
+	/*vector<string> input;
 	for (int i = 0; i < true_props.size(); ++i) {
 		input.push_back(true_props[i].toRelation().toString());
-	}
+	}*/
 	map<int, vector<int> > head_propositions;
-	set<Proposition> true_props_set;
+	unordered_set<Proposition, hash_Proposition> true_props_set;	
 	for (int i = 0; i < true_props.size(); ++i) {
-		if (head_propositions.find(true_props[i].head_) == head_propositions.end()) {
-			vector<int> rs;
-			head_propositions[true_props[i].head_] = rs;
-		}
-		head_propositions[true_props[i].head_].push_back(i);
-		true_props_set.insert(true_props[i]);
+		head_propositions[true_props[i].head_].push_back(i);		
+		true_props_set.insert(true_props[i]);		
 	}
-	for (int i = start_stra; i <= end_stra; ++i) {
+	
+	for (int i = start_stra; i <= end_stra; ++i) {		
 		vector<Derivation> derivations;
 		vector<vector<vector<vector<int> > > > der_multiple_combinations;
 		vector<vector<vector<vector<int> > > > der_multiple_not_combinations;
 		vector<vector<pair<int, int> > > der_constant_distincts;
 		vector<vector<pair<int, int> > > der_variable_distincts;
 		Propositions current_stratum_props;		
-		current_stratum_props.reserve(true_props_size / 5);	
+		current_stratum_props.reserve(true_props_size / 5);			
 		for (int j = 0; j < dpg_.stra_deriv_[i].size(); ++j) {
-			int s2 = clock();
 			Derivation d = dpg_.derivations_[dpg_.stra_deriv_[i][j]];
 			vector<int> current_stratum_subgoals;
 			vector<vector<vector<int> > > multiple_combinations;
@@ -626,19 +621,27 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 			for (int k = 0; k < d.subgoals_.size(); ++k) {								
 				Proposition &subgoal = d.subgoals_[k];
 				if (subgoal.head_ == r_not) {					
-					//not_subgoals.push_back(k);										
-					if (head_propositions.find(subgoal.items_[0].head_) != head_propositions.end()) {
-						vector<vector<int> > not_combinations;
-						vector<int> &ps = head_propositions[subgoal.items_[0].head_];
-						for (int ii = 0; ii < ps.size(); ++ii) {
-							vector<int> variables;
-							vector<int> values;
-							if (true_props[ps[ii]].matches(subgoal.items_[0], variables, values)) {																
-								not_combinations.push_back(getCombination(d.variables_, variables, values));
-							}
+					//not_subgoals.push_back(k);															
+					vector<vector<int> > not_combinations;
+					vector<int> &ps = head_propositions[subgoal.items_[0].head_];					
+					for (int ii = 0; ii < ps.size(); ++ii) {
+						vector<int> variables;
+						vector<int> values;
+						if (true_props[ps[ii]].matches(subgoal.items_[0], variables, values)) {																
+							not_combinations.push_back(getCombination(d.variables_, variables, values));
 						}
+					}
+					vector<int> &ps2 = head_statics_[subgoal.items_[0].head_];
+					for (int ii = 0; ii < ps2.size(); ++ii) {
+						vector<int> variables;
+						vector<int> values;
+						if (statics_[ps2[ii]].matches(subgoal.items_[0], variables, values)) {
+							not_combinations.push_back(getCombination(d.variables_, variables, values));
+						}
+					}
+					if (not_combinations.size() > 0) {
 						multiple_not_combinations.push_back(not_combinations);
-					}										
+					}														
 				} else if (subgoal.head_ == r_distinct) {					
 					//distinct_subgoals.push_back(k);
 					int first = -1;
@@ -663,61 +666,60 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 				} else if (dpg_.node_stra_[dpg_.node_num_[subgoal.head_]] < i) { // lower stratum subgoals										
 					//lower_stratum_subgoals.push_back(k);
 					vector<vector<int> > combinations;
-					vector<int> &true_rs = head_propositions[subgoal.head_];
-					for (int ii = 0; ii < true_rs.size(); ++ii) { // scan all true props to generate var-value maps						
-						Proposition &p = true_props[true_rs[ii]];
+					vector<int> &ps = head_propositions[subgoal.head_];					
+					for (int ii = 0; ii < ps.size(); ++ii) { // scan all true props to generate var-value maps						
+						Proposition &p = true_props[ps[ii]];
 						vector<int> variables;
 						vector<int> values;
 						if (subgoal.matches(p, variables, values)) {							
-							combinations.push_back(getCombination(d.variables_, variables, values));
+							combinations.push_back(getCombination(d.variables_, variables, values));							
 						}						
-					}					
+					}
+					vector<int> &ps2 = head_statics_[subgoal.head_];					
+					for (int ii = 0; ii < ps2.size(); ++ii) { // scan all true props to generate var-value maps						
+						Proposition &p = statics_[ps2[ii]];
+						vector<int> variables;
+						vector<int> values;
+						if (subgoal.matches(p, variables, values)) {							
+							combinations.push_back(getCombination(d.variables_, variables, values));							
+						}						
+					}
 					if (combinations.size() == 0) { // size of combinations should be greater than 0
 						impossible = true;						
 						break;
-					}
-					multiple_combinations.push_back(combinations);
+					}					
+					multiple_combinations.push_back(combinations);					
 				} else {
 					current_stratum_subgoals.push_back(k);
 				}
-			}
-			time2 += clock() - s2;
+			}			
 			if (impossible) {
 				continue;
-			}
+			}			
 			if (multiple_combinations.size() == 0) {
 				multiple_combinations.push_back(vector<vector<int> >(1, vector<int>())); // in case there are only 'not' subgoals
 			}
-			
 			for (int k = 0; k < multiple_combinations.size(); ++k) {
 				uniqCombinations(multiple_combinations[k]);
 			}
 			for (int k = 0; k < multiple_not_combinations.size(); ++k) {
 				uniqCombinations(multiple_not_combinations[k]);
-			}			
-			int s3 = clock();
-			if (current_stratum_subgoals.size() == 0) {
-				int s4 = clock();
-				int s1 = clock();
+			}						
+			if (current_stratum_subgoals.size() == 0) {				
 				vector<vector<int> > new_combinations = mergeMultipleCombinations(multiple_combinations, 
-					multiple_not_combinations, variable_distincts, constant_distincts);
-				time1 += clock() - s1;
+					multiple_not_combinations, variable_distincts, constant_distincts);				
 				for (int k = 0; k < new_combinations.size(); ++k) {					
 					Proposition p = d.target_;
 					p.replaceVariables(d.variables_, new_combinations[k]);					
-					if (true_props_set.find(p) == true_props_set.end()) {											
-						if (head_propositions.find(p.head_) == head_propositions.end()) {							
-							head_propositions[p.head_] = vector<int>();
-						}
-						head_propositions[p.head_].push_back(true_props.size());						
-						true_props.push_back(p);						
-						true_props_set.insert(p);
+					if (true_props_set.find(p) == true_props_set.end()) {																	
+						head_propositions[p.head_].push_back(true_props.size());												
+						true_props.push_back(p);
 						int s5 = clock();
-						current_stratum_props.push_back(p);
+						true_props_set.insert(p);						
 						time5 += clock() - s5;
+						current_stratum_props.push_back(p);						
 					}
-				}
-				time4 += clock() - s4;
+				}				
 			} else {
 				Derivation d2;
 				d2.target_ = d.target_;
@@ -730,8 +732,7 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 				der_multiple_not_combinations.push_back(multiple_not_combinations);
 				der_constant_distincts.push_back(constant_distincts);
 				der_variable_distincts.push_back(variable_distincts);
-			}
-			time3 += clock() - s3;
+			}			
 		}
 		for (int j = 0; j < current_stratum_props.size(); ++j) { // size of current_stratum_props would be changed in the loop
 			Proposition true_p = current_stratum_props[j];			
@@ -745,21 +746,16 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 						vector<int> c = getCombination(d.variables_, variables, values);
 						vector<vector<vector<int> > > new_multiple_combinations = der_multiple_combinations[k];
 						new_multiple_combinations.push_back(vector<vector<int> >(1, c));
-						if (d.subgoals_.size() == 1) {
-							int s1 = clock();
+						if (d.subgoals_.size() == 1) {							
 							vector<vector<int>> new_combinations = mergeMultipleCombinations(new_multiple_combinations, 
-								der_multiple_not_combinations[k], der_variable_distincts[k], der_constant_distincts[k]);
-							time1 += clock() - s1;
+								der_multiple_not_combinations[k], der_variable_distincts[k], der_constant_distincts[k]);							
 							for (int ii = 0; ii < new_combinations.size(); ++ii) {
 								Proposition p = d.target_;
 								p.replaceVariables(d.variables_, new_combinations[ii]);
-								if (true_props_set.find(p) == true_props_set.end()) {											
-									if (head_propositions.find(p.head_) == head_propositions.end()) {							
-										head_propositions[p.head_] = vector<int>();
-									}
+								if (true_props_set.find(p) == true_props_set.end()) {									
 									head_propositions[p.head_].push_back(true_props.size());
-									true_props.push_back(p);
-									true_props_set.insert(p);
+									true_props.push_back(p);									
+									true_props_set.insert(p);									
 									current_stratum_props.push_back(p);									
 								}
 							}
@@ -778,16 +774,14 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 							der_constant_distincts.push_back(der_constant_distincts[k]);
 							der_variable_distincts.push_back(der_variable_distincts[k]);
 						}						
-					}
+					}					
 				}
 			}
-		}		
-	}
-	vector<string> output;
+		}				
+	}	
+	/*vector<string> output;
 	for (int i = 0; i < true_props.size(); ++i) {
 		output.push_back(true_props[i].toRelation().toString());
-	}
-	generate_time += clock() - start;
-	time7 += true_props.size();	
-	true_props_size = true_props.size();
+	}*/	
+	true_props_size = true_props.size();	
 }

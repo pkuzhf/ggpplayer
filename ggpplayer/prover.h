@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <set>
+#include <unordered_set>
 #include <map>
 #include <string>
 #include<cmath>
@@ -65,7 +66,8 @@ public:
 	Prover(Relations relations);	
 	void generateTrueProps(Propositions &true_props, int start_stra, int end_stra);
 	Propositions statics_;
-	set<Proposition> statics_set_;
+	unordered_set<Proposition, hash_Proposition> statics_set_;
+	map<int, vector<int> > head_statics_;
 	Propositions inits_;
 	DependGraph dpg_;
 private:
