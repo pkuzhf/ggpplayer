@@ -206,7 +206,7 @@ Prover::Prover(Relations relations) : relations_(relations) {
 				++j;
 			}
 		}
-	}	*/
+	}*/
 
 	DependGraph dpg2;
 	dpg2.buildGraph(nonstatic_derivations_); 
@@ -417,14 +417,17 @@ void Prover::uniqCombinations(vector<vector<int> > combinations) {
 	}
 }
 
-vector<vector<int> > Prover::mergeMultipleCombinations(
-	vector<vector<vector<int> > > multiple_combinations, 
+vector<vector<int> > & Prover::mergeMultipleCombinations(
+	vector<vector<vector<int> > > &multiple_combinations, 
 	vector<vector<vector<int> > > &multiple_not_combinations,
 	vector<pair<int, int> > &variable_distincts,
 	vector<pair<int, int> > &constant_distincts) {	
+		
+	int s2 = clock();
 	int size = multiple_combinations.size();
 	if (size == 0) {
-		return vector<vector<int> >();
+		multiple_combinations.push_back(vector<vector<int> >());
+		return multiple_combinations[multiple_combinations.size() - 1];
 	}
 	for (int i = 0; i < size; ++i) {
 		vector<vector<int> > &c = multiple_combinations[i];		
@@ -462,7 +465,12 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 			}
 			idxes[i][j].first = sortCombinations(a, keys[i][j]);
 			idxes[i][j].second = sortCombinations(b, keys[i][j]);
-			combine_cost[i][j] = calcCombineCost(a, b, keys[i][j], idxes[i][j].first, idxes[i][j].second);			
+			combine_cost[i][j] = calcCombineCost(a, b, keys[i][j], idxes[i][j].first, idxes[i][j].second);
+			if (combine_cost[i][j] == 0) {
+				time2 += clock() - s2;
+				multiple_combinations.push_back(vector<vector<int> >());
+				return multiple_combinations[multiple_combinations.size() - 1];;
+			}
 		}
 	}
 
@@ -482,7 +490,7 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 			not_idxes[i] = sortCombinations(multiple_not_combinations[i], not_keys[i]);
 		}		
 	}
-	for (int i = 0; i < size - 1; ++i) {
+	while(true) {
 		long long min_cost = -1;
 		int c1 = -1;
 		int c2 = -1;
@@ -496,31 +504,42 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 					c2 = k;
 				}
 			}
-		}		
-		multiple_combinations[c1] = mergeTwoCombinations(multiple_combinations[c1], multiple_combinations[c2], idxes[c1][c2].first, idxes[c1][c2].second, keys[c1][c2], min_cost);						 
-		deleted[c2] = true;
+		}
+		if (min_cost == -1) {
+			break;
+		}
+		multiple_combinations.push_back(mergeTwoCombinations(multiple_combinations[c1], multiple_combinations[c2], idxes[c1][c2].first, idxes[c1][c2].second, keys[c1][c2], min_cost));
+		keys.push_back(vector<vector<int> >(size + 1, vector<int>()));
+		idxes.push_back(vector<pair<vector<int>, vector<int> > > (size + 1, pair<vector<int>, vector<int> >()));
+		combine_cost.push_back(vector<long long>(size + 1, 0));
+		deleted.push_back(false);
+
+		deleted[c1] = true;
+		deleted[c2] = true;		
 		for (int j = 0; j < size; ++j) {
-			if (deleted[j] || j == c1) continue;
-			int x = min(j, c1);
-			int y = max(j, c1);			
+			if (deleted[j]) continue;
+			int x = j;
+			int y = multiple_combinations.size() - 1;
 			vector<vector<int> > &a = multiple_combinations[x];
-			vector<vector<int> > &b = multiple_combinations[y];			
-			keys[x][y].clear();
+			vector<vector<int> > &b = multiple_combinations[y];
+			keys[x].push_back(vector<int>());			
 			if (a.size() > 0 && b.size() > 0) {
 				keys[x][y] = getCommonKeys(a[0], b[0]);
 			}
+			idxes[x].push_back(pair<vector<int>, vector<int> >());
 			idxes[x][y].first = sortCombinations(a, keys[x][y]);
 			idxes[x][y].second = sortCombinations(b, keys[x][y]);
-			combine_cost[x][y] = calcCombineCost(a, b, keys[x][y], idxes[x][y].first, idxes[x][y].second);	
+			combine_cost[x].push_back(0);
+			combine_cost[x][y] = calcCombineCost(a, b, keys[x][y], idxes[x][y].first, idxes[x][y].second);
+			if (combine_cost[x][y] == 0) {
+				multiple_combinations.push_back(vector<vector<int> >());
+				return multiple_combinations[multiple_combinations.size() - 1];
+			}
 		}
+		size = multiple_combinations.size();
 	}
-	int ret_id = -1;
-	for (int i = 0; i < size; ++i) {
-		if (!deleted[i]) {
-			ret_id = i;			
-		}
-	}
-	vector<vector<int> > &ret = multiple_combinations[ret_id];
+	
+	vector<vector<int> > &ret = multiple_combinations[size - 1];
 	for (int j = 0; j < multiple_not_combinations.size(); ++j) {
 		if (not_used[j] || ret.size() == 0) continue;
 		vector<vector<int> > &not_c = multiple_not_combinations[j];
@@ -550,7 +569,8 @@ vector<vector<int> > Prover::mergeMultipleCombinations(
 		} else {
 			++j;
 		}
-	}		
+	}
+	time2 += clock() - s2;
 	return ret;
 }
 
@@ -583,7 +603,8 @@ void Prover::markNonStatic(int index, vector<int> & mark)
 	}
 }
 
-void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end_stra) {	
+void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end_stra) {
+	int s1 = clock();
 	static int true_props_size = true_props.size() * 10;
 	true_props.reserve(true_props_size * 2);		
 	/*vector<string> input;
@@ -784,4 +805,5 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 		output.push_back(true_props[i].toRelation().toString());
 	}*/	
 	true_props_size = true_props.size();	
+	time1 += clock() - s1;
 }

@@ -111,7 +111,7 @@ void StateMachine::goOneStep(Propositions & move)
 
 bool StateMachine::randomGo(int time_limit)
 {
-	//clock_t begin = clock();
+	clock_t begin = clock();
 	int count = 0;
 	while (!is_terminal_) {
 		count ++;
@@ -120,16 +120,16 @@ bool StateMachine::randomGo(int time_limit)
 			joint_move.push_back(getRandomMove(i));
 		}
 		for (int i = 0; i < joint_move.size(); ++i) {
-			// cout << joint_move[i].toString() << endl;
+			 cout << joint_move[i].toString() << endl;
 		}		
 		goOneStep(joint_move);
 		if (clock() > time_limit) {
 			return false;
 		}
-	//	if (count > 5) break;
+		if (count > 0) break;
 	}
-	//clock_t end = clock();
-	//cout<< count <<" steps in "<<end - begin<< " ms" <<endl;
+	clock_t end = clock();
+	cout<< count <<" steps in "<<end - begin<< " ms" <<endl;
 	return true;
 }
 
