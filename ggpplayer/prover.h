@@ -75,7 +75,8 @@ private:
 	vector<Derivation> derivations_;
 	vector<Derivation> static_derivations_;
 	vector<Derivation> nonstatic_derivations_;	
-	vector<vector<vector<int> > > non_der_var_values_;	
+	vector<vector<vector<vector<int> > > > der_multiple_combinations_;	
+	vector<vector<vector<vector<int> > > > der_multiple_not_combinations_;	
 	void getSubgoalSequence(vector<vector<vector<pair<int, int> > > > & var_candidates);
 	vector<int> static_heads_; // get by DPG
 

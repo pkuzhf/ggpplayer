@@ -126,7 +126,7 @@ bool StateMachine::randomGo(int time_limit)
 		if (clock() > time_limit) {
 			return false;
 		}
-		if (count > 0) break;
+		//if (count > 0) break;
 	}
 	clock_t end = clock();
 	cout<< count <<" steps in "<<end - begin<< " ms" <<endl;

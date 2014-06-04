@@ -92,121 +92,58 @@ Prover::Prover(Relations relations) : relations_(relations) {
 			roles_.push_back(relations_[i].toProposition());
 		}
 	}*/
-	/*for (int i = 0; i < nonstatic_derivations_.size(); ++i) {
-		vector<vector<int> > tmp;
-		non_der_var_values_.push_back(tmp);
-		Derivation &d = nonstatic_derivations_[i];		
+
+	for (int i = 0; i < nonstatic_derivations_.size(); ++i) {
 		vector<vector<vector<int> > > multiple_combinations;
-		vector<int> idx;
-		bool impossible = false;		
+		vector<vector<vector<int> > > multiple_not_combinations;
+		Derivation &d = nonstatic_derivations_[i];
 		for (int j = 0; j < d.subgoals_.size(); ++j) {
-			if (find(static_heads_.begin(), static_heads_.end(), d.subgoals_[j].head_) == static_heads_.end()) {
-				continue;
-			}
-			vector<vector<int> > combinations;
-			Proposition &subgoal = d.subgoals_[j];			
-			for (int ii = 0; ii < statics_.size(); ++ii) {				
-				vector<int> variables;
-				vector<int> values;				
-				if (subgoal.matches(statics_[ii], variables, values)) {					
-					bool duplicated = false;
-					for (int jj = 0; jj < combinations.size(); ++jj) {
-						bool equal = true;
-						vector<int> &c = combinations[jj];						
-						for (int kk = 0; kk < values.size() && equal; ++kk) {
-							if (c[kk] != values[kk]) {
-								equal = false;
-							}
-						}
-						if (equal) {
-							duplicated = true;
-							break;
-						}
-					}
-					if (!duplicated) {						
-						combinations.push_back(values);
+			Proposition &subgoal = d.subgoals_[j];
+			if (subgoal.head_ == r_not) {
+				if (find(static_heads_.begin(), static_heads_.end(), subgoal.items_[0].head_) == static_heads_.end()) {
+					continue;
+				}
+				vector<vector<int> > not_combinations;
+				vector<int> ps = head_statics_[subgoal.items_[0].head_];
+				for (int k = 0; k < ps.size(); ++k) {
+					vector<int> variables;
+					vector<int> values;
+					if (statics_[ps[k]].matches(subgoal.items_[0], variables, values)) {
+						not_combinations.push_back(getCombination(d.variables_, variables, values));
 					}
 				}
-			}
-			if (combinations.size() == 0) {
-				impossible = true;
-				break;
-			}
-			idx.push_back(0);
-			vector<vector<int> > combinations2;
-			vector<int> variables;
-			subgoal.getVariables(variables);
-			for (int ii = 0; ii < combinations.size(); ++ii) {
-				vector<int> &c = combinations[ii];
-				vector<int> c2;
-				for (int jj = 0; jj < d.variables_.size(); ++jj) {
-					int val = -1;
-					for (int kk = 0; kk < variables.size(); ++kk) {
-						if (variables[kk] == d.variables_[jj]) {
-							val = c[kk];
-							break;
-						}
-					}
-					c2.push_back(val);
+				if (not_combinations.size() > 0) {
+					multiple_not_combinations.push_back(not_combinations);
 				}
-				combinations2.push_back(c2);
+			} else if (subgoal.head_ != r_distinct) {				
+				if (find(static_heads_.begin(), static_heads_.end(), subgoal.head_) == static_heads_.end()) {
+					continue;
+				}
+				vector<vector<int> > combinations;
+				vector<int> ps = head_statics_[subgoal.head_];
+				for (int k = 0; k < ps.size(); ++k) {
+					vector<int> variables;
+					vector<int> values;
+					if (statics_[ps[k]].matches(subgoal, variables, values)) {
+						combinations.push_back(getCombination(d.variables_, variables, values));
+					}
+				}
+				if (combinations.size() > 0) {
+					multiple_combinations.push_back(combinations);
+				}
 			}
-			multiple_combinations.push_back(combinations2);			
 		}
-		if (idx.size() == 0) {
-			continue;
-		}
-		int k = 0;
-		while (true) {
-			while (k >= 0 && idx[k] == multiple_combinations[k].size()) {
-				idx[k] = 0;
-				--k;
-				if (k >= 0) {
-					++idx[k];
-				}
-			}
-			if (k < 0) {
-				break;
-			}
-			bool combined = true;
-			vector<int> &c1 = multiple_combinations[k][idx[k]];			
-			for (int ii = 0; ii < k && combined; ++ii) {
-				vector<int> &c2 = multiple_combinations[ii][idx[ii]];
-				int size = d.variables_.size();
-				for (int jj = 0; jj < size && combined; ++jj) {
-					if (c1[jj] != -1 && c2[jj] != -1 && c1[jj] != c2[jj]) {							
-						combined = false;
-					}
-				}
-			}
-			
-			if (combined) {															
-				if (k == multiple_combinations.size() - 1) {
-					int size = d.variables_.size();
-					vector<int> m(size, -1);
-					for (int ii = 0; ii <= k; ++ii) {
-						vector<int> &c = multiple_combinations[ii][idx[ii]];					
-						for (int jj = 0; jj < size; ++jj) {
-							m[jj] = c[jj] == -1 ? m[jj] : c[jj];
-						}										
-					}
-					non_der_var_values_[i].push_back(m);
-					++idx[k];
-				} else {						
-					++k;
-				}
-			} else {
-				++idx[k];						
-			}			
-		}
+		der_multiple_combinations_.push_back(multiple_combinations);
+		der_multiple_not_combinations_.push_back(multiple_not_combinations);
 		for (Propositions::iterator j = d.subgoals_.begin(); j != d.subgoals_.end(); ) {
-			if (find(static_heads_.begin(), static_heads_.end(), j->head_) != static_heads_.end()) {
+			if ((j->head_ != r_not && find(static_heads_.begin(), static_heads_.end(), j->head_) != static_heads_.end())
+				|| (j->head_ == r_not && find(static_heads_.begin(), static_heads_.end(), j->items_[0].head_) != static_heads_.end())) {
 				j = d.subgoals_.erase(j);
 			} else {
 				++j;
 			}
 		}
-	}*/
+	}
 
 	DependGraph dpg2;
 	dpg2.buildGraph(nonstatic_derivations_); 
@@ -623,21 +560,22 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 		vector<vector<vector<vector<int> > > > der_multiple_combinations;
 		vector<vector<vector<vector<int> > > > der_multiple_not_combinations;
 		vector<vector<pair<int, int> > > der_constant_distincts;
-		vector<vector<pair<int, int> > > der_variable_distincts;
+		vector<vector<pair<int, int> > > der_variable_distincts;		
 		Propositions current_stratum_props;		
 		current_stratum_props.reserve(true_props_size / 5);			
 		for (int j = 0; j < dpg_.stra_deriv_[i].size(); ++j) {
-			Derivation d = dpg_.derivations_[dpg_.stra_deriv_[i][j]];
+			Derivation &d = dpg_.derivations_[dpg_.stra_deriv_[i][j]];
 			vector<int> current_stratum_subgoals;
 			vector<vector<vector<int> > > multiple_combinations;
 			vector<vector<vector<int> > > multiple_not_combinations;
+			if (der_multiple_combinations_.size() > 0) {
+				multiple_combinations = der_multiple_combinations_[dpg_.stra_deriv_[i][j]];
+			}
+			if (der_multiple_not_combinations_.size() > 0) {
+				multiple_not_combinations = der_multiple_not_combinations_[dpg_.stra_deriv_[i][j]];
+			}
 			vector<pair<int, int> > constant_distincts;
 			vector<pair<int, int> > variable_distincts;
-			/*if (non_der_var_values_.size() > 0 && non_der_var_values_[dpg_.stra_deriv_[i][j]].size() > 0) {
-				multiple_combinations.push_back(non_der_var_values_[dpg_.stra_deriv_[i][j]]);				
-			} else {
-				multiple_combinations.push_back(vector<vector<int> >());
-			}*/
 			bool impossible = false;
 			for (int k = 0; k < d.subgoals_.size(); ++k) {								
 				Proposition &subgoal = d.subgoals_[k];
@@ -652,14 +590,14 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 							not_combinations.push_back(getCombination(d.variables_, variables, values));
 						}
 					}
-					vector<int> &ps2 = head_statics_[subgoal.items_[0].head_];
+					/*vector<int> &ps2 = head_statics_[subgoal.items_[0].head_];
 					for (int ii = 0; ii < ps2.size(); ++ii) {
 						vector<int> variables;
 						vector<int> values;
 						if (statics_[ps2[ii]].matches(subgoal.items_[0], variables, values)) {
 							not_combinations.push_back(getCombination(d.variables_, variables, values));
 						}
-					}
+					}*/
 					if (not_combinations.size() > 0) {
 						multiple_not_combinations.push_back(not_combinations);
 					}														
@@ -697,14 +635,14 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 						}						
 					}
 					vector<int> &ps2 = head_statics_[subgoal.head_];					
-					for (int ii = 0; ii < ps2.size(); ++ii) { // scan all true props to generate var-value maps						
-						Proposition &p = statics_[ps2[ii]];
-						vector<int> variables;
-						vector<int> values;
-						if (subgoal.matches(p, variables, values)) {							
-							combinations.push_back(getCombination(d.variables_, variables, values));							
-						}						
-					}
+					//for (int ii = 0; ii < ps2.size(); ++ii) { // scan all true props to generate var-value maps						
+					//	Proposition &p = statics_[ps2[ii]];
+					//	vector<int> variables;
+					//	vector<int> values;
+					//	if (subgoal.matches(p, variables, values)) {							
+					//		combinations.push_back(getCombination(d.variables_, variables, values));							
+					//	}						
+					//}
 					if (combinations.size() == 0) { // size of combinations should be greater than 0
 						impossible = true;						
 						break;
