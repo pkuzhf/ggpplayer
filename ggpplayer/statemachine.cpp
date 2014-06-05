@@ -120,7 +120,7 @@ bool StateMachine::randomGo(int time_limit)
 			joint_move.push_back(getRandomMove(i));
 		}
 		for (int i = 0; i < joint_move.size(); ++i) {
-			 cout << joint_move[i].toString() << endl;
+			 //cout << joint_move[i].toString() << endl;
 		}		
 		goOneStep(joint_move);
 		if (clock() > time_limit) {
@@ -129,7 +129,7 @@ bool StateMachine::randomGo(int time_limit)
 		//if (count > 0) break;
 	}
 	clock_t end = clock();
-	cout<< count <<" steps in "<<end - begin<< " ms" <<endl;
+	//cout<< count <<" steps in "<<end - begin<< " ms" <<endl;
 	return true;
 }
 

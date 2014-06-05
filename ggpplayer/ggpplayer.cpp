@@ -21,19 +21,19 @@ int main() {
 		Relation::addSymbol(relation_type_words[i]);
 	}
 	Reader r;
-	//if (!r.scanGDLFile("rule.txt")) {
+	if (!r.scanGDLFile("gdl/rule.txt")) {
 	//if (!r.scanGDLFile("gdl/connect_four.txt")) {
-	if (!r.scanGDLFile("gdl/2pffa_zerosum.kif")) {
+	//if (!r.scanGDLFile("gdl/2pffa_zerosum.kif")) {
         cout << "read file failed." << endl;
         return -1;
     }
 	Relations rs;
 	r.getRelations(rs);
 	StateMachine machine(rs);
-	machine.randomGo(clock() + 100000);
+	//machine.randomGo(clock() + 100000);
 	//cout << "generate: " << Prover::generate_time << endl;
-	cout << "time1: " << Prover::time1 << endl;
-	cout << "time2: " << Prover::time2 << endl;
+	//cout << "time1: " << Prover::time1 << endl;
+	//cout << "time2: " << Prover::time2 << endl;
 	//cout << "time3: " << Prover::time3 << endl;
 	//cout << "time4: " << Prover::time4 << endl;
 	//cout << "time5: " << Prover::time5 << endl;

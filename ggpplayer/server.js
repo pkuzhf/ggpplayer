@@ -6,7 +6,7 @@ var net = require('net');
 var clients = [];
 var sock_client = {};
 
-var ggp_exe;
+var ggp = {};
 
 var getFirstString = function(data, i) {
     while (data[i] === ' ') ++i;
@@ -104,8 +104,9 @@ http.createServer(function (req, res) {
                 if (err) {
                     console.log(err);
                 }
-                ggp_exe = spawn('./ggp');
-                ggp_exe.stdout.once('data', function (data) {
+                ggp.game = request.id;
+                ggp.exe = spawn('./ggp');
+                ggp.exe.stdout.once('data', function (data) {
                     data = String(data);
                     console.log('ggp out: ' + data);
                     var end = data[data.length - 1];
@@ -116,17 +117,17 @@ http.createServer(function (req, res) {
                     }
 
                 });
-                ggp_exe.on('close', function(code) {
-                    ggp_exe = null;
+                ggp.exe.on('close', function(code) {
+                    ggp.exe = null;
                 });
-                ggp_exe.stdin.write(request.role + '\n');
-                ggp_exe.stdin.write(request.playclock + '\n');
+                ggp.exe.stdin.write(request.role + '\n');
+                ggp.exe.stdin.write(request.playclock + '\n');
             });
             break;
         case 'play' :
-            if (ggp_exe) {
+            if (ggp.exe) {
                 console.log('ggp in: ' + request.move);
-                ggp_exe.stdout.once('data', function (data) {
+                ggp.exe.stdout.once('data', function (data) {
                     data = String(data);
                     console.log('ggp out: ' + data);
                     var end = data[data.length - 1];
@@ -136,11 +137,12 @@ http.createServer(function (req, res) {
                         res.write(data);
                     }
                 });
-                ggp_exe.stdin.write(request.move + '\n');
+                ggp.exe.stdin.write(request.move + '\n');
             }
             break;
         case 'stop' :
-            ggp_exe = null;
+            ggp.exe = null;
+            res.end('done');
             break;
         case 'abort' :
             break;
@@ -149,7 +151,7 @@ http.createServer(function (req, res) {
     });
 }).listen(80);
 
-function receiveData(client, data) {
+function receiveClientData(client, data) {
     if (client.data_length === null) {
         var space_pos = data.indexOf(' ');
         if (space_pos != -1) {
@@ -163,27 +165,28 @@ function receiveData(client, data) {
     if (client.data_length !== null) {
         client.buffer += data;
         if (client.buffer.length === client.data_length) {
-            handleMessage(client, client.buffer);
+            handleClientMessage(client, client.buffer);
             client.buffer = '';
             client.data_length = null;
         } else if (client.buffer.length > client.data_length) {
-            handleMessage(client, client.buffer.substring(0, client.data_length));
+            handleClientMessage(client, client.buffer.substring(0, client.data_length));
             var rest = client.buffer.substring(client.data_length);
             client.data_length = null;
             client.buffer = '';
-            receiveData(client, rest);
+            receiveClientData(client, rest);
         }
     }
 }
 
-function handleMessage(client, message) {
+function handleClientMessage(client, message) {
     var i = message.indexOf(' ');
     var game = message.substring(0, i);
     message = message.substring(i + 1);
     if (game === current_game) {
         ggp_exe.write(message);
     }
-    ggp_exe.once('data', 
+    ggp_exe.once('data', function() {
+    });
 }
 
 var server = net.createServer(function (sock) {
@@ -203,6 +206,8 @@ var server = net.createServer(function (sock) {
         receiveData(client, data);
     });
 });
+
+server.listen(10000);
 
 process.on('uncaughtException', function(err) {
     console.log(util.inspect(err));
