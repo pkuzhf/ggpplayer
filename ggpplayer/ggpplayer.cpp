@@ -21,7 +21,7 @@ int main() {
 		Relation::addSymbol(relation_type_words[i]);
 	}
 	Reader r;
-	if (!r.scanGDLFile("rule.txt")) {
+	if (!r.scanGDLFile("gdl/rule.txt")) {
 	//if (!r.scanGDLFile("gdl/connect_four.txt")) {
 	//if (!r.scanGDLFile("gdl/reversi.kif")) {
         cout << "read file failed." << endl;

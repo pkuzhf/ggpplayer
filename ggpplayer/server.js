@@ -2,6 +2,9 @@ var http = require('http');
 var util = require('util');
 var fs = require('fs');
 var spawn = require('child_process').spawn;
+var net = require('net');
+var clients = [];
+var sock_client = {};
 
 var ggp_exe;
 
@@ -145,6 +148,61 @@ http.createServer(function (req, res) {
 //        console.log(JSON.stringify(request));        
     });
 }).listen(80);
+
+function receiveData(client, data) {
+    if (client.data_length === null) {
+        var space_pos = data.indexOf(' ');
+        if (space_pos != -1) {
+            var length = parseInt(data.substring(0, space_pos));
+            if (!isNaN(length)) {
+                client.data_length = length;
+                client.buffer = data.substring(space_pos + 1);
+            } 
+        }
+    } 
+    if (client.data_length !== null) {
+        client.buffer += data;
+        if (client.buffer.length === client.data_length) {
+            handleMessage(client, client.buffer);
+            client.buffer = '';
+            client.data_length = null;
+        } else if (client.buffer.length > client.data_length) {
+            handleMessage(client, client.buffer.substring(0, client.data_length));
+            var rest = client.buffer.substring(client.data_length);
+            client.data_length = null;
+            client.buffer = '';
+            receiveData(client, rest);
+        }
+    }
+}
+
+function handleMessage(client, message) {
+    var i = message.indexOf(' ');
+    var game = message.substring(0, i);
+    message = message.substring(i + 1);
+    if (game === current_game) {
+        ggp_exe.write(message);
+    }
+    ggp_exe.once('data', 
+}
+
+var server = net.createServer(function (sock) {
+    sock.on('connect', function() {
+        var client = {};
+        client.sock = sock;
+        client.free = true;
+        client.rule = '';
+        client.state = '';
+        client.buffer = '';
+        client.data_length = null;
+        clients.push(client);
+        sock_client[sock] = client;
+    });
+    sock.on('data', function(data) {
+        var client = sock_client[sock];
+        receiveData(client, data);
+    });
+});
 
 process.on('uncaughtException', function(err) {
     console.log(util.inspect(err));
