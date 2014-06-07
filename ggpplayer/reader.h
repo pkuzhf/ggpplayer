@@ -15,7 +15,8 @@ using namespace std;
 
 class Reader {
 public:
-	bool scanGDLFile(string filename);
+	void readLine(char *buffer);
+	bool readFile(string filename);
 	bool getRelations(Relations &relations);
 	bool getMoves(Propositions &propositions);
 	static Relation getRelation(const string &s);

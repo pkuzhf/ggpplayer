@@ -1,3 +1,5 @@
+#define WIN
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -13,20 +15,73 @@
 #include "statemachine.h"
 #include "montecarloplayer.h"
 
+#ifdef WIN
+#include<winsock2.h>
+#pragma comment(lib,"ws2_32.lib")
+#endif
+
 using namespace std;
 
+int connect() {
+	WSADATA wsaData;
+	SOCKET s;
+	SOCKADDR_IN ServerAddr;
+	int Port = 80;
+	char Addr[] = "162.105.81.73";
+
+	//初始化Windows Socket 2.2
+
+	WSAStartup(MAKEWORD(2, 2), &wsaData);
+
+	s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if ( s == INVALID_SOCKET ) {
+		cout << "Create Socket Failed::" << GetLastError() <<endl;
+		return -1;
+	}
+
+	ServerAddr.sin_family = AF_INET;
+	ServerAddr.sin_port = htons(Port); 
+	ServerAddr.sin_addr.s_addr = inet_addr(Addr);
+	memset(ServerAddr.sin_zero, 0x00, 8);
+
+	int Ret = connect(s, (SOCKADDR *)&ServerAddr, sizeof(ServerAddr));
+	if ( Ret == SOCKET_ERROR ) {
+		cout << "Connect Error::" << GetLastError() << endl;
+		return -1;
+	}
+	
+	// 新的连接建立后，就可以互相通信了，在这个简单的例子中，我们直接关闭连接，
+	// 并关闭监听Socket，然后退出应用程序
+	char buf[1000];
+	int len;
+
+	while(true) {
+		cin.getline(buf, 1000);
+		len = send(s, buf, strlen(buf), 0);
+		cout << len <<endl;
+		len = recv(s, buf, 1000, 0);
+		cout << len << buf <<endl;
+	}
+	closesocket(s);
+	WSACleanup();
+}
+
 int main() {
+
 	srand(time(0));
 	for(int i = 0 ; i < relation_type_num; ++i){		
 		Relation::addSymbol(relation_type_words[i]);
 	}
 	Reader r;
-	if (!r.scanGDLFile("gdl/rule.txt")) {
+	if (!r.readFile("gdl/rule.txt")) {
 	//if (!r.scanGDLFile("gdl/connect_four.txt")) {
 	//if (!r.scanGDLFile("gdl/2pffa_zerosum.kif")) {
         cout << "read file failed." << endl;
         return -1;
     }
+	char buf[10000];
+	cin.getline(buf, 100000);
+	r.readLine(buf);
 	Relations rs;
 	r.getRelations(rs);
 	StateMachine machine(rs);
@@ -45,13 +100,14 @@ int main() {
 	//cout << "time11: " << Prover::time11 << endl;
 	//cout << "time12: " << Prover::time12 << endl;
 	//cout << "time13: " << Prover::time13 << endl;
-	char buf[10000];
 	cin.getline(buf, 10000);
-	int role, runtime;
+	string game = string(buf);
+	cin.getline(buf, 10000);
+	int role, playclock;
 	role = Relation::symbol2code[string(buf)];
 	cin.getline(buf, 10000);
-	runtime = (atoi(buf) - 2) * CLOCKS_PER_SEC;
-	MonteCarloPlayer Mplayer(rs, role);   // montecarlo player
+	playclock = (atoi(buf) - 2) * CLOCKS_PER_SEC;
+	MonteCarloPlayer player(rs, role);   // montecarlo player
 	
 
 	// check montecarlo player
@@ -65,34 +121,40 @@ int main() {
 		Mplayer2.goOneStep(moves);
 		cout<<"real moves:"<< moves[0].toString()<<endl;
 		cout<<"real moves:"<< moves[1].toString()<<endl;
-	}*/
-	
-
-	cout << "ready" << endl;
+	}*/	
 		
 	cin.getline(buf, 10000);
-	cout << Mplayer.stateMachineSelectMove(runtime).items_[1].toString() << endl;
+	cout << player.stateMachineSelectMove(playclock).items_[1].toString() << endl;
 	
 	while (true) {				
-		cin.getline(buf, 10000);	
-		Reader move_reader;
-		move_reader.file_head_ = buf;		
-		Propositions joint_move;
-		move_reader.getMoves(joint_move);
-		for (int i = 0; i < joint_move.size(); ++i) {
-			Relation does;
-			does.head_ = r_does;						
-			does.items_.push_back(Mplayer.stateMachine_.prover_.roles_[i].toRelation().items_[0]);
-			does.items_.push_back(joint_move[i].toRelation());
-			joint_move[i] = does.toProposition();
-		}		
-		Mplayer.goOneStep(joint_move);
-		if (Mplayer.is_terminal_) {
-			//cout << "Terminal." << endl;
-			break;
+		cin.getline(buf, 10000);
+		char * space = strstr(buf, " ");
+		if (space == NULL) continue;
+		*space = '\0';
+		string cmd = string(buf);
+		string message = string(space + 1);
+		if (cmd == "server") {
+			Reader move_reader;
+			move_reader.file_content_ = message;
+			Propositions joint_move;
+			move_reader.getMoves(joint_move);
+			for (int i = 0; i < joint_move.size(); ++i) {
+				Relation does;
+				does.head_ = r_does;						
+				does.items_.push_back(player.stateMachine_.prover_.roles_[i].toRelation().items_[0]);
+				does.items_.push_back(joint_move[i].toRelation());
+				joint_move[i] = does.toProposition();
+			}		
+			player.goOneStep(joint_move);
+			if (player.is_terminal_) {
+				//cout << "Terminal." << endl;
+				break;
+			}
+			Proposition move = player.stateMachineSelectMove(playclock);
+			cout << move.items_[1].toString() << endl;
+		} else if (cmd == "client") {
+			
 		}
-		Proposition move = Mplayer.stateMachineSelectMove(runtime);
-		cout << move.items_[1].toString() << endl;
 	}
 	return 0;
 }

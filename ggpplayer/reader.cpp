@@ -11,7 +11,7 @@
 
 using namespace std;
 
-bool Reader::scanGDLFile(string filename) {
+bool Reader::readFile(string filename) {
 	ifstream f(filename.c_str());
 	if (!f) {
 		return false;
@@ -19,15 +19,19 @@ bool Reader::scanGDLFile(string filename) {
 	while (!f.eof()) {
 		char buffer[100000];
 		f.getline(buffer, 100000);
-		int i = 0;
-		while (i < strlen(buffer) && buffer[i] != ';'){
-			file_head_ += buffer[i];
-			++i;
-		}
-		file_head_ += " ";		
+		readLine(buffer);
 	}
 	f.close();
 	return true;
+}
+
+void Reader::readLine(char *buffer) {	
+	int i = 0;
+	while (i < strlen(buffer) && buffer[i] != ';'){
+		file_head_ += buffer[i];
+		++i;
+	}
+	file_head_ += " ";
 }
 
 bool Reader::getRelations(Relations &relations) {
