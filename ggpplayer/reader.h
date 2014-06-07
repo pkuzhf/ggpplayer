@@ -18,9 +18,10 @@ public:
 	void readLine(char *buffer);
 	bool readFile(string filename);
 	bool getRelations(Relations &relations);
-	bool getMoves(Propositions &propositions);
+	void getPropositions(Propositions &propositions);
+	bool getState(Propositions &propositions);
 	static Relation getRelation(const string &s);
-	string file_head_;
+	string file_content_;
 private:	
 	static bool fetch(const string &s, int &start, string &result);	
 	Relations eliminateLogicalWords(Relation r);

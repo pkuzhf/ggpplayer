@@ -28,16 +28,16 @@ bool Reader::readFile(string filename) {
 void Reader::readLine(char *buffer) {	
 	int i = 0;
 	while (i < strlen(buffer) && buffer[i] != ';'){
-		file_head_ += buffer[i];
+		file_content_ += buffer[i];
 		++i;
 	}
-	file_head_ += " ";
+	file_content_ += " ";
 }
 
 bool Reader::getRelations(Relations &relations) {
 	int idx = 0;
 	string substring;
-	while (fetch(file_head_, idx, substring)) {
+	while (fetch(file_content_, idx, substring)) {
 		if (substring[0] != '(') {
 			return false;
 		}
@@ -55,14 +55,13 @@ bool Reader::getRelations(Relations &relations) {
 	return true;
 }
 
-bool Reader::getMoves(Propositions &propositions) {
+void Reader::getPropositions(Propositions &propositions) {
 	int idx = 0;
 	string substring;
-	while (fetch(file_head_, idx, substring)) {
+	while (fetch(file_content_, idx, substring)) {
 		Relation r = getRelation(substring);
 		propositions.push_back(r.toProposition());
 	}
-	return true;
 }
 
 Relation Reader::getRelation(const string &s) {	

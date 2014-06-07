@@ -119,7 +119,7 @@ struct hash_Proposition {
 		int prime = 10000001;
 		int sum = a.head_;
 		for (int i = 0; i < a.items_.size(); ++i) {
-			sum = (sum * operator()(a.items_[i])) % prime;
+			sum = (sum * (operator()(a.items_[i]) << i)) % prime;
 		}
 		return sum;
 	}

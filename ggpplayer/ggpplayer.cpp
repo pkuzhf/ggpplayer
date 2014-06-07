@@ -131,17 +131,16 @@ int main() {
 		char * space = strstr(buf, " ");
 		if (space == NULL) continue;
 		*space = '\0';
-		string cmd = string(buf);
-		string message = string(space + 1);
+		string cmd = string(buf);		
 		if (cmd == "server") {
 			Reader move_reader;
-			move_reader.file_content_ = message;
+			move_reader.file_content_ = string(space + 1);
 			Propositions joint_move;
-			move_reader.getMoves(joint_move);
+			move_reader.getPropositions(joint_move);
 			for (int i = 0; i < joint_move.size(); ++i) {
 				Relation does;
 				does.head_ = r_does;						
-				does.items_.push_back(player.stateMachine_.prover_.roles_[i].toRelation().items_[0]);
+				does.items_.push_back(player.state_machine_.prover_.roles_[i].toRelation().items_[0]);
 				does.items_.push_back(joint_move[i].toRelation());
 				joint_move[i] = does.toProposition();
 			}		
@@ -153,7 +152,14 @@ int main() {
 			Proposition move = player.stateMachineSelectMove(playclock);
 			cout << move.items_[1].toString() << endl;
 		} else if (cmd == "client") {
-			
+			char * semi = strstr(space + 1, ";");
+			if (semi == NULL) continue;
+			*semi = '\0';
+			Reader state_reader;
+			state_reader.file_content_ = string(space + 1);
+			Propositions state;
+			state_reader.getPropositions(state);
+			player.updateTree(state, string(semi + 1));
 		}
 	}
 	return 0;
