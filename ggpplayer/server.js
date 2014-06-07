@@ -106,23 +106,25 @@ http.createServer(function (req, res) {
                 }
                 ggp.game = request.id;
                 ggp.exe = spawn('./ggp');
-                ggp.exe.stdout.once('data', function (data) {
+                ggp.res = res;
+                ggp.exe.stdout.on('data', function (data) {
                     data = String(data);
                     console.log('ggp out: ' + data);
-                    var end = data[data.length - 1];
-                    if (end === '\r' || end === '\n') {
-                        res.end(data.substring(0, data.length - 1));
-                    } else {
-                        res.write(data);
-                    }
-
+                    receiveExeData(data);
                 });
                 ggp.exe.on('close', function(code) {
                     ggp.exe = null;
+                    if (ggp.timer) {
+                        clearTimeout(ggp.timer);
+                        ggp.timer = null;
+                    }                    
                 });
                 ggp.exe.stdin.write(request.role + '\n');
                 ggp.exe.stdin.write(request.playclock + '\n');
             });
+            ggp.timer = setTimeout(function() {
+                ggp.res.end('ready');
+            }, request.startclock - 2);
             break;
         case 'play' :
             if (ggp.exe) {
@@ -150,6 +152,44 @@ http.createServer(function (req, res) {
 //        console.log(JSON.stringify(request));        
     });
 }).listen(80);
+
+function receiveExeData(data) {
+    if (ggp.data_length === null) {
+        var space_pos = data.indexOf(' ');
+        if (space_pos != -1) {
+            var length = parseInt(data.substring(0, space_pos));
+            if (!isNaN(length)) {
+                ggp.data_length = length;
+                ggp.buffer = data.substring(space_pos + 1);
+            } 
+        }
+    } 
+    if (ggp.data_length !== null) {
+        ggp.buffer += data;
+        if (ggp.buffer.length === ggp.data_length) {
+            handleExeMessage(ggp, ggp.buffer);
+            ggp.buffer = '';
+            ggp.data_length = null;
+        } else if (ggp.buffer.length > ggp.data_length) {
+            handleExeMessage(ggp, ggp.buffer.substring(0, ggp.data_length));
+            var rest = ggp.buffer.substring(ggp.data_length);
+            ggp.data_length = null;
+            ggp.buffer = '';
+            receiveExeData(rest);
+        }
+    }
+}
+
+function handleExeMessage(message) {
+    var i = message.indexOf(' ');
+    var cmd = message.substring(0, i);
+    message = message.substring(i + 1);
+    if (cmd === 'server') {
+        ggp.move = message;
+    } else if (cmd === 'client') {        
+        ggp.message = message;
+    }
+}
 
 function receiveClientData(client, data) {
     if (client.data_length === null) {
@@ -182,11 +222,11 @@ function handleClientMessage(client, message) {
     var i = message.indexOf(' ');
     var game = message.substring(0, i);
     message = message.substring(i + 1);
-    if (game === current_game) {
-        ggp_exe.write(message);
+    if (game === ggp.game) {
+        ggp.exe.write(message);
     }
-    ggp_exe.once('data', function() {
-    });
+    var msg = ggp.game + " " + ggp.message;
+    client.sock.write(msg.length + " " + msg);
 }
 
 var server = net.createServer(function (sock) {
@@ -199,11 +239,24 @@ var server = net.createServer(function (sock) {
         client.buffer = '';
         client.data_length = null;
         clients.push(client);
-        sock_client[sock] = client;
     });
     sock.on('data', function(data) {
-        var client = sock_client[sock];
-        receiveData(client, data);
+        for (var i = 0; i < clients.length; ++i) {
+            if (clients[i].sock === sock) {
+                receiveData(clients[i], data);
+                break;
+            }
+        }
+    });
+    sock.on('close', function(has_err) {
+        var client = null;
+        for (var i = 0; i < clients.length; ++i) {
+            if (clients[i].sock === sock) {
+                console.log('close ' + sock.remoteAddress);
+                clients.splice(i, 1);
+                break;
+            }
+        }
     });
 });
 
