@@ -12,20 +12,16 @@
 class Node
 {
 public:
-	static int C; 
-	static double maxScore;
-	Propositions nodeState_;
-
-	int totalAttemps_;
-	int nPoints_;
-	int nAttemps_;
+	Propositions state_;
+	int points_;
+	int attemps_;
 	vector<vector<Node > > sons_;
 	Node * parent_;
-	bool isTerminal_;
+	bool is_terminal_;
 
-	double getScore();
 	Node(Node * p); 
 	Node();
+	double getScore();
 };
 
 #endif

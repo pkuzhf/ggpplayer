@@ -34,48 +34,45 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 		return state_machine_.getLegalMoves(role_num_)[0];
 	}
 	int start = clock();
-	int finishBy = start + timeout;
+	int finish_by = start + timeout;
 	Propositions legalmoves;
-
-	Node root;
-	root.nodeState_ = current_state_;
 
 	int count = 0;	
 	legalmoves = state_machine_.getLegalMoves(role_num_);
 
-	while (clock() < finishBy) {		
+	while (clock() < finish_by) {		
 		state_machine_.setState(current_state_);
-		Node *node = &root;
+		Node *node = &root_;
 		while (node->sons_.size() != 0) {
 			int max = 0;
 			double maxscore = 0;
 			for (int i = 0; i < node->sons_.size(); i++) {
 				vector<Node> &nodes = node->sons_[i];
-				double totalScores = 0;
+				double total_score = 0;
 				for (int j = 0; j < nodes.size(); j++) {
-					totalScores += nodes[j].getScore();
+					total_score += nodes[j].getScore();
 				}
-				if (totalScores / nodes.size() > maxscore) {
+				if (total_score / nodes.size() > maxscore) {
 					max = i;
-					maxscore = totalScores / nodes.size();
+					maxscore = total_score / nodes.size();
 				}
 			}
-			int tempRand = rand() % node->sons_[max].size();
-			node = &node->sons_[max][tempRand];		
+			int temp_rand = rand() % node->sons_[max].size();
+			node = &node->sons_[max][temp_rand];		
 			if(node->sons_.size() == 0) {
-				if (node->nodeState_.size() == 0){				
-					state_machine_.setState(node->parent_->nodeState_);				
-					state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, max)[tempRand]);						
-					node->nodeState_ = state_machine_.trues_;
-					node->isTerminal_ = state_machine_.is_terminal_;
+				if (node->state_.size() == 0){				
+					state_machine_.setState(node->parent_->state_);				
+					state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, max)[temp_rand]);						
+					node->state_ = state_machine_.trues_;
+					node->is_terminal_ = state_machine_.is_terminal_;
 				} else {
-					state_machine_.setState(node->nodeState_);
+					state_machine_.setState(node->state_);
 				}
 			}	
 		}
 
-		int thePoint = -1;
-		if (!node->isTerminal_) {
+		int point = -1;
+		if (!node->is_terminal_) {
 			int move_size = state_machine_.getLegalMoves(role_num_).size();
 			for (int i = 0; i < move_size; i++) {
 				vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_num_, i);
@@ -87,29 +84,28 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 			}
 			int mymove = rand() %  node->sons_.size();
 			vector<Node> &nodes = node->sons_[mymove];
-			int tempRand = rand() % nodes.size();
-			node = &nodes[tempRand];			
-			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, mymove)[tempRand]);
-			node->nodeState_ = state_machine_.trues_;
-			node->isTerminal_ = state_machine_.is_terminal_;
-			if (node->isTerminal_) {					
-				thePoint = state_machine_.getGoal(role_num_);					
+			int temp_rand = rand() % nodes.size();
+			node = &nodes[temp_rand];			
+			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, mymove)[temp_rand]);
+			node->state_ = state_machine_.trues_;
+			node->is_terminal_ = state_machine_.is_terminal_;
+			if (node->is_terminal_) {					
+				point = state_machine_.getGoal(role_num_);					
 			} else {
 				count++;
-				if (state_machine_.randomGo(finishBy)) {
-					thePoint = state_machine_.getGoal(role_num_);
+				if (state_machine_.randomGo(finish_by)) {
+					point = state_machine_.getGoal(role_num_);
 				}				
 			}
 		} else {
-			thePoint = state_machine_.getGoal(role_num_);
+			point = state_machine_.getGoal(role_num_);
 		}			
-		if (thePoint != -1) {
-			node->totalAttemps_++;
-			while (node->parent_ != NULL) {
-				node->nPoints_ += thePoint;
-				node->nAttemps_++;				
+		if (point != -1) {			
+			do {
+				node->points_ += point;
+				node->attemps_++;				
 				node = node->parent_;
-			}
+			} while (node != NULL);
 		}
 	}	
 
@@ -117,19 +113,18 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 	double maxscore = 0;
 	for (int i = 0; i < root.sons_.size(); i++) {
 		vector<Node> nodes = root.sons_[i];
-		double totalScores = 0;
+		double total_score = 0;
 		for (int j = 0; j < nodes.size(); j++) {
-			totalScores += nodes[j].getScore();
+			total_score += nodes[j].getScore();
 		}
-		if (totalScores / nodes.size() > maxscore) {
+		if (total_score / nodes.size() > maxscore) {
 			max = i;
-			maxscore = totalScores / nodes.size();
+			maxscore = total_score / nodes.size();
 		}					
 	}
 
 	Proposition selection = legalmoves[max];
 	int stop = clock();
-
 
 	//cout<< "UCT simu times: " <<(double)count / (stop - start) * CLOCKS_PER_SEC <<endl;
 	//cout<< "UCT simu times: " <<count<<endl;

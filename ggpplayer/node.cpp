@@ -9,32 +9,28 @@
 
 using namespace std;
 
-int Node::C = 1;
-double Node::maxScore = 100000000000;
-
 Node::Node(){
-	totalAttemps_ = 0;
-	nPoints_ = 0;
-	nAttemps_ = 0;
-
-	isTerminal_ = false;
+	points_ = 0;
+	attemps_ = 0;
+	is_terminal_ = false;
 	parent_ = NULL;
 }
 
 Node::Node(Node * p) {
-	totalAttemps_ = 0;
-	nPoints_ = 0;
-	nAttemps_ = 0;
-
-	isTerminal_ = false;
-	parent_ = NULL;
+	points_ = 0;
+	attemps_ = 0;
+	is_terminal_ = false;
 	parent_ = p;
 }
 
-double Node::getScore(){
-	if(nAttemps_ != 0){
-		return (double)nPoints_ / nAttemps_ + C * sqrt(2 * log((double)totalAttemps_) / (double)nAttemps_);
-	} else{
-		return maxScore;
+double Node::getScore() {
+	int c = 1;
+	int max_score = 100;
+	if (attemps_ == 0) {
+		return max_score;
+	} else if (parent_ != NULL) {
+		return (double)points_ / attemps_ + c * sqrt(2 * log((double)parent_->attemps_) / (double)attemps_);
+	} else {
+		return (double)points_ / attemps_;
 	}
 }
