@@ -1,11 +1,11 @@
-#ifndef Node_H
-#define Node_H
+#ifndef NODE_H
+#define NODE_H
 
 #include <vector>
 #include <set>
 #include <map>
 #include <string>
-#include<cmath>
+#include <cmath>
 #include "dependgraph.h"
 #include "relation.h"
 
@@ -22,6 +22,8 @@ public:
 	Node(Node * p); 
 	Node();
 	double getScore();
+	string toString();
+	void update(string s);
 };
 
 #endif

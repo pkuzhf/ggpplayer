@@ -111,8 +111,8 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 
 	int max = 0;
 	double maxscore = 0;
-	for (int i = 0; i < root.sons_.size(); i++) {
-		vector<Node> nodes = root.sons_[i];
+	for (int i = 0; i < root_.sons_.size(); i++) {
+		vector<Node> nodes = root_.sons_[i];
 		double total_score = 0;
 		for (int j = 0; j < nodes.size(); j++) {
 			total_score += nodes[j].getScore();

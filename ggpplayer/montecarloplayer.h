@@ -1,5 +1,5 @@
-#ifndef MONTECARLOPLAYER
-#define MONTECARLOPLAYER
+#ifndef MONTECARLOPLAYER_H
+#define MONTECARLOPLAYER_H
 
 #include <vector>
 #include <set>
@@ -19,6 +19,8 @@ public:
 	bool is_terminal_;
 	Node root_;
 	int role_num_;
+	map<Propositions, Node *> state_node_;
+
 	MonteCarloPlayer(Relations rs, int rolenum);	
 	Proposition stateMachineSelectMove(int timeout);
 	void goOneStep(Propositions moves);

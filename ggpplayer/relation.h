@@ -128,4 +128,36 @@ struct hash_Proposition {
 	}
 };
 
+//struct hash_Propositions {
+//	enum   
+//	{   //   parameters   for   hash   table   
+//		bucket_size   =   4,   //   0   <   bucket_size   
+//		min_buckets   =   8  //   min_buckets   =   2   ^^   N,   0   <   N   
+//	};   
+//	size_t operator()(const class vector<Proposition> & a) const {
+//		int ret = 0;
+//		int prime = 10000001;
+//		hash_Proposition hash_p;
+//		for (int i = 0; i < a.size(); ++i) {
+//			ret = (ret + (hash_p.operator()(a[i]) << i)) % prime;
+//		}
+//		return ret;
+//	}
+//	bool operator()(const class vector<Proposition> & a1, const class vector<Proposition> & a2) const {
+//		if (a1.size() < a2.size()) {
+//			return true;
+//		} else if (a1.size() > a2.size()) {
+//			return false;
+//		}
+//		for (int i = 0; i < a1.size(); ++i) {
+//			if (a1[i] < a2[i]) {
+//				return true;
+//			} else if (a2[i] < a1[i]) {
+//				return false;
+//			}
+//		}
+//		return  false;
+//	}
+//};
+
 #endif
