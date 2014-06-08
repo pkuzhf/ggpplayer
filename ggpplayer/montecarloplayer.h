@@ -23,6 +23,7 @@ public:
 
 	MonteCarloPlayer(Relations rs, int rolenum);	
 	Proposition stateMachineSelectMove(int timeout);
+	int uct(int finish_by);
 	int getBestMove(Node * node);
 	Node * selectExpandingNode();
 	void goOneStep(Propositions moves);

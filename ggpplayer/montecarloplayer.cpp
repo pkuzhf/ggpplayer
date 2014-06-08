@@ -81,14 +81,11 @@ int MonteCarloPlayer::getBestMove(Node * node) {
 	return max;
 }
 
-Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
-{
-	if(state_machine_.getLegalMoves(role_num_).size() == 1){
-		return state_machine_.getLegalMoves(role_num_)[0];
-	}
+int MonteCarloPlayer::uct(int time_limit) {
+	int simu_count = 0;
 	int start = clock();
-	int finish_by = start + timeout;
-	int simu_count = 0;	
+	int finish_by = start + time_limit;
+	
 	while (clock() < finish_by) {		
 		Node *node = selectExpandingNode();		
 		int point = -1;
@@ -104,12 +101,21 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int timeout)
 		if (point != -1) {			
 			do {
 				node->points_ += point;
-				node->attemps_++;				
+				++node->attemps_;
 				node = node->parent_;
 			} while (node != NULL);
 		}
-	}	
+	}
+	return simu_count;
+}
 
+Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit)
+{
+	if(state_machine_.getLegalMoves(role_num_).size() == 1){
+		return state_machine_.getLegalMoves(role_num_)[0];
+	}
+	int simu_count = uct(time_limit);	
+	
 	int best_move = getBestMove(&root_);	
 	Proposition selection = state_machine_.getLegalMoves(role_num_)[best_move];
 	int stop = clock();
