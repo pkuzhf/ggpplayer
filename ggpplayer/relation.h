@@ -84,7 +84,7 @@ class Proposition {
 public:
 
 	static Proposition strToProp(string s);
-
+	static string propsToStr(Propositions ps);
 	int head_;
 	bool is_variable_;
 	vector<Proposition> items_;

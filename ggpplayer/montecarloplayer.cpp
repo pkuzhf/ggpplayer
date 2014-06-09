@@ -21,8 +21,7 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	node->update(tree);
 }
 
-MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum):state_machine_(rs)
-{
+MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum):state_machine_(rs) {
 	current_state_ = state_machine_.trues_;
 	is_terminal_ = false;
 	for (int i = 0; i < state_machine_.prover_.roles_.size(); ++i) {
@@ -31,6 +30,9 @@ MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum):state_machine_(rs)
 			break;
 		}
 	}
+	root_.state_ = current_state_;
+	root_.is_terminal_ = is_terminal_;
+	state_node_[current_state_] = &root_;
 }
 
 Proposition MonteCarloPlayer::getRandomMove() {
@@ -43,37 +45,34 @@ Proposition MonteCarloPlayer::getBestMove() {
 	return legal_moves_[best_move];
 }
 
-Node * MonteCarloPlayer::selectExpandingNode() {
+Node * MonteCarloPlayer::selectLeafNode() {
 	Node *node = &root_;
-	while (true) {
+	bool stop = false;
+	while (!node->is_terminal_ && !stop) {
+		if (node->sons_.size() == 0) {
+			int move_size = state_machine_.getLegalMoves(role_num_).size();
+			for (int i = 0; i < move_size; i++) {
+				vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_num_, i);
+				vector<Node> nodes;				
+				for (int j = 0; j < jointmoves.size(); j++) {					
+					nodes.push_back(Node(node));
+				}
+				node->sons_.push_back(nodes);
+			}
+			stop = true;
+		}
 		int best_move = getBestMoveOfNode(node);
 		int rand_joint_move = rand() % node->sons_[best_move].size();
 		node = &node->sons_[best_move][rand_joint_move];
-		if(node->sons_.size() == 0) {
-			if (node->state_.size() == 0){				
-				state_machine_.setState(node->parent_->state_);				
-				state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, best_move)[rand_joint_move]);						
-				node->state_ = state_machine_.trues_;
-				node->is_terminal_ = state_machine_.is_terminal_;
-			} else if (!node->is_terminal_) {
-				int move_size = state_machine_.getLegalMoves(role_num_).size();
-				for (int i = 0; i < move_size; i++) {
-					vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_num_, i);
-					vector<Node> nodes;				
-					for (int j = 0; j < jointmoves.size(); j++) {					
-						nodes.push_back(Node(node));
-					}
-					node->sons_.push_back(nodes);
-				}
-				int mymove = rand() %  node->sons_.size();
-				vector<Node> &nodes = node->sons_[mymove];
-				int temp_rand = rand() % nodes.size();
-				node = &nodes[temp_rand];
-			}
-			return node;
-		}	
+		if (node->state_.size() == 0){				
+			state_machine_.setState(node->parent_->state_);				
+			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, best_move)[rand_joint_move]);						
+			node->state_ = state_machine_.trues_;
+			node->is_terminal_ = state_machine_.is_terminal_;
+			state_node_[node->state_] = node;
+		}
 	}
-
+	return node;
 }
 
 int MonteCarloPlayer::getBestMoveOfNode(Node * node) {
@@ -99,7 +98,7 @@ double MonteCarloPlayer::uct(int time_limit) {
 	int finish_by = start + time_limit;
 	
 	while (clock() < finish_by) {		
-		Node *node = selectExpandingNode();		
+		Node *node = selectLeafNode();		
 		int point = -1;
 		state_machine_.setState(node->state_);
 		if (node->is_terminal_) {
@@ -122,8 +121,7 @@ double MonteCarloPlayer::uct(int time_limit) {
 	return (double)simu_count / (stop - start) * CLOCKS_PER_SEC;
 }
 
-Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit)
-{
+Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit) {
 	if (state_machine_.getLegalMoves(role_num_).size() == 1){
 		return state_machine_.getLegalMoves(role_num_)[0];
 	}
@@ -136,8 +134,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit)
 	return state_machine_.getLegalMoves(role_num_)[best_move];
 }
 
-void MonteCarloPlayer::goOneStep(Propositions moves)
-{	
+void MonteCarloPlayer::goOneStep(Propositions moves) {	
 	state_machine_.setState(current_state_);	
 	state_machine_.goOneStep(moves);
 	current_state_ = state_machine_.trues_;

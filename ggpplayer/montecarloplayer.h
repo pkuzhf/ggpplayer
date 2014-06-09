@@ -26,7 +26,7 @@ public:
 	Proposition stateMachineSelectMove(int timeout);
 	double uct(int finish_by);
 	int getBestMoveOfNode(Node * node);
-	Node * selectExpandingNode();
+	Node * selectLeafNode();
 	void goOneStep(Propositions moves);
 	void updateTree(Propositions state, string tree);
 	Proposition getRandomMove();

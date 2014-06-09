@@ -52,7 +52,7 @@ string Node::toString() {
 	return ret.str();
 }
 
-void Node::update(string s) {
+void Node::update(string s) {	
 	int start = 2;
 	int end = start + 1;
 	while (s[end] != ')') ++end;
@@ -62,6 +62,24 @@ void Node::update(string s) {
 	while (s[end] != ')') ++end;
 	attemps_ += atoi(s.substr(start, end - start).c_str());
 	start = end + 1;
+	if (sons_.size() == 0) {
+		int i = start;
+		while (s[i] == '(') {
+			vector<Node> nodes;
+			++i;
+			while (s[i] == '(') {
+				nodes.push_back(Node(this));
+				int count = 0;
+				do {
+					if (s[i] == '(') ++count;
+					if (s[i] == ')') --count;
+					++i;
+				} while (count > 0);
+			}
+			++i;
+			sons_.push_back(nodes);
+		}
+	}
 	for (int i = 0; i < sons_.size(); ++i) {
 		++start;
 		for (int j = 0; j < sons_[i].size(); ++j) {			

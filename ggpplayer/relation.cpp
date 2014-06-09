@@ -107,6 +107,15 @@ Proposition Proposition::strToProp(string s) {
 	return ret;
 }
 
+string Proposition::propsToStr(Propositions ps) {
+	string ret = "";
+	for (int i = 0; i < ps.size(); ++i) {
+		ret += "(" + ps[i].toString() + ")";
+	}
+	return ret;
+}
+
+
 bool Proposition::operator==(const Proposition &p) const {
 	if (head_ != p.head_ || items_.size() != p.items_.size()) {
 		return false;
