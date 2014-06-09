@@ -78,10 +78,10 @@ int main() {
 		Relation::addSymbol(relation_type_words[i]);
 	}
 	Reader r;
-	//if (!r.readFile("gdl/rule.txt")) {
-	if (!r.readFile("gdl/connect_four.txt")) {
+	if (!r.readFile("gdl/rule.txt")) {
+	//if (!r.readFile("gdl/connect_four.txt")) {
 	//if (!r.readFile("gdl/2pffa_zerosum.kif")) {
-		Connect::message("debug", "read file failed.");
+		cout << Connect::message("debug", "read file failed.");
         return -1;
     }
 	char buf[100000];
@@ -93,7 +93,7 @@ int main() {
 	for (int i = 0; i < Prover::time.size(); ++i) {
 		ostringstream msg;
 		msg << "time" << i << ": " << Prover::time[i];
-		Connect::message("debug", msg.str());
+		cout << Connect::message("debug", msg.str());
 	}
 	//machine.randomGo(clock() + 100000);
 	cin.getline(buf, 10000);
@@ -119,8 +119,8 @@ int main() {
 	}*/	
 		
 	cin.getline(buf, 10000);
-	Connect::message("client", Proposition::propsToStr(player.current_state_));
-	Connect::message("server", player.getRandomMove().items_[1].toString());
+	cout << Connect::message("client", Proposition::propsToStr(player.current_state_));
+	cout << Connect::message("server", player.getRandomMove().items_[1].toString());
 
 	while (true) {				
 		cin.getline(buf, 10000);
