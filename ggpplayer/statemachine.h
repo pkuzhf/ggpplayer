@@ -23,7 +23,8 @@ public:
 	Propositions tmps_;
 	bool is_terminal_;
 
-	StateMachine(Relations description);		
+	StateMachine(Relations description);
+	void init(Relations description);
 	void updateState(Propositions &ps);
 	void updateLegals(Propositions &ps);
 	Propositions getLegalMoves(int role);	

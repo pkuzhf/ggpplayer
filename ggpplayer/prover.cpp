@@ -16,8 +16,21 @@ using namespace std;
 
 vector<int> Prover::time = vector<int>(6);
 
+Prover::Prover(Relations relations) {
+	init(relations);
+}
 
-Prover::Prover(Relations relations) : relations_(relations) {
+void Prover::init(Relations relations) {
+	relations_ = relations;
+	derivations_.clear();
+	bases_.clear();
+	inputs_.clear();
+	roles_.clear();
+	statics_.clear();
+	statics_set_.clear();
+	head_statics_.clear();
+	inits_.clear();
+
 	for (int i = 0; i < relations_.size(); ++i) {
 		if (relations_[i].head_ == r_derivation) {
 			Derivation d = relations_[i].toDerivation();

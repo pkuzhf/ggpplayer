@@ -21,7 +21,12 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	node->update(tree);
 }
 
-MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum):state_machine_(rs) {
+MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum) {
+	init(rs, rolenum);
+}
+
+void MonteCarloPlayer::init(Relations rs, int rolenum) {
+	state_machine_.init(rs);
 	current_state_ = state_machine_.trues_;
 	is_terminal_ = false;
 	for (int i = 0; i < state_machine_.prover_.roles_.size(); ++i) {

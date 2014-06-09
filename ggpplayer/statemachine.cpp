@@ -16,7 +16,13 @@
 using namespace std;
 
 
-StateMachine::StateMachine(Relations description):prover_(description), is_terminal_(false) {
+StateMachine::StateMachine(Relations description) {
+	init(description);
+}
+
+void StateMachine::init(Relations description) {
+	prover_.init(description);
+	is_terminal_ = false;
 	for (int i = 0; i < prover_.statics_.size(); ++i) {
 		if (prover_.statics_[i].head_ == r_legal) {
 			static_legals_.push_back(prover_.statics_[i]);

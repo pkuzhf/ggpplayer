@@ -1,5 +1,3 @@
-//#define WIN
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -18,58 +16,9 @@
 #include "montecarloplayer.h"
 #include "connect.h"
 
-#ifdef WIN
-#include<winsock2.h>
-#pragma comment(lib,"ws2_32.lib")
-#endif
-
 using namespace std;
 
-#ifdef WIN
-int connect() {
-	WSADATA wsaData;
-	SOCKET s;
-	SOCKADDR_IN ServerAddr;
-	int Port = 80;
-	char Addr[] = "162.105.81.73";
 
-	//初始化Windows Socket 2.2
-
-	WSAStartup(MAKEWORD(2, 2), &wsaData);
-
-	s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if ( s == INVALID_SOCKET ) {
-		cout << "Create Socket Failed::" << GetLastError() <<endl;
-		return -1;
-	}
-
-	ServerAddr.sin_family = AF_INET;
-	ServerAddr.sin_port = htons(Port); 
-	ServerAddr.sin_addr.s_addr = inet_addr(Addr);
-	memset(ServerAddr.sin_zero, 0x00, 8);
-
-	int Ret = connect(s, (SOCKADDR *)&ServerAddr, sizeof(ServerAddr));
-	if ( Ret == SOCKET_ERROR ) {
-		cout << "Connect Error::" << GetLastError() << endl;
-		return -1;
-	}
-	
-	// 新的连接建立后，就可以互相通信了，在这个简单的例子中，我们直接关闭连接，
-	// 并关闭监听Socket，然后退出应用程序
-	char buf[1000];
-	int len;
-
-	while(true) {
-		cin.getline(buf, 1000);
-		len = send(s, buf, strlen(buf), 0);
-		cout << len <<endl;
-		len = recv(s, buf, 1000, 0);
-		cout << len << buf <<endl;
-	}
-	closesocket(s);
-	WSACleanup();
-}
-#endif
 
 int main() {
 

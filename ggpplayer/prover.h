@@ -39,16 +39,17 @@ public:
 	Propositions bases_;
 	Propositions inputs_;
 	Propositions roles_;
-
-	vector<int> key_head_;
-
-	Prover(Relations relations);	
-	void generateTrueProps(Propositions &true_props, int start_stra, int end_stra);
+	//vector<int> key_head_;
 	Propositions statics_;
 	unordered_set<Proposition, hash_Proposition> statics_set_;
 	map<int, vector<int> > head_statics_;
 	Propositions inits_;
 	DependGraph dpg_;
+
+	Prover(Relations relations);	
+	void init(Relations relations);
+	void generateTrueProps(Propositions &true_props, int start_stra, int end_stra);
+	
 private:
 	Relations relations_;
 	vector<Derivation> derivations_;
