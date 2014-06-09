@@ -131,6 +131,10 @@ http.createServer(function (req, res) {
             ggp.exe.stdin.write(request.id + '\n');
             ggp.exe.stdin.write(request.role + '\n');
             ggp.exe.stdin.write(request.playclock + '\n');
+            console.log(request.rule);
+            console.log(request.id);
+            console.log(request.role);
+            console.log(request.playclock);
             break;
         case 'play' :
             if (ggp.exe) {
@@ -177,7 +181,7 @@ function receiveExeData(data) {
             ggp.buffer = '';
             ggp.data_length = null;
         } else if (ggp.buffer.length > ggp.data_length) {
-            handleExeMessage(ggp, ggp.buffer.substring(0, ggp.data_length));
+            handleExeMessage(ggp.buffer.substring(0, ggp.data_length));
             var rest = ggp.buffer.substring(ggp.data_length);
             ggp.data_length = null;
             ggp.buffer = '';
@@ -195,8 +199,9 @@ function handleExeMessage(message) {
     } else if (cmd === 'client') {        
         ggp.message = message;
     } else if (cmd === 'debug') {
-        console.log('ggp debug: ' + message);
+        //console.log('ggp debug: ' + message);
     }
+    console.log('ggp out: ' + message);
 }
 
 function receiveClientData(client, data) {

@@ -1,4 +1,4 @@
-#define WIN
+//#define WIN
 
 #include <iostream>
 #include <fstream>
@@ -8,6 +8,7 @@
 #include <string>
 #include <sstream>
 #include <time.h>
+#include <string.h>
 
 #include "reader.h"
 #include "relation.h"
@@ -24,6 +25,7 @@
 
 using namespace std;
 
+#ifdef WIN
 int connect() {
 	WSADATA wsaData;
 	SOCKET s;
@@ -67,6 +69,8 @@ int connect() {
 	closesocket(s);
 	WSACleanup();
 }
+#endif
+
 int main() {
 
 	srand(time(0));
@@ -80,9 +84,9 @@ int main() {
 		Connect::message("debug", "read file failed.");
         return -1;
     }
-	char buf[10000];
+	char buf[100000];
 	cin.getline(buf, 100000);
-	r.readLine(buf);
+	//r.readLine(buf);
 	Relations rs;
 	r.getRelations(rs);
 	StateMachine machine(rs);
@@ -94,7 +98,7 @@ int main() {
 	//machine.randomGo(clock() + 100000);
 	cin.getline(buf, 10000);
 	string game = string(buf);
-	cin.getline(buf, 10000);
+    cin.getline(buf, 10000);
 	int role, playclock;
 	role = Relation::symbol2code[string(buf)];
 	cin.getline(buf, 10000);
