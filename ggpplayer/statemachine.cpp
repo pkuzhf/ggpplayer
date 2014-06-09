@@ -11,6 +11,7 @@
 #include "prover.h"
 #include "reader.h"
 #include "relation.h"
+#include "connect.h"
 
 using namespace std;
 
@@ -83,7 +84,7 @@ Proposition StateMachine::getRandomMove(int role) {
 	Propositions moves = getLegalMoves(role);
 	srand((unsigned)time(NULL));  
 	if (moves.size() == 0) {
-		cout << "No legal move." <<endl;
+		Connect::message("debug", "No legal move.");
 	}
 	return moves[rand() % moves.size()];
 }
@@ -133,13 +134,16 @@ bool StateMachine::randomGo(int time_limit)
 	return true;
 }
 
-void StateMachine::setState(Propositions &currentState)
+void StateMachine::setState(Propositions &current_state)
 {
+	if (current_state == trues_) { // the order of propositions may be different, should implement equel(...)
+		return;
+	}
 	legals_.clear();
 	goals_.clear();
 	tmps_.clear();
 	is_terminal_ = false;
-	trues_ = currentState;	
+	trues_ = current_state;	
 	Propositions ps = trues_;
 	prover_.generateTrueProps(ps, 0, prover_.dpg_.legal_level_);
 	updateLegals(ps);

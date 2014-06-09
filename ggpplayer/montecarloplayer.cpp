@@ -2,12 +2,14 @@
 #include <vector>
 #include <time.h>
 #include <string>
+#include <sstream>
 #include <cmath>
 #include <stdlib.h>
 
 #include "dependgraph.h"
 #include "node.h"
 #include "montecarloplayer.h"
+#include "connect.h"
 
 using namespace std;
 
@@ -31,10 +33,20 @@ MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum):state_machine_(rs)
 	}
 }
 
+Proposition MonteCarloPlayer::getRandomMove() {
+	state_machine_.setState(current_state_);
+	return state_machine_.getRandomMove(role_num_);
+}
+
+Proposition MonteCarloPlayer::getBestMove() {
+	int best_move = getBestMoveOfNode(&root_);	
+	return legal_moves_[best_move];
+}
+
 Node * MonteCarloPlayer::selectExpandingNode() {
 	Node *node = &root_;
 	while (true) {
-		int best_move = getBestMove(node);
+		int best_move = getBestMoveOfNode(node);
 		int rand_joint_move = rand() % node->sons_[best_move].size();
 		node = &node->sons_[best_move][rand_joint_move];
 		if(node->sons_.size() == 0) {
@@ -64,7 +76,7 @@ Node * MonteCarloPlayer::selectExpandingNode() {
 
 }
 
-int MonteCarloPlayer::getBestMove(Node * node) {
+int MonteCarloPlayer::getBestMoveOfNode(Node * node) {
 	int max = 0;
 	double maxscore = 0;
 	for (int i = 0; i < node->sons_.size(); i++) {
@@ -81,7 +93,7 @@ int MonteCarloPlayer::getBestMove(Node * node) {
 	return max;
 }
 
-int MonteCarloPlayer::uct(int time_limit) {
+double MonteCarloPlayer::uct(int time_limit) {
 	int simu_count = 0;
 	int start = clock();
 	int finish_by = start + time_limit;
@@ -106,22 +118,22 @@ int MonteCarloPlayer::uct(int time_limit) {
 			} while (node != NULL);
 		}
 	}
-	return simu_count;
+	int stop = clock();
+	return (double)simu_count / (stop - start) * CLOCKS_PER_SEC;
 }
 
 Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit)
 {
-	if(state_machine_.getLegalMoves(role_num_).size() == 1){
+	if (state_machine_.getLegalMoves(role_num_).size() == 1){
 		return state_machine_.getLegalMoves(role_num_)[0];
 	}
-	int simu_count = uct(time_limit);	
-	
-	int best_move = getBestMove(&root_);	
-	Proposition selection = state_machine_.getLegalMoves(role_num_)[best_move];
-	int stop = clock();
+	double speed = uct(time_limit);	
+	ostringstream msg;
+	msg << "UCT simu times per second: " << speed;
+	Connect::message("debug",  msg.str());	
 
-	cout<< "debug UCT simu times per second: " << (double)simu_count / (stop - start) * CLOCKS_PER_SEC << endl;	
-	return selection;
+	int best_move = getBestMoveOfNode(&root_);
+	return state_machine_.getLegalMoves(role_num_)[best_move];
 }
 
 void MonteCarloPlayer::goOneStep(Propositions moves)
@@ -140,6 +152,7 @@ void MonteCarloPlayer::goOneStep(Propositions moves)
 		}
 	}
 	if (!found) {
-		cout << "debug node not found error" << endl;
+		Connect::message("debug", "node not found error");
 	}
+	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }

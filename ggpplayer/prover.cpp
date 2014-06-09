@@ -14,28 +14,7 @@
 #include "time.h"
 using namespace std;
 
-int Prover::generate_time = 0;
-int Prover::time1 = 0;
-int Prover::time2 = 0;
-int Prover::time3 = 0;
-int Prover::time4 = 0;
-int Prover::time5 = 0;
-int Prover::time6 = 0;
-int Prover::time7 = 0;
-int Prover::time8 = 0;
-int Prover::time9 = 0;
-int Prover::time10 = 0;
-int Prover::time11 = 0;
-int Prover::time12 = 0;
-int Prover::time13 = 0;
-int Prover::time14 = 0;
-int Prover::time15 = 0;
-int Prover::time16 = 0;
-int Prover::time17 = 0;
-int Prover::time18 = 0;
-int Prover::time19 = 0;
-int Prover::time20 = 0;
-int Prover::time21 = 0;
+vector<int> Prover::time = vector<int>(6);
 
 
 Prover::Prover(Relations relations) : relations_(relations) {
@@ -404,7 +383,7 @@ vector<vector<int> > & Prover::mergeMultipleCombinations(
 			idxes[i][j].second = sortCombinations(b, keys[i][j]);
 			combine_cost[i][j] = calcCombineCost(a, b, keys[i][j], idxes[i][j].first, idxes[i][j].second);
 			if (combine_cost[i][j] == 0) {
-				time2 += clock() - s2;
+				time[2] += clock() - s2;
 				multiple_combinations.push_back(vector<vector<int> >());
 				return multiple_combinations[multiple_combinations.size() - 1];;
 			}
@@ -507,7 +486,7 @@ vector<vector<int> > & Prover::mergeMultipleCombinations(
 			++j;
 		}
 	}
-	time2 += clock() - s2;
+	time[2] += clock() - s2;
 	return ret;
 }
 
@@ -675,7 +654,7 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 						true_props.push_back(p);
 						int s5 = clock();
 						true_props_set.insert(p);						
-						time5 += clock() - s5;
+						time[5] += clock() - s5;
 						current_stratum_props.push_back(p);						
 					}
 				}				
@@ -743,5 +722,5 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 		output.push_back(true_props[i].toRelation().toString());
 	}*/	
 	true_props_size = true_props.size();	
-	time1 += clock() - s1;
+	time[1] += clock() - s1;
 }

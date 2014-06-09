@@ -6,6 +6,7 @@
 #include <set>
 #include <map>
 #include <string>
+#include <sstream>
 #include <time.h>
 
 #include "reader.h"
@@ -14,6 +15,7 @@
 #include  "dependgraph.h"
 #include "statemachine.h"
 #include "montecarloplayer.h"
+#include "connect.h"
 
 #ifdef WIN
 #include<winsock2.h>
@@ -65,7 +67,6 @@ int connect() {
 	closesocket(s);
 	WSACleanup();
 }
-
 int main() {
 
 	srand(time(0));
@@ -76,7 +77,7 @@ int main() {
 	if (!r.readFile("gdl/rule.txt")) {
 	//if (!r.scanGDLFile("gdl/connect_four.txt")) {
 	//if (!r.scanGDLFile("gdl/2pffa_zerosum.kif")) {
-        cout << "read file failed." << endl;
+		Connect::message("debug", "read file failed.");
         return -1;
     }
 	char buf[10000];
@@ -85,21 +86,12 @@ int main() {
 	Relations rs;
 	r.getRelations(rs);
 	StateMachine machine(rs);
+	for (int i = 0; i < Prover::time.size(); ++i) {
+		ostringstream msg;
+		msg << "time" << i << ": " << Prover::time[i];
+		Connect::message("debug", msg.str());
+	}
 	//machine.randomGo(clock() + 100000);
-	//cout << "generate: " << Prover::generate_time << endl;
-	//cout << "time1: " << Prover::time1 << endl;
-	//cout << "time2: " << Prover::time2 << endl;
-	//cout << "time3: " << Prover::time3 << endl;
-	//cout << "time4: " << Prover::time4 << endl;
-	//cout << "time5: " << Prover::time5 << endl;
-	//cout << "time6: " << Prover::time6 << endl;
-	//cout << "time7: " << Prover::time7 << endl;
-	//cout << "time8: " << Prover::time8 << endl;
-	//cout << "time9: " << Prover::time9 << endl;
-	//cout << "time10: " << Prover::time10 << endl;
-	//cout << "time11: " << Prover::time11 << endl;
-	//cout << "time12: " << Prover::time12 << endl;
-	//cout << "time13: " << Prover::time13 << endl;
 	cin.getline(buf, 10000);
 	string game = string(buf);
 	cin.getline(buf, 10000);
@@ -108,7 +100,6 @@ int main() {
 	cin.getline(buf, 10000);
 	playclock = (atoi(buf) - 2) * CLOCKS_PER_SEC;
 	MonteCarloPlayer player(rs, role);   // montecarlo player
-	
 
 	// check montecarlo player
 	/*MonteCarloPlayer Mplayer1(rs, 0);
@@ -124,8 +115,9 @@ int main() {
 	}*/	
 		
 	cin.getline(buf, 10000);
-	cout << player.stateMachineSelectMove(playclock).items_[1].toString() << endl;
-	
+	Connect::message("client", player.current_state_);
+	Connect::message("server", cout << player.stateMachineSelectMove(playclock).items_[1].toString() << endl;
+
 	while (true) {				
 		cin.getline(buf, 10000);
 		char * space = strstr(buf, " ");
@@ -146,11 +138,11 @@ int main() {
 			}		
 			player.goOneStep(joint_move);
 			if (player.is_terminal_) {
-				//cout << "Terminal." << endl;
 				break;
 			}
-			Proposition move = player.stateMachineSelectMove(playclock);
-			cout << move.items_[1].toString() << endl;
+			//Proposition move = player.stateMachineSelectMove(playclock);
+			//cout << move.items_[1].toString() << endl;
+			cout << Connect::message("server ", player.getRandomMove().items_[1].toString());
 		} else if (cmd == "client") {
 			char * semi = strstr(space + 1, ";");
 			if (semi == NULL) continue;

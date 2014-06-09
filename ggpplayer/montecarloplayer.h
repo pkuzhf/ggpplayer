@@ -18,16 +18,19 @@ public:
 	Propositions current_state_;
 	bool is_terminal_;
 	Node root_;
+	Propositions legal_moves_;
 	int role_num_;
 	map<Propositions, Node *> state_node_;
 
 	MonteCarloPlayer(Relations rs, int rolenum);	
 	Proposition stateMachineSelectMove(int timeout);
-	int uct(int finish_by);
-	int getBestMove(Node * node);
+	double uct(int finish_by);
+	int getBestMoveOfNode(Node * node);
 	Node * selectExpandingNode();
 	void goOneStep(Propositions moves);
 	void updateTree(Propositions state, string tree);
+	Proposition getRandomMove();
+	Proposition getBestMove();
 };
 
 #endif

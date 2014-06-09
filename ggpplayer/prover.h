@@ -33,29 +33,8 @@ typedef struct{
 
 
 class Prover {
-public:
-	static int generate_time;
-	static int time1;
-	static int time2;
-	static int time3;
-	static int time4;
-	static int time5;
-	static int time6;
-	static int time7;
-	static int time8;
-	static int time9;
-	static int time10;
-	static int time11;
-	static int time12;
-	static int time13;
-	static int time14;
-	static int time15;
-	static int time16;
-	static int time17;
-	static int time18;
-	static int time19;
-	static int time20;
-	static int time21;
+public:	
+	static vector<int> time;
 
 	Propositions bases_;
 	Propositions inputs_;
