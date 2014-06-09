@@ -78,9 +78,9 @@ int main() {
 		Relation::addSymbol(relation_type_words[i]);
 	}
 	Reader r;
-	if (!r.readFile("gdl/rule.txt")) {
-	//if (!r.scanGDLFile("gdl/connect_four.txt")) {
-	//if (!r.scanGDLFile("gdl/2pffa_zerosum.kif")) {
+	//if (!r.readFile("gdl/rule.txt")) {
+	if (!r.readFile("gdl/connect_four.txt")) {
+	//if (!r.readFile("gdl/2pffa_zerosum.kif")) {
 		Connect::message("debug", "read file failed.");
         return -1;
     }

@@ -84,7 +84,7 @@ Proposition StateMachine::getRandomMove(int role) {
 	Propositions moves = getLegalMoves(role);
 	srand((unsigned)time(NULL));  
 	if (moves.size() == 0) {
-		Connect::message("debug", "No legal move.");
+		cout << Connect::message("debug", "No legal move.");
 	}
 	return moves[rand() % moves.size()];
 }
