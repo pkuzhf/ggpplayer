@@ -131,24 +131,10 @@ http.createServer(function (req, res) {
             ggp.exe.stdin.write(request.id + '\n');
             ggp.exe.stdin.write(request.role + '\n');
             ggp.exe.stdin.write(request.playclock + '\n');
-            console.log(request.rule);
-            console.log(request.id);
-            console.log(request.role);
-            console.log(request.playclock);
             break;
         case 'play' :
             if (ggp.exe) {
                 console.log('ggp in: ' + request.move);
-                ggp.exe.stdout.once('data', function (data) {
-                    data = String(data);
-                    console.log('ggp out: ' + data);
-                    var end = data[data.length - 1];
-                    if (end === '\r' || end === '\n') {
-                        res.end(data.substring(0, data.length - 1));
-                    } else {
-                        res.write(data);
-                    }
-                });
                 ggp.exe.stdin.write("server " + request.move + '\n');
             }
             break;
@@ -170,14 +156,14 @@ function receiveExeData(data) {
             var length = parseInt(data.substring(0, space_pos));
             if (!isNaN(length)) {
                 ggp.data_length = length;
-                ggp.buffer = data.substring(space_pos + 1);
+                data = data.substring(space_pos + 1);
             } 
         }
     } 
     if (ggp.data_length !== null) {
         ggp.buffer += data;
         if (ggp.buffer.length === ggp.data_length) {
-            handleExeMessage(ggp, ggp.buffer);
+            handleExeMessage(ggp.buffer);
             ggp.buffer = '';
             ggp.data_length = null;
         } else if (ggp.buffer.length > ggp.data_length) {
@@ -190,7 +176,8 @@ function receiveExeData(data) {
     }
 }
 
-function handleExeMessage(message) {
+function handleExeMessage(message) { 
+    console.log('handleExeMessage: ' + message);
     var i = message.indexOf(' ');
     var cmd = message.substring(0, i);
     message = message.substring(i + 1);
@@ -201,7 +188,6 @@ function handleExeMessage(message) {
     } else if (cmd === 'debug') {
         //console.log('ggp debug: ' + message);
     }
-    console.log('ggp out: ' + message);
 }
 
 function receiveClientData(client, data) {
