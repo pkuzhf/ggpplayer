@@ -100,31 +100,37 @@ http.createServer(function (req, res) {
             res.end('( ( name ailab ) ( status available ) )');
             break;
         case 'start' :
-            fs.writeFile('gdl/rule.txt', request.rule, function(err) {
-                if (err) {
-                    console.log(err);
-                }
-                ggp.game = request.id;
-                ggp.exe = spawn('./ggp');
-                ggp.res = res;
-                ggp.exe.stdout.on('data', function (data) {
-                    data = String(data);
-                    console.log('ggp out: ' + data);
-                    receiveExeData(data);
-                });
-                ggp.exe.on('close', function(code) {
-                    ggp.exe = null;
-                    if (ggp.timer) {
-                        clearTimeout(ggp.timer);
-                        ggp.timer = null;
-                    }                    
-                });
-                ggp.exe.stdin.write(request.role + '\n');
-                ggp.exe.stdin.write(request.playclock + '\n');
-            });
+            fs.writeFileSync('gdl/rule.txt', request.rule);
+            ggp.game = request.id;
+            ggp.res = res;
+            ggp.move = null;
+            ggp.message = null;
+            ggp.buffer = '';
+            ggp.data_length = null;
+            ggp.playclock = request.playclock;
             ggp.timer = setTimeout(function() {
                 ggp.res.end('ready');
             }, request.startclock - 2);
+            if (ggp.exe) {
+                ggp.exe.kill('SIGKILL');
+            }
+            ggp.exe = spawn('./ggp');
+            ggp.exe.stdout.on('data', function (data) {
+                data = String(data);
+                console.log('ggp out: ' + data);
+                receiveExeData(data);
+            });
+            ggp.exe.on('exit', function(code) {
+                ggp.exe = null;
+                if (ggp.timer) {
+                    clearTimeout(ggp.timer);
+                    ggp.timer = null;
+                }                    
+            });
+            ggp.exe.stdin.write(request.rule + '\n');
+            ggp.exe.stdin.write(request.id + '\n');
+            ggp.exe.stdin.write(request.role + '\n');
+            ggp.exe.stdin.write(request.playclock + '\n');
             break;
         case 'play' :
             if (ggp.exe) {
@@ -139,7 +145,7 @@ http.createServer(function (req, res) {
                         res.write(data);
                     }
                 });
-                ggp.exe.stdin.write(request.move + '\n');
+                ggp.exe.stdin.write("server " + request.move + '\n');
             }
             break;
         case 'stop' :
@@ -188,6 +194,8 @@ function handleExeMessage(message) {
         ggp.move = message;
     } else if (cmd === 'client') {        
         ggp.message = message;
+    } else if (cmd === 'debug') {
+        console.log('ggp debug: ' + message);
     }
 }
 
@@ -223,7 +231,7 @@ function handleClientMessage(client, message) {
     var game = message.substring(0, i);
     message = message.substring(i + 1);
     if (game === ggp.game) {
-        ggp.exe.write(message);
+        ggp.exe.stdin.write("client " + message + '\n');
     }
     var msg = ggp.game + " " + ggp.message;
     client.sock.write(msg.length + " " + msg);
