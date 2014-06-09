@@ -75,6 +75,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="connect.h" />
     <ClInclude Include="dependgraph.h" />
     <ClInclude Include="montecarloplayer.h" />
     <ClInclude Include="node.h" />
@@ -84,6 +85,7 @@
     <ClInclude Include="statemachine.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="connect.cpp" />
     <ClCompile Include="dependgraph.cpp" />
     <ClCompile Include="ggpplayer.cpp" />
     <ClCompile Include="montecarloplayer.cpp" />
