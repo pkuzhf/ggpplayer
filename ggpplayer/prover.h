@@ -46,8 +46,8 @@ public:
 	Propositions inits_;
 	DependGraph dpg_;
 
+	Prover(){}
 	Prover(Relations relations);	
-	void init(Relations relations);
 	void generateTrueProps(Propositions &true_props, int start_stra, int end_stra);
 	
 private:

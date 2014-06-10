@@ -9,7 +9,7 @@
 #include "dependgraph.h"
 #include "node.h"
 #include "montecarloplayer.h"
-#include "connect.h"
+#include "client.h"
 
 using namespace std;
 
@@ -21,12 +21,8 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	node->update(tree);
 }
 
-MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum) {
-	init(rs, rolenum);
-}
-
-void MonteCarloPlayer::init(Relations rs, int rolenum) {
-	state_machine_.init(rs);
+MonteCarloPlayer::MonteCarloPlayer(){}
+MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum):state_machine_(rs) {
 	current_state_ = state_machine_.trues_;
 	is_terminal_ = false;
 	for (int i = 0; i < state_machine_.prover_.roles_.size(); ++i) {
@@ -133,7 +129,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit) {
 	double speed = uct(time_limit);	
 	ostringstream msg;
 	msg << "UCT simu times per second: " << speed;
-	cout << Connect::message("debug",  msg.str());	
+	cout << Client::message("debug",  msg.str());	
 
 	int best_move = getBestMoveOfNode(&root_);
 	return state_machine_.getLegalMoves(role_num_)[best_move];
@@ -154,7 +150,7 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 		}
 	}
 	if (!found) {
-		cout << Connect::message("debug", "node not found error");
+		cout << Client::message("debug", "node not found error");
 	}
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }

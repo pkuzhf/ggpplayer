@@ -22,8 +22,8 @@ public:
 	int role_num_;
 	map<Propositions, Node *> state_node_;
 
-	MonteCarloPlayer(Relations rs, int rolenum);
-	void init(Relations rs, int rolenum);
+	MonteCarloPlayer();
+	MonteCarloPlayer(Relations rs, int rolenum);	
 	Proposition stateMachineSelectMove(int timeout);
 	double uct(int finish_by);
 	int getBestMoveOfNode(Node * node);

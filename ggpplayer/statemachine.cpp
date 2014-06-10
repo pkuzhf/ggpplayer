@@ -11,17 +11,12 @@
 #include "prover.h"
 #include "reader.h"
 #include "relation.h"
-#include "connect.h"
+#include "client.h"
 
 using namespace std;
 
 
-StateMachine::StateMachine(Relations description) {
-	init(description);
-}
-
-void StateMachine::init(Relations description) {
-	prover_.init(description);
+StateMachine::StateMachine(Relations description) :prover_(description) { 
 	is_terminal_ = false;
 	for (int i = 0; i < prover_.statics_.size(); ++i) {
 		if (prover_.statics_[i].head_ == r_legal) {
@@ -90,7 +85,7 @@ Proposition StateMachine::getRandomMove(int role) {
 	Propositions moves = getLegalMoves(role);
 	srand((unsigned)time(NULL));  
 	if (moves.size() == 0) {
-		cout << Connect::message("debug", "No legal move.");
+		cout << Client::message("debug", "No legal move.");
 	}
 	return moves[rand() % moves.size()];
 }

@@ -14,7 +14,7 @@
 #include  "dependgraph.h"
 #include "statemachine.h"
 #include "montecarloplayer.h"
-#include "connect.h"
+#include "client.h"
 
 using namespace std;
 
@@ -30,7 +30,7 @@ int main() {
 	if (!r.readFile("gdl/rule.txt")) {
 	//if (!r.readFile("gdl/connect_four.txt")) {
 	//if (!r.readFile("gdl/2pffa_zerosum.kif")) {
-		cout << Connect::message("debug", "read file failed.");
+		cout << Client::message("debug", "read file failed.");
         return -1;
     }
 	char buf[100000];
@@ -42,7 +42,7 @@ int main() {
 	for (int i = 0; i < Prover::time.size(); ++i) {
 		ostringstream msg;
 		msg << "time" << i << ": " << Prover::time[i];
-		cout << Connect::message("debug", msg.str());
+		cout << Client::message("debug", msg.str());
 	}
 	//machine.randomGo(clock() + 100000);
 	cin.getline(buf, 10000);
@@ -67,8 +67,8 @@ int main() {
 	}*/	
 		
 	cin.getline(buf, 10000);
-	cout << Connect::message("client", Proposition::propsToStr(player.current_state_));
-	cout << Connect::message("server", player.getRandomMove().items_[1].toString());
+	cout << Client::message("client", Proposition::propsToStr(player.current_state_));
+	cout << Client::message("server", player.getRandomMove().items_[1].toString());
 
 	while (true) {				
 		cin.getline(buf, 10000);
@@ -94,8 +94,8 @@ int main() {
 			}
 			//Proposition move = player.stateMachineSelectMove(playclock);
 			//cout << move.items_[1].toString() << endl;
-			cout << Connect::message("server", player.getRandomMove().items_[1].toString());
-			cout << Connect::message("client", Proposition::propsToStr(player.selectLeafNode()->state_));
+			cout << Client::message("server", player.getRandomMove().items_[1].toString());
+			cout << Client::message("client", Proposition::propsToStr(player.selectLeafNode()->state_));
 		} else if (cmd == "client") {
 			char * semi = strstr(space + 1, ";");
 			if (semi == NULL) continue;
@@ -105,8 +105,8 @@ int main() {
 			Propositions state;
 			state_reader.getPropositions(state);
 			player.updateTree(state, string(semi + 1));
-			cout << Connect::message("server", player.getBestMove().items_[1].toString());
-			cout << Connect::message("client", Proposition::propsToStr(player.selectLeafNode()->state_));
+			cout << Client::message("server", player.getBestMove().items_[1].toString());
+			cout << Client::message("client", Proposition::propsToStr(player.selectLeafNode()->state_));
 		}
 	}
 	return 0;
