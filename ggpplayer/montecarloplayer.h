@@ -23,12 +23,13 @@ public:
 	map<Propositions, Node *> state_node_;
 
 	MonteCarloPlayer();
-	MonteCarloPlayer(Relations rs, int rolenum);	
+	MonteCarloPlayer(Relations rs, string role);	
 	Proposition stateMachineSelectMove(int timeout);
-	double uct(int finish_by);
+	double uct(int time_limit);
 	int getBestMoveOfNode(Node * node);
 	Node * selectLeafNode();
 	void goOneStep(Propositions moves);
+	void setState(Propositions state);
 	void updateTree(Propositions state, string tree);
 	Proposition getRandomMove();
 	Proposition getBestMove();

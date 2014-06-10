@@ -26,6 +26,7 @@ public:
 	int connectServer();
 	void receiveData(string data);
 	void handleMessage(string msg);
+	void sendMessage(string msg);
 };
 
 #endif

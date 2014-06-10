@@ -1,6 +1,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <time.h>
 
 #include "client.h"
 #include "reader.h"
@@ -26,7 +27,7 @@ string Client::message(string cmd, string content) {
 int Client::connectServer() {
 	WSADATA wsaData;
 	SOCKADDR_IN ServerAddr;
-	int Port = 80;
+	int Port = 10000;
 	char Addr[] = "162.105.81.73";
 
 	//≥ı ºªØWindows Socket 2.2
@@ -57,10 +58,12 @@ int Client::connectServer() {
 
 	while(true) {
 		len = recv(socket_, buf, 100000, 0);
-		cout << len << buf <<endl;
-		len = send(socket_, buf, strlen(buf), 0);
-		cout << len <<endl;
+		if (len > 0) {
+			buf[len] = '\0';
+			receiveData(string(buf));
+		}
 	}
+
 	closesocket(socket_);
 	WSACleanup();
 }
@@ -91,6 +94,7 @@ void Client::receiveData(string data) {
 }
 
 void Client::handleMessage(string msg) {
+	cout << msg << endl;
 	int i = 0;
 	while (msg[i] != ' ' && i < msg.size()) ++i;
 	if (i < msg.size()) {
@@ -105,21 +109,33 @@ void Client::handleMessage(string msg) {
 			if (cmd == "rule") {
 				while (msg[i] != ' ' && i < msg.size()) ++i;
 				if (i < msg.size()) {
+					string role = msg.substr(0, i);
+					Relation::initSymbolTable();
 					Reader rule_reader;
 					rule_reader.file_content_ = msg.substr(i + 1);
 					Relations rs;
-
-					player_ = MonteCarloPlayer(
+					rule_reader.getRelations(rs);
+					player_ = MonteCarloPlayer(rs, role);
 				}
 			} else if (cmd == "state") {
 				Reader state_reader;
 				state_reader.file_content_ = msg.substr(i + 1);
 				Propositions state;
 				state_reader.getPropositions(state);
+				player_.setState(state);
+				player_.uct(CLOCKS_PER_SEC * 2);
+				sendMessage(game + " " + Proposition::propsToStr(player_.current_state_) + ";" + player_.root_.toString());
 			}
 		}
 
 	}
+}
+
+void Client::sendMessage(string msg) {
+	ostringstream m;
+	m << msg.size() << " " << msg;
+	send(socket_, m.str().c_str(), m.str().size(), 0);
+	cout << "send: " + msg << endl;
 }
 
 #endif

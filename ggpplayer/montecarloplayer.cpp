@@ -22,11 +22,12 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 }
 
 MonteCarloPlayer::MonteCarloPlayer(){}
-MonteCarloPlayer::MonteCarloPlayer(Relations rs, int rolenum):state_machine_(rs) {
+MonteCarloPlayer::MonteCarloPlayer(Relations rs, string role):state_machine_(rs) {
 	current_state_ = state_machine_.trues_;
 	is_terminal_ = false;
+	int role_num = Relation::symbol2code[string(role)];
 	for (int i = 0; i < state_machine_.prover_.roles_.size(); ++i) {
-		if (state_machine_.prover_.roles_[i].items_[0].head_ == rolenum) {
+		if (state_machine_.prover_.roles_[i].items_[0].head_ == role_num) {
 			role_num_ = i;
 			break;
 		}
@@ -44,6 +45,16 @@ Proposition MonteCarloPlayer::getRandomMove() {
 Proposition MonteCarloPlayer::getBestMove() {
 	int best_move = getBestMoveOfNode(&root_);	
 	return legal_moves_[best_move];
+}
+
+void MonteCarloPlayer::setState(Propositions state) {
+	current_state_ = state;
+	is_terminal_ = false;
+	if (root_.state_ != state) {
+		root_ = Node();
+		root_.state_ = current_state_;
+		root_.is_terminal_ = is_terminal_;
+	}
 }
 
 Node * MonteCarloPlayer::selectLeafNode() {

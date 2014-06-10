@@ -67,6 +67,7 @@ public:
 	static vector<string> code2symbol; // code2symbol may contain some strings of proposition other than symbols
 	static int symbol_table_size;
 
+	static void initSymbolTable();
 	static void addSymbol(string symbol);
 
 	string s_;

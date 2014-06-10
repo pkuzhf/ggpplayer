@@ -1,3 +1,5 @@
+#define CLIENT
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -18,14 +20,18 @@
 
 using namespace std;
 
-
+#ifdef CLIENT
 
 int main() {
+	Client client;
+	client.connectServer();
+}
 
+#else
+
+int main() {
 	srand(time(0));
-	for(int i = 0 ; i < relation_type_num; ++i){		
-		Relation::addSymbol(relation_type_words[i]);
-	}
+	Relation::initSymbolTable();
 	Reader r;
 	if (!r.readFile("gdl/rule.txt")) {
 	//if (!r.readFile("gdl/connect_four.txt")) {
@@ -47,12 +53,14 @@ int main() {
 	//machine.randomGo(clock() + 100000);
 	cin.getline(buf, 10000);
 	string game = string(buf);
+
     cin.getline(buf, 10000);
-	int role, playclock;
-	role = Relation::symbol2code[string(buf)];
+	string role = string(buf);
+
 	cin.getline(buf, 10000);
-	playclock = (atoi(buf) - 2) * CLOCKS_PER_SEC;
-	MonteCarloPlayer player(rs, role);   // montecarlo player
+	int playclock = (atoi(buf) - 2) * CLOCKS_PER_SEC;
+
+	MonteCarloPlayer player(rs, string(buf));   // montecarlo player
 	// check montecarlo player
 	/*MonteCarloPlayer Mplayer1(rs, 0);
 	MonteCarloPlayer Mplayer2(rs, 1);
@@ -111,3 +119,5 @@ int main() {
 	}
 	return 0;
 }
+
+#endif

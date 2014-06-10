@@ -31,7 +31,6 @@ void Reader::readLine(char *buffer) {
 		file_content_ += buffer[i];
 		++i;
 	}
-	file_content_ += " ";
 }
 
 bool Reader::getRelations(Relations &relations) {

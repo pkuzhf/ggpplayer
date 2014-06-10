@@ -23,6 +23,15 @@ void Relation::addSymbol(string symbol) {
 	++Relation::symbol_table_size;
 }
 
+void Relation::initSymbolTable() {
+	symbol2code.clear();
+	code2symbol.clear();
+	symbol_table_size = 0;
+	for(int i = 0 ; i < relation_type_num; ++i){		
+		Relation::addSymbol(relation_type_words[i]);
+	}
+}
+
 bool Relation::operator<(const Relation &r) const{
 	if (head_ < r.head_) {
 		return true;
