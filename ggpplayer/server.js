@@ -102,9 +102,10 @@ http.createServer(function (req, res) {
         case 'start' :
             fs.writeFileSync('gdl/rule.txt', request.rule);
             ggp.game = request.id;
+            ggp.rule = request.rule;
             ggp.res = res;
             ggp.move = null;
-            ggp.message = null;
+            ggp.state = null;
             ggp.buffer = '';
             ggp.data_length = null;
             ggp.playclock = request.playclock;
@@ -131,14 +132,26 @@ http.createServer(function (req, res) {
             ggp.exe.stdin.write(request.id + '\n');
             ggp.exe.stdin.write(request.role + '\n');
             ggp.exe.stdin.write(request.playclock + '\n');
+            for (var i = 0; i < clients.length; ++i) {
+                if (!clients[i].game) {
+                    clients[i].game = ggp.game;
+                    var msg = 'rule ' + ggp.rule;
+                    clients[i].sock.write(msg.length + ' ' + msg);
+                }
+            }
             break;
         case 'play' :
             if (ggp.exe) {
                 console.log('ggp in: ' + request.move);
                 ggp.exe.stdin.write("server " + request.move + '\n');
             }
+            ggp.timer = setTimeout(function() {
+                console.log('move: ' + ggp.move);
+                ggp.res.end(ggp.move);
+            });
             break;
         case 'stop' :
+            ggp.exe.kill('SIGKILL');
             ggp.exe = null;
             res.end('done');
             break;
@@ -181,10 +194,17 @@ function handleExeMessage(message) {
     var i = message.indexOf(' ');
     var cmd = message.substring(0, i);
     message = message.substring(i + 1);
-    if (cmd === 'server') {
+    if (cmd === 'move') {
         ggp.move = message;
-    } else if (cmd === 'client') {        
-        ggp.message = message;
+    } else if (cmd === 'state') {        
+        ggp.state = message;
+        for (var i = 0; i < clients.length; ++i) {
+            if (clients[i].game === ggp.game && !clients[i].state) {
+                clients[i].state = ggp.state;
+                var msg = 'state ' + clients[i].state;
+                clients[i].sock.write(msg.length + ' ' + msg);
+            }
+        }
     } else if (cmd === 'debug') {
         //console.log('ggp debug: ' + message);
     }
@@ -219,27 +239,38 @@ function receiveClientData(client, data) {
 
 function handleClientMessage(client, message) {
     var i = message.indexOf(' ');
-    var game = message.substring(0, i);
-    message = message.substring(i + 1);
-    if (game === ggp.game) {
-        ggp.exe.stdin.write("client " + message + '\n');
+    var cmd = message.substring(0, i);
+    var message = message.substring(i + 1);
+    if (!ggp.exe) {
+        client.game = null;
+        client.state = null;
+    } else if (client.game === ggp.game) {
+        if (cmd === 'uct') {
+            ggp.exe.stdin.write('client ' + client.state + ';' + message + '\n');
+        }
+        if (ggp.state) {
+            client.state = ggp.state;
+            var msg = 'state ' + ggp.state;
+            client.sock.write(msg.length + ' ' + msg);
+        }
+    } else {
+        client.game = ggp.game;
+        var msg = 'rule ' + ggp.rule;
+        client.sock.write(msg.length + ' ' + msg);
     }
-    var msg = ggp.game + " " + ggp.message;
-    client.sock.write(msg.length + " " + msg);
 }
 
 var server = net.createServer(function (sock) {
-    sock.on('connect', function() {
-        var client = {};
-        client.sock = sock;
-        client.free = true;
-        client.rule = '';
-        client.state = '';
-        client.buffer = '';
-        client.data_length = null;
-        clients.push(client);
-    });
+    var client = {};
+    client.sock = sock;
+    client.game = '';
+    client.state = '';
+    client.buffer = '';
+    client.data_length = null;
+    clients.push(client);
+    console.log('connected ' + sock.remoteAddress);
     sock.on('data', function(data) {
+        console.log('data: ' + data);
         for (var i = 0; i < clients.length; ++i) {
             if (clients[i].sock === sock) {
                 receiveData(clients[i], data);
@@ -248,6 +279,7 @@ var server = net.createServer(function (sock) {
         }
     });
     sock.on('close', function(has_err) {
+        console.log('close ' + sock.remoteAddress);
         var client = null;
         for (var i = 0; i < clients.length; ++i) {
             if (clients[i].sock === sock) {
@@ -257,6 +289,12 @@ var server = net.createServer(function (sock) {
             }
         }
     });
+    if (ggp.exe) {
+        client.game = ggp.game;
+        client.rule = ggp.rule;
+        var msg = 'rule ' + client.rule;
+        sock.write(msg.length + " " + msg);
+    }
 });
 
 server.listen(10000);
