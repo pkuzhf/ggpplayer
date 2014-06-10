@@ -15,19 +15,20 @@ using namespace std;
 
 class Client {
 public:
+
 #ifdef WIN
 	SOCKET socket_;
+	int connectServer();
+	void sendMessage(string msg);
+#endif
+
 	string buffer_;
 	int length_;
-	string game_;
 	MonteCarloPlayer player_;
 
 	Client();
-	int connectServer();
 	void receiveData(string data);
 	void handleMessage(string msg);
-	void sendMessage(string msg);
-#endif
 	static string message(string cmd, string content);
 };
 

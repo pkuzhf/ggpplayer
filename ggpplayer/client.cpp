@@ -12,7 +12,6 @@ using namespace std;
 Client::Client():player_() {
 	length_ = -1;
 }
-
 string Client::message(string cmd, string content) {
 	ostringstream ret;
 	ret << cmd.size() + 1 + content.size();
@@ -24,6 +23,7 @@ string Client::message(string cmd, string content) {
 }
 
 #ifdef WIN
+
 int Client::connectServer() {
 	WSADATA wsaData;
 	SOCKADDR_IN ServerAddr;
@@ -67,6 +67,13 @@ int Client::connectServer() {
 	closesocket(socket_);
 	WSACleanup();
 }
+
+void Client::sendMessage(string msg) {
+	send(socket_, msg.c_str(), msg.size(), 0);
+	cout << "send: " + msg << endl;
+}
+
+#endif
 
 void Client::receiveData(string data) {
 	if (length_ == -1) {
@@ -132,9 +139,3 @@ void Client::handleMessage(string msg) {
 	}
 }
 
-void Client::sendMessage(string msg) {
-	send(socket_, msg.c_str(), msg.size(), 0);
-	cout << "send: " + msg << endl;
-}
-
-#endif
