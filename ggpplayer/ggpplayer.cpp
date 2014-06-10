@@ -75,8 +75,8 @@ int main() {
 	}*/	
 		
 	cin.getline(buf, 10000);
-	cout << Client::message("client", Proposition::propsToStr(player.current_state_));
-	cout << Client::message("server", player.getRandomMove().items_[1].toString());
+	cout << Client::message("state", Proposition::propsToStr(player.current_state_));
+	cout << Client::message("move", player.getRandomMove().items_[1].toString());
 
 	while (true) {				
 		cin.getline(buf, 10000);
@@ -102,8 +102,8 @@ int main() {
 			}
 			//Proposition move = player.stateMachineSelectMove(playclock);
 			//cout << move.items_[1].toString() << endl;
-			cout << Client::message("server", player.getRandomMove().items_[1].toString());
-			cout << Client::message("client", Proposition::propsToStr(player.selectLeafNode()->state_));
+			cout << Client::message("move", player.getRandomMove().items_[1].toString());
+			cout << Client::message("state", Proposition::propsToStr(player.selectLeafNode()->state_));
 		} else if (cmd == "client") {
 			char * semi = strstr(space + 1, ";");
 			if (semi == NULL) continue;
@@ -113,8 +113,8 @@ int main() {
 			Propositions state;
 			state_reader.getPropositions(state);
 			player.updateTree(state, string(semi + 1));
-			cout << Client::message("server", player.getBestMove().items_[1].toString());
-			cout << Client::message("client", Proposition::propsToStr(player.selectLeafNode()->state_));
+			cout << Client::message("move", player.getBestMove().items_[1].toString());
+			cout << Client::message("state", Proposition::propsToStr(player.selectLeafNode()->state_));
 		}
 	}
 	return 0;

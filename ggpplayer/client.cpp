@@ -96,18 +96,18 @@ void Client::receiveData(string data) {
 void Client::handleMessage(string msg) {
 	cout << msg << endl;
 	int i = 0;
-	while (msg[i] != ' ' && i < msg.size()) ++i;
+	while (i < msg.size() && msg[i] != ' ') ++i;
 	if (i < msg.size()) {
 		string game = msg.substr(0, i);
 		msg = msg.substr(i + 1);
 		i = 0;
-		while (msg[i] != ' ' && i < msg.size()) ++i;
+		while (i < msg.size() && msg[i] != ' ') ++i;
 		if (i < msg.size()) {
 			string cmd = msg.substr(0, i);
 			msg = msg.substr(i + 1);
 			i = 0;
 			if (cmd == "rule") {
-				while (msg[i] != ' ' && i < msg.size()) ++i;
+				while (i < msg.size() && msg[i] != ' ') ++i;
 				if (i < msg.size()) {
 					string role = msg.substr(0, i);
 					Relation::initSymbolTable();
@@ -116,6 +116,7 @@ void Client::handleMessage(string msg) {
 					Relations rs;
 					rule_reader.getRelations(rs);
 					player_ = MonteCarloPlayer(rs, role);
+					sendMessage(message("ready", ""));
 				}
 			} else if (cmd == "state") {
 				Reader state_reader;
@@ -124,7 +125,7 @@ void Client::handleMessage(string msg) {
 				state_reader.getPropositions(state);
 				player_.setState(state);
 				player_.uct(CLOCKS_PER_SEC * 2);
-				sendMessage(game + " " + Proposition::propsToStr(player_.current_state_) + ";" + player_.root_.toString());
+				sendMessage(message("uct", player_.root_.toString()));
 			}
 		}
 
@@ -132,9 +133,7 @@ void Client::handleMessage(string msg) {
 }
 
 void Client::sendMessage(string msg) {
-	ostringstream m;
-	m << msg.size() << " " << msg;
-	send(socket_, m.str().c_str(), m.str().size(), 0);
+	send(socket_, msg.c_str(), msg.size(), 0);
 	cout << "send: " + msg << endl;
 }
 
