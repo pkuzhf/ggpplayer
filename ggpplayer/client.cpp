@@ -73,6 +73,15 @@ void Client::sendMessage(string msg) {
 	cout << "send: " + msg << endl;
 }
 
+#else
+
+int Client::connectServer() {
+	return 0;
+}
+void Client::sendMessage(string msg) {
+	cout << "send: " + msg << endl;
+}
+
 #endif
 
 void Client::receiveData(string data) {
