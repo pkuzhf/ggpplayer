@@ -59,7 +59,7 @@ int main() {
 	cin.getline(buf, 10000);
 	int playclock = (atoi(buf) - 2) * CLOCKS_PER_SEC;
 
-	MonteCarloPlayer player(rs, string(buf));   // montecarlo player
+	MonteCarloPlayer player(rs, role);   // montecarlo player
 	// check montecarlo player
 	/*MonteCarloPlayer Mplayer1(rs, 0);
 	MonteCarloPlayer Mplayer2(rs, 1);
