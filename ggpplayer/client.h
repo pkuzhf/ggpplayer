@@ -1,7 +1,6 @@
 #ifndef CONNECT_H
 #define CLIENT_H
 
-#define WIN
 
 #include <string>
 #include "montecarloplayer.h"

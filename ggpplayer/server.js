@@ -144,14 +144,17 @@ http.createServer(function (req, res) {
             if (ggp.exe) {
                 console.log('ggp in: ' + request.move);
                 ggp.exe.stdin.write("server " + request.move + '\n');
+                ggp.res = res;
+                ggp.timer = setTimeout(function() {
+                    console.log('move: ' + ggp.move);
+                    ggp.res.end(ggp.move);
+                }, ggp.playclock - 2);
             }
-            ggp.timer = setTimeout(function() {
-                console.log('move: ' + ggp.move);
-                ggp.res.end(ggp.move);
-            });
             break;
         case 'stop' :
-            ggp.exe.kill('SIGKILL');
+            if (ggp.exe) {
+                ggp.exe.kill('SIGKILL');
+            }
             ggp.exe = null;
             res.end('done');
             break;

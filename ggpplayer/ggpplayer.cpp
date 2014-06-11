@@ -1,4 +1,3 @@
-#define CLIENT
 
 #include <iostream>
 #include <fstream>
