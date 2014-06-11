@@ -156,12 +156,16 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 		for (int j = 0; j < root_.sons_[i].size() && !found; ++j) {
 			if (root_.sons_[i][j].state_ == current_state_) {
 				root_ = root_.sons_[i][j];
+				root_.parent_ = NULL;
 				found = true;
 			}
 		}
 	}
 	if (!found) {
-		cout << Client::message("debug", "node not found error");
+		root_ = Node();
+		root_.state_ = current_state;
+		root_.is_terminal_ = is_terminal_;
+		//cout << Client::message("debug", "node not found error");
 	}
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
