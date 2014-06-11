@@ -32,24 +32,30 @@ int main() {
 	srand(time(0));
 	Relation::initSymbolTable();
 	Reader r;
-	if (!r.readFile("gdl/rule.txt")) {
+	//if (!r.readFile("gdl/rule.txt")) {
 	//if (!r.readFile("gdl/connect_four.txt")) {
-	//if (!r.readFile("gdl/2pffa_zerosum.kif")) {
+	if (!r.readFile("gdl/2pffa_zerosum.kif")) {
 		cout << Client::message("debug", "read file failed.");
         return -1;
     }
-	char buf[100000];
-	cin.getline(buf, 100000);
-	//r.readLine(buf);
 	Relations rs;
 	r.getRelations(rs);
 	StateMachine machine(rs);
+	machine.randomGo(clock() + 100000);
+
+	char buf[100000];
+	cin.getline(buf, 100000);
+	//r.readLine(buf);
+	//Relations rs;
+	//r.getRelations(rs);
+	//StateMachine machine(rs);
+
 	for (int i = 0; i < Prover::time.size(); ++i) {
 		ostringstream msg;
 		msg << "time" << i << ": " << Prover::time[i];
 		cout << Client::message("debug", msg.str());
 	}
-	//machine.randomGo(clock() + 100000);
+	
 	cin.getline(buf, 10000);
 	string game = string(buf);
 

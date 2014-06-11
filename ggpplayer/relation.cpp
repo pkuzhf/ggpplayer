@@ -94,24 +94,36 @@ Proposition Proposition::strToProp(string s) {
 	int size = s.size();
 	while (i < size && s[i] == ' ') ++i;
 	int start = i;
-	while (i < size && s[i] != ' ') ++i;
-	ret.head_ = Relation::symbol2code[s.substr(start, i - start)];
-	while (i < size) {
+	if (s[start] == '(') {
+		i = start + 1;
 		while (i < size && s[i] == ' ') ++i;
-		if (i == size) break;
-		int start = i;
-		if (s[i] == '(') {
-			int bracket_count = 0;
-			do {
-				if (s[i] == '(') ++bracket_count;
-				if (s[i] == ')') --bracket_count;				
-				++i;
-			} while (i < size && bracket_count > 0);
-			ret.items_.push_back(strToProp(s.substr(start + 1, i - start - 2)));
-		} else {
-			while (i < size && s[i] != ' ') ++i;
+		start = i;
+		while (i < size && s[i] != ' ') ++i;
+		ret.head_ = Relation::symbol2code[s.substr(start, i - start)];
+		while (true) {
+			while (i < size && s[i] == ' ') ++i;
+			if (i == size || s[i] == ')') break;
+			int start = i;
+			if (s[start] == '(') {
+				int bracket_count = 0;
+				do {
+					if (s[i] == '(') ++bracket_count;
+					if (s[i] == ')') --bracket_count;				
+					++i;
+				} while (i < size && bracket_count > 0);
+			} else {
+				while (i < size && s[i] != ' ') ++i;
+			}
 			ret.items_.push_back(strToProp(s.substr(start, i - start)));
-		}		
+		}
+	} else {
+		while (i < size && s[i] != ' ') ++i;
+		ret.head_ = Relation::symbol2code[s.substr(start, i - start)];
+	}
+	if (Relation::code2symbol[ret.head_][0] == '?') {
+		ret.is_variable_ = true;
+	} else {
+		ret.is_variable_ = false;
 	}
 	return ret;
 }
@@ -238,7 +250,7 @@ void Proposition::replaceVariables(vector<int> &variables, vector<int> &values) 
 				break;
 			}
 		}
-		if (head_ < Relation::symbol_table_size) {
+		if (value < Relation::symbol_table_size) {
 			head_ = value;
 		} else {
 			Proposition p = strToProp(Relation::code2symbol[value]);

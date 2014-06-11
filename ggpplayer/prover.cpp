@@ -569,14 +569,6 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 							not_combinations.push_back(getCombination(d.variables_, variables, values));
 						}
 					}
-					/*vector<int> &ps2 = head_statics_[subgoal.items_[0].head_];
-					for (int ii = 0; ii < ps2.size(); ++ii) {
-						vector<int> variables;
-						vector<int> values;
-						if (statics_[ps2[ii]].matches(subgoal.items_[0], variables, values)) {
-							not_combinations.push_back(getCombination(d.variables_, variables, values));
-						}
-					}*/
 					if (not_combinations.size() > 0) {
 						multiple_not_combinations.push_back(not_combinations);
 					}														
@@ -613,15 +605,6 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 							combinations.push_back(getCombination(d.variables_, variables, values));							
 						}						
 					}
-					vector<int> &ps2 = head_statics_[subgoal.head_];					
-					//for (int ii = 0; ii < ps2.size(); ++ii) { // scan all true props to generate var-value maps						
-					//	Proposition &p = statics_[ps2[ii]];
-					//	vector<int> variables;
-					//	vector<int> values;
-					//	if (subgoal.matches(p, variables, values)) {							
-					//		combinations.push_back(getCombination(d.variables_, variables, values));							
-					//	}						
-					//}
 					if (combinations.size() == 0) { // size of combinations should be greater than 0
 						impossible = true;						
 						break;
@@ -717,10 +700,10 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 			}
 		}				
 	}	
-	/*vector<string> output;
+	vector<string> output;
 	for (int i = 0; i < true_props.size(); ++i) {
 		output.push_back(true_props[i].toRelation().toString());
-	}*/	
+	}	
 	true_props_size = true_props.size();	
 	time[1] += clock() - s1;
 }

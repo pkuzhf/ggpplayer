@@ -77,7 +77,7 @@ Node * MonteCarloPlayer::selectLeafNode() {
 		int rand_joint_move = rand() % node->sons_[best_move].size();
 		node = &node->sons_[best_move][rand_joint_move];
 		if (node->state_.size() == 0){				
-			state_machine_.setState(node->parent_->state_);				
+			state_machine_.setState(node->parent_->state_);	
 			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, best_move)[rand_joint_move]);						
 			node->state_ = state_machine_.trues_;
 			node->is_terminal_ = state_machine_.is_terminal_;

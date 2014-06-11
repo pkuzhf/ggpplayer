@@ -114,37 +114,30 @@ void Client::handleMessage(string msg) {
 	int i = 0;
 	while (i < msg.size() && msg[i] != ' ') ++i;
 	if (i < msg.size()) {
-		string game = msg.substr(0, i);
+		string cmd = msg.substr(0, i);
 		msg = msg.substr(i + 1);
-		i = 0;
-		while (i < msg.size() && msg[i] != ' ') ++i;
-		if (i < msg.size()) {
-			string cmd = msg.substr(0, i);
-			msg = msg.substr(i + 1);
+		if (cmd == "rule") {
 			i = 0;
-			if (cmd == "rule") {
-				while (i < msg.size() && msg[i] != ' ') ++i;
-				if (i < msg.size()) {
-					string role = msg.substr(0, i);
-					Relation::initSymbolTable();
-					Reader rule_reader;
-					rule_reader.file_content_ = msg.substr(i + 1);
-					Relations rs;
-					rule_reader.getRelations(rs);
-					player_ = MonteCarloPlayer(rs, role);
-					sendMessage(message("ready", ""));
-				}
-			} else if (cmd == "state") {
-				Reader state_reader;
-				state_reader.file_content_ = msg.substr(i + 1);
-				Propositions state;
-				state_reader.getPropositions(state);
-				player_.setState(state);
-				player_.uct(CLOCKS_PER_SEC * 2);
-				sendMessage(message("uct", player_.root_.toString()));
+			while (i < msg.size() && msg[i] != ' ') ++i;
+			if (i < msg.size()) {
+				string role = msg.substr(0, i);
+				Relation::initSymbolTable();
+				Reader rule_reader;
+				rule_reader.file_content_ = msg.substr(i + 1);
+				Relations rs;
+				rule_reader.getRelations(rs);
+				player_ = MonteCarloPlayer(rs, role);
+				sendMessage(message("ready", ""));
 			}
+		} else if (cmd == "state") {
+			Reader state_reader;
+			state_reader.file_content_ = msg.substr(i + 1);
+			Propositions state;
+			state_reader.getPropositions(state);
+			player_.setState(state);
+			player_.uct(CLOCKS_PER_SEC * 2);
+			sendMessage(message("uct", player_.root_.toString()));
 		}
-
 	}
 }
 
