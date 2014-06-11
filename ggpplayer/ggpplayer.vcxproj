@@ -76,6 +76,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="client.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="dependgraph.h" />
     <ClInclude Include="montecarloplayer.h" />
     <ClInclude Include="node.h" />

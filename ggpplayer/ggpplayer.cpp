@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -16,6 +15,7 @@
 #include "statemachine.h"
 #include "montecarloplayer.h"
 #include "client.h"
+#include "config.h"
 
 using namespace std;
 

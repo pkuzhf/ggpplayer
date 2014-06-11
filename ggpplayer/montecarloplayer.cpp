@@ -163,7 +163,7 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 	}
 	if (!found) {
 		root_ = Node();
-		root_.state_ = current_state;
+		root_.state_ = current_state_;
 		root_.is_terminal_ = is_terminal_;
 		//cout << Client::message("debug", "node not found error");
 	}
