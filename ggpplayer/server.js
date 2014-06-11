@@ -118,7 +118,7 @@ http.createServer(function (req, res) {
             ggp.exe = spawn('./ggp');
             ggp.exe.stdout.on('data', function (data) {
                 data = String(data);
-                console.log('ggp out: ' + data);
+                //console.log('ggp out: ' + data);
                 receiveExeData(data);
             });
             ggp.exe.on('exit', function(code) {
@@ -146,8 +146,11 @@ http.createServer(function (req, res) {
                 ggp.exe.stdin.write("server " + request.move + '\n');
                 ggp.res = res;
                 ggp.timer = setTimeout(function() {
-                    console.log('move: ' + ggp.move);
-                    ggp.res.end(ggp.move);
+                    if (ggp.move) {
+                        console.log('move: ' + ggp.move);
+                        ggp.res.end(ggp.move);
+                    }
+                    ggp.move = null;
                 }, ggp.playclock - 2);
             }
             break;
@@ -193,7 +196,7 @@ function receiveExeData(data) {
 }
 
 function handleExeMessage(message) { 
-    console.log('handleExeMessage: ' + message);
+    //console.log('handleExeMessage: ' + message);
     var i = message.indexOf(' ');
     var cmd = message.substring(0, i);
     message = message.substring(i + 1);
