@@ -50,11 +50,9 @@ Proposition MonteCarloPlayer::getBestMove() {
 void MonteCarloPlayer::setState(Propositions state) {
 	current_state_ = state;
 	is_terminal_ = false;
-	if (root_.state_ != state) {
-		root_ = Node();
-		root_.state_ = current_state_;
-		root_.is_terminal_ = is_terminal_;
-	}
+	root_ = Node();
+	root_.state_ = current_state_;
+	root_.is_terminal_ = is_terminal_;
 }
 
 Node * MonteCarloPlayer::selectLeafNode() {

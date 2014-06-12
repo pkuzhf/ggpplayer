@@ -85,6 +85,7 @@ int main() {
 	cout << Client::message("move", player.getRandomMove().items_[1].toString());
 
 	while (true) {				
+		cout << Client::message("debug", "waiting for message");
 		cin.getline(buf, buf_size);
 		cout << Client::message("debug", string(buf));
 		char * space = strstr(buf, " ");
