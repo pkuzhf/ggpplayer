@@ -131,7 +131,7 @@ void Client::handleMessage(string msg) {
 			}
 		} else if (cmd == "state") {
 			Reader state_reader;
-			state_reader.file_content_ = msg.substr(i + 1);
+			state_reader.file_content_ = msg;
 			Propositions state;
 			state_reader.getPropositions(state);
 			player_.setState(state);

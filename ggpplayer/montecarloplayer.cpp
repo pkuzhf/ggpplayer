@@ -62,6 +62,7 @@ Node * MonteCarloPlayer::selectLeafNode() {
 	bool stop = false;
 	while (!node->is_terminal_ && !stop) {
 		if (node->sons_.size() == 0) {
+			state_machine_.setState(node->state_);
 			int move_size = state_machine_.getLegalMoves(role_num_).size();
 			for (int i = 0; i < move_size; i++) {
 				vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_num_, i);
@@ -91,7 +92,7 @@ int MonteCarloPlayer::getBestMoveOfNode(Node * node) {
 	int max = 0;
 	double maxscore = 0;
 	for (int i = 0; i < node->sons_.size(); i++) {
-		vector<Node> nodes = root_.sons_[i];
+		vector<Node> nodes = node->sons_[i];
 		double total_score = 0;
 		for (int j = 0; j < nodes.size(); j++) {
 			total_score += nodes[j].getScore();
