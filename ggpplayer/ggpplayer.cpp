@@ -117,6 +117,7 @@ int main() {
 			state_reader.file_content_ = string(space + 1);
 			Propositions state;
 			state_reader.getPropositions(state);
+			cout << Client::message("debug uct", string(semi + 1));
 			player.updateTree(state, string(semi + 1));
 			cout << Client::message("move", player.getBestMove().items_[1].toString());
 			cout << Client::message("state", Proposition::propsToStr(player.selectLeafNode()->state_));
