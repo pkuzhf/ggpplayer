@@ -103,12 +103,13 @@ http.createServer(function (req, res) {
             fs.writeFileSync('gdl/rule.txt', request.rule);
             ggp.game = request.id;
             ggp.rule = request.rule;
+            ggp.playclock = request.playclock;
+            ggp.role = request.role;
             ggp.res = res;
             ggp.move = null;
             ggp.state = null;
             ggp.buffer = '';
             ggp.data_length = null;
-            ggp.playclock = request.playclock;
             ggp.timer = setTimeout(function() {
                 ggp.res.end('ready');
             }, request.startclock - 2);
@@ -135,7 +136,7 @@ http.createServer(function (req, res) {
             for (var i = 0; i < clients.length; ++i) {
                 if (!clients[i].game) {
                     clients[i].game = ggp.game;
-                    var msg = 'rule ' + ggp.rule;
+                    var msg = 'rule ' + ggp.role + ' ' + ggp.rule;
                     clients[i].sock.write(msg.length + ' ' + msg);
                 }
             }
@@ -149,9 +150,11 @@ http.createServer(function (req, res) {
                     if (ggp.move) {
                         console.log('move: ' + ggp.move);
                         ggp.res.end(ggp.move);
+                    } else {
+                        console.log('no move');
                     }
                     ggp.move = null;
-                }, ggp.playclock - 2);
+                }, (ggp.playclock - 2) * 1000);
             }
             break;
         case 'stop' :
@@ -196,7 +199,7 @@ function receiveExeData(data) {
 }
 
 function handleExeMessage(message) { 
-    //console.log('handleExeMessage: ' + message);
+    console.log('handleExeMessage: ' + message)
     var i = message.indexOf(' ');
     var cmd = message.substring(0, i);
     message = message.substring(i + 1);
@@ -223,7 +226,7 @@ function receiveClientData(client, data) {
             var length = parseInt(data.substring(0, space_pos));
             if (!isNaN(length)) {
                 client.data_length = length;
-                client.buffer = data.substring(space_pos + 1);
+                data = data.substring(space_pos + 1);
             } 
         }
     } 
@@ -244,6 +247,7 @@ function receiveClientData(client, data) {
 }
 
 function handleClientMessage(client, message) {
+    console.log('Client Message: ' + message);
     var i = message.indexOf(' ');
     var cmd = message.substring(0, i);
     var message = message.substring(i + 1);
@@ -261,7 +265,7 @@ function handleClientMessage(client, message) {
         }
     } else {
         client.game = ggp.game;
-        var msg = 'rule ' + ggp.rule;
+        var msg = 'rule ' + ggp.role + ' ' + ggp.rule;
         client.sock.write(msg.length + ' ' + msg);
     }
 }
@@ -276,10 +280,9 @@ var server = net.createServer(function (sock) {
     clients.push(client);
     console.log('connected ' + sock.remoteAddress);
     sock.on('data', function(data) {
-        console.log('data: ' + data);
         for (var i = 0; i < clients.length; ++i) {
             if (clients[i].sock === sock) {
-                receiveData(clients[i], data);
+                receiveClientData(clients[i], String(data));
                 break;
             }
         }
@@ -297,8 +300,7 @@ var server = net.createServer(function (sock) {
     });
     if (ggp.exe) {
         client.game = ggp.game;
-        client.rule = ggp.rule;
-        var msg = 'rule ' + client.rule;
+        var msg = 'rule ' + ggp.role + ' ' + ggp.rule;
         sock.write(msg.length + " " + msg);
     }
 });
