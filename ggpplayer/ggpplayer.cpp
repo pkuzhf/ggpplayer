@@ -40,11 +40,6 @@ int main() {
     }
 	Relations rs;
 	r.getRelations(rs);
-
-	if (Relation::code2symbol[6] == Relation::code2symbol[58]) {
-		return -1;
-	}
-
 	StateMachine machine(rs);
 	//machine.randomGo(clock() + 100000);
 
