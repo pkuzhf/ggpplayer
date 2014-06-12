@@ -87,6 +87,7 @@ int main() {
 	while (true) {				
 		cout << Client::message("debug", "waiting for message");
 		cin.getline(buf, buf_size);
+		cout << Client::message("debug", "message received");
 		cout << Client::message("debug", string(buf));
 		char * space = strstr(buf, " ");
 		if (space == NULL) continue;
