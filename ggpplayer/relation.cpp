@@ -131,7 +131,7 @@ Proposition Proposition::strToProp(string s) {
 string Proposition::propsToStr(Propositions ps) {
 	string ret = "";
 	for (int i = 0; i < ps.size(); ++i) {
-		ret += "(" + ps[i].toString() + ")";
+		ret += ps[i].toString() + " ";
 	}
 	return ret;
 }

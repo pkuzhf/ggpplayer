@@ -83,7 +83,7 @@ Relation Reader::getRelation(const string &s) {
 }
 
 bool Reader::fetch(const string &s, int &start, string &result) {
-	while (start < s.size() && s[start] <= ' ') { // s maybe contain ascii 9...
+	while (start < s.size() && s[start] <= ' ') { // s may contain ascii 9...
 		++start;
 	}
 	if (start >= s.size() || s[start] == ')') {
@@ -109,7 +109,7 @@ bool Reader::fetch(const string &s, int &start, string &result) {
 		return false;
 	} else {
 		int i = start;
-		while (i < s.size() && s[i] != ' ' && s[i] != '(' && s[i] != ')' && s[i] != '\r' && s[i] != '\n') {
+		while (i < s.size() && s[i] != ' ' && s[i] != '(' && s[i] != ')' && s[i] != '\r' && s[i] != '\n' && s[i] != '\t') {
 			++i;
 		}
 		result = s.substr(start, i - start);
