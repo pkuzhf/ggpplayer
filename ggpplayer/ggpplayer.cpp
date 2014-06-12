@@ -43,8 +43,9 @@ int main() {
 	StateMachine machine(rs);
 	//machine.randomGo(clock() + 100000);
 
-	char buf[100000];
-	cin.getline(buf, 100000);
+	int buf_size = 100000
+	char buf[buf_size];
+	cin.getline(buf, buf_size);
 	//r.readLine(buf);
 	//Relations rs;
 	//r.getRelations(rs);
@@ -56,13 +57,13 @@ int main() {
 		cout << Client::message("debug", msg.str());
 	}*/
 	
-	cin.getline(buf, 10000);
+	cin.getline(buf, buf_size);
 	string game = string(buf);
 
-    cin.getline(buf, 10000);
+    cin.getline(buf, buf_size);
 	string role = string(buf);
 
-	cin.getline(buf, 10000);
+	cin.getline(buf, buf_size);
 	int playclock = (atoi(buf) - 2) * CLOCKS_PER_SEC;
 
 	MonteCarloPlayer player(rs, role);   // montecarlo player
@@ -79,12 +80,13 @@ int main() {
 		cout<<"real moves:"<< moves[1].toString()<<endl;
 	}*/	
 		
-	cin.getline(buf, 10000);
+	cin.getline(buf, buf_size);
 	cout << Client::message("state", Proposition::propsToStr(player.current_state_));
 	cout << Client::message("move", player.getRandomMove().items_[1].toString());
 
 	while (true) {				
-		cin.getline(buf, 10000);
+		cin.getline(buf, buf_size);
+		cout << Client::message("debug", string(buf));
 		char * space = strstr(buf, " ");
 		if (space == NULL) continue;
 		*space = '\0';
