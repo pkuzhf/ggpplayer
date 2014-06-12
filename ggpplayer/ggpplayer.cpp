@@ -32,8 +32,8 @@ int main() {
 	srand(time(0));
 	Relation::initSymbolTable();
 	Reader r;
-	//if (!r.readFile("gdl/rule.txt")) {
-	if (!r.readFile("gdl/tic_tac_toe.txt")) {
+	if (!r.readFile("gdl/rule.txt")) {
+	//if (!r.readFile("gdl/tic_tac_toe.txt")) {
 	//if (!r.readFile("gdl/2pffa_zerosum.kif")) {
 		cout << Client::message("debug", "read file failed.");
         return -1;
