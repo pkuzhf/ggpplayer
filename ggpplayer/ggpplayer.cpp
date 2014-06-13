@@ -113,6 +113,18 @@ int main() {
 			Propositions state;
 			state_reader.getPropositions(state);			
 			player.updateTree(state, string(semi + 1));
+			ostringstream o;
+			o << "(" << player.root_.points_ << "/" << player.root_.attemps_ << ") ";
+			for (int i = 0; i < player.root_.sons_.size(); ++i) {
+				int score;
+				int attemps;
+				for (int j = 0; j < player.root_.sons_[i].size(); ++j) {
+					score += player.root_.sons_[i][j].points_;
+					attemps += player.root_.sons_[i][j].attemps_;
+				}
+				o << score << "/" << attemps << " ";
+			}
+			cerr << Client::message("debug", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
 			cerr << Client::message("state", Proposition::propsToStr(player.selectLeafNode()->state_));
 		}

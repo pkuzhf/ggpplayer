@@ -18,10 +18,7 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 		return;
 	}
 	Node * node = state_node_[state];
-	cerr << Client::message("debug node", node->toString());
-	cerr << Client::message("debug tree", tree);
 	node->update(tree);
-	cerr << Client::message("debug node", node->toString());
 }
 
 MonteCarloPlayer::MonteCarloPlayer(){}
@@ -51,8 +48,9 @@ Proposition MonteCarloPlayer::getBestMove() {
 }
 
 void MonteCarloPlayer::setState(Propositions state) {
+	state_machine_.setState(state);
 	current_state_ = state;
-	is_terminal_ = false;
+	is_terminal_ = state_machine_.is_terminal_;
 	state_node_.clear();
 	root_ = Node();
 	root_.state_ = current_state_;
