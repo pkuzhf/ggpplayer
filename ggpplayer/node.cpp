@@ -27,7 +27,7 @@ Node::Node(Node * p) {
 
 double Node::getScore() {
 	int c = 1;
-	int max_score = 100;
+	int max_score = 101;
 	if (attemps_ == 0) {
 		return max_score;
 	} else if (parent_ != NULL) {
