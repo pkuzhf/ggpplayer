@@ -53,6 +53,7 @@ Proposition MonteCarloPlayer::getBestMove() {
 void MonteCarloPlayer::setState(Propositions state) {
 	current_state_ = state;
 	is_terminal_ = false;
+	state_node_.clear();
 	root_ = Node();
 	root_.state_ = current_state_;
 	root_.is_terminal_ = is_terminal_;
@@ -154,16 +155,17 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 	current_state_ = state_machine_.trues_;
 	is_terminal_ = state_machine_.is_terminal_;
 	bool found = false;
-	for (int i = 0; i < root_.sons_.size() && !found; ++i) {
-		for (int j = 0; j < root_.sons_[i].size() && !found; ++j) {
-			if (root_.sons_[i][j].state_ == current_state_) {
-				root_ = root_.sons_[i][j];
-				root_.parent_ = NULL;
-				found = true;
-			}
-		}
-	}
+	//for (int i = 0; i < root_.sons_.size() && !found; ++i) {
+	//	for (int j = 0; j < root_.sons_[i].size() && !found; ++j) {
+	//		if (root_.sons_[i][j].state_ == current_state_) {
+	//			root_ = root_.sons_[i][j];
+	//			root_.parent_ = NULL;
+	//			found = true;
+	//		}
+	//	}
+	//}
 	if (!found) {
+		state_node_.clear();
 		root_ = Node();
 		root_.state_ = current_state_;
 		root_.is_terminal_ = is_terminal_;
