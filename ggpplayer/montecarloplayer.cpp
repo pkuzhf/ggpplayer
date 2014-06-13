@@ -110,13 +110,15 @@ int MonteCarloPlayer::getBestMoveOfNode(Node * node) {
 	double maxscore = 0;
 	for (int i = 0; i < node->sons_.size(); i++) {
 		vector<Node> nodes = node->sons_[i];
-		double total_score = 0;
+		double min_score = 101;
 		for (int j = 0; j < nodes.size(); j++) {
-			total_score += nodes[j].getScore();
+			if (nodes[j].getScore() < min_score) {
+				min_score = nodes[j].getScore();
+			}
 		}
-		if (total_score / nodes.size() > maxscore) {
+		if (min_score > maxscore) {
 			max = i;
-			maxscore = total_score / nodes.size();
+			maxscore = min_score;
 		}					
 	}
 	return max;
