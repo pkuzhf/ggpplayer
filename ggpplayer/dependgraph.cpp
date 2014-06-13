@@ -185,7 +185,7 @@ int DependGraph::findZeroIn(vector<vector<int> > & edges_in_, vector<vector<int>
 		if(MARK[i] == false){
 			b = true;
 			if(edges_in_[i].size() == 0){
-				//cout<< nodes_[i][0]<<endl;
+				//cerr<< nodes_[i][0]<<endl;
 				return i;
 			}
 		}

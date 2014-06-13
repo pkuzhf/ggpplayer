@@ -36,7 +36,7 @@ int Client::connectServer() {
 
 	socket_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if ( socket_ == INVALID_SOCKET ) {
-		cout << "Create Socket Failed::" << GetLastError() <<endl;
+		cerr << "Create Socket Failed::" << GetLastError() <<endl;
 		return -1;
 	}
 
@@ -47,7 +47,7 @@ int Client::connectServer() {
 
 	int Ret = connect(socket_, (SOCKADDR *)&ServerAddr, sizeof(ServerAddr));
 	if ( Ret == SOCKET_ERROR ) {
-		cout << "Connect Error::" << GetLastError() << endl;
+		cerr << "Connect Error::" << GetLastError() << endl;
 		return -1;
 	}
 	
@@ -70,7 +70,7 @@ int Client::connectServer() {
 
 void Client::sendMessage(string msg) {
 	send(socket_, msg.c_str(), msg.size(), 0);
-	cout << "send: " + msg << endl;
+	cerr << "send: " + msg << endl;
 }
 
 #else
@@ -79,7 +79,7 @@ int Client::connectServer() {
 	return 0;
 }
 void Client::sendMessage(string msg) {
-	cout << "send: " + msg << endl;
+	cerr << "send: " + msg << endl;
 }
 
 #endif
@@ -110,7 +110,7 @@ void Client::receiveData(string data) {
 }
 
 void Client::handleMessage(string msg) {
-	cout << msg << endl;
+	cerr << msg << endl;
 	int i = 0;
 	while (i < msg.size() && msg[i] != ' ') ++i;
 	if (i < msg.size()) {

@@ -139,7 +139,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit) {
 	double speed = uct(time_limit);	
 	ostringstream msg;
 	msg << "UCT simu times per second: " << speed;
-	cout << Client::message("debug",  msg.str());	
+	cerr << Client::message("debug",  msg.str());	
 
 	int best_move = getBestMoveOfNode(&root_);
 	return state_machine_.getLegalMoves(role_num_)[best_move];
@@ -164,7 +164,7 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 		root_ = Node();
 		root_.state_ = current_state_;
 		root_.is_terminal_ = is_terminal_;
-		//cout << Client::message("debug", "node not found error");
+		//cerr << Client::message("debug", "node not found error");
 	}
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
