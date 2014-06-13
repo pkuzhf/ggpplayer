@@ -53,6 +53,8 @@ string Node::toString() {
 }
 
 void Node::update(string s) {	
+	cerr << "s: " + s << endl;
+	cerr << "node: " + toString() << endl;
 	int start = 2;
 	int end = start + 1;
 	while (s[end] != ')') ++end;
@@ -62,6 +64,9 @@ void Node::update(string s) {
 	while (s[end] != ')') ++end;
 	attemps_ += atoi(s.substr(start, end - start).c_str());
 	start = end + 1;
+	if (s[start] == ')') {
+		return;
+	}
 	if (sons_.size() == 0) {
 		int i = start;
 		while (s[i] == '(') {
