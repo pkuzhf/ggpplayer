@@ -136,10 +136,6 @@ void Client::handleMessage(string msg) {
 			state_reader.getPropositions(state);
 			player_.setState(state);
 			player_.uct(CLOCKS_PER_SEC * 2);
-			Node node;
-			node.update(player_.root_.toString());
-			cerr << player_.root_.toString() << endl;
-			cout << node.toString() << endl;
 			sendMessage(message("uct", player_.root_.toString()));
 		}
 	}

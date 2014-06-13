@@ -18,10 +18,7 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 		return;
 	}
 	Node * node = state_node_[state];
-	cerr << Client::message("debug node", node->toString());
-	cerr << Client::message("debug tree", tree);
 	node->update(tree);
-	cerr << Client::message("debug node", node->toString());
 }
 
 MonteCarloPlayer::MonteCarloPlayer(){}
@@ -38,11 +35,11 @@ MonteCarloPlayer::MonteCarloPlayer(Relations rs, string role):state_machine_(rs)
 	root_.state_ = current_state_;
 	root_.is_terminal_ = is_terminal_;
 	state_node_[current_state_] = &root_;
+	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
 
 Proposition MonteCarloPlayer::getRandomMove() {
-	state_machine_.setState(current_state_);
-	return state_machine_.getRandomMove(role_num_);
+	return legal_moves_[rand() % legal_moves_.size()];
 }
 
 Proposition MonteCarloPlayer::getBestMove() {
