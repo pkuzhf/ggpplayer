@@ -56,15 +56,9 @@ int main() {
 		msg << "time" << i << ": " << Prover::time[i];
 		cout << Client::message("debug", msg.str());
 	}*/
-	
-	cin.getline(buf, buf_size);
-	string game = string(buf);
 
     cin.getline(buf, buf_size);
 	string role = string(buf);
-
-	cin.getline(buf, buf_size);
-	int playclock = (atoi(buf) - 2) * CLOCKS_PER_SEC;
 
 	MonteCarloPlayer player(rs, role);   // montecarlo player
 	// check montecarlo player
