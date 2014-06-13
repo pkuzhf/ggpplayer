@@ -18,6 +18,8 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 		return;
 	}
 	Node * node = state_node_[state];
+	cerr << Client::message("debug node", node->toString());
+	cerr << Client::message("debug tree", tree);
 	node->update(tree);
 }
 

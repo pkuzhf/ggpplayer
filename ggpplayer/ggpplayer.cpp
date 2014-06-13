@@ -79,10 +79,7 @@ int main() {
 	cerr << Client::message("move", player.getRandomMove().items_[1].toString());
 
 	while (true) {				
-		cerr << Client::message("debug", "waiting for message");
 		cin.getline(buf, buf_size);
-		cerr << Client::message("debug", "message received") << flush;
-		cerr << Client::message("debug", string(buf)) << flush;
 		char * space = strstr(buf, " ");
 		if (space == NULL) continue;
 		*space = '\0';
@@ -114,8 +111,7 @@ int main() {
 			Reader state_reader;
 			state_reader.file_content_ = string(space + 1);
 			Propositions state;
-			state_reader.getPropositions(state);
-			cerr << Client::message("debug uct", string(semi + 1));
+			state_reader.getPropositions(state);			
 			player.updateTree(state, string(semi + 1));
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
 			cerr << Client::message("state", Proposition::propsToStr(player.selectLeafNode()->state_));
