@@ -136,7 +136,7 @@ void Client::handleMessage(string msg) {
 			state_reader.getPropositions(state);
 			player_.setState(state);
 			player_.uct(CLOCKS_PER_SEC * 2);
-			node.update(player_.root_.toString());
+//			node.update(player_.root_.toString());
 			sendMessage(message("uct", player_.root_.toString()));
 		}
 	}

@@ -7,6 +7,7 @@
 #include <sstream>
 #include "dependgraph.h"
 #include "node.h"
+#include "client.h"
 
 using namespace std;
 
@@ -53,8 +54,8 @@ string Node::toString() {
 }
 
 void Node::update(string s) {	
-	cerr << "s: " + s << endl;
-	cerr << "node: " + toString() << endl;
+	cerr << Client::message("debug s: ", s);
+	cerr << Client::message("debug node: ", toString());
 	int start = 2;
 	int end = start + 1;
 	while (s[end] != ')') ++end;
