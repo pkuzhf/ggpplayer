@@ -103,7 +103,7 @@ int main() {
 			//Proposition move = player.stateMachineSelectMove(playclock);
 			//cerr << move.items_[1].toString() << endl;
 			cerr << Client::message("move", player.getRandomMove().items_[1].toString());
-			cerr << Client::message("state", Proposition::propsToStr(player.selectLeafNode()->state_));
+			cerr << Client::message("state", Proposition::propsToStr(player.root_.state_));
 		} else if (cmd == "client") {
 			char * semi = strstr(space + 1, ";");
 			if (semi == NULL) continue;
