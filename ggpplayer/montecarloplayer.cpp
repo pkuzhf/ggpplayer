@@ -19,6 +19,13 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	}
 	Node * node = state_node_[state];
 	node->update(tree);
+	int points = node->points_;
+	int attemps = node->attemps_;
+	while (node->parent_) {
+		node = node->parent_;
+		node->points_ += points;
+		node->attemps_ += attemps;
+	}
 }
 
 MonteCarloPlayer::MonteCarloPlayer(){}
