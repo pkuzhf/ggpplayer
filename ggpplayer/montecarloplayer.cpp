@@ -82,11 +82,16 @@ Node * MonteCarloPlayer::selectLeafNode() {
 			stop = true;
 		}
 		int best_move = getBestMoveOfNode(node);
-		int rand_joint_move = rand() % node->sons_[best_move].size();
-		node = &node->sons_[best_move][rand_joint_move];
+		int joint_move = 0;
+		for (int i = 1; i < node->sons_[best_move].size(); ++i) {
+			if (node->sons_[best_move][i].attemps_ < node->sons_[best_move][joint_move].attemps_) {
+				joint_move = i;
+			}
+		}
+		node = &node->sons_[best_move][joint_move];
 		if (node->state_.size() == 0){				
 			state_machine_.setState(node->parent_->state_);	
-			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, best_move)[rand_joint_move]);						
+			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, best_move)[joint_move]);						
 			node->state_ = state_machine_.trues_;
 			node->is_terminal_ = state_machine_.is_terminal_;
 			state_node_[node->state_] = node;
