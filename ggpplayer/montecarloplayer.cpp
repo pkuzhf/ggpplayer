@@ -21,6 +21,7 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	cerr << Client::message("debug node", node->toString());
 	cerr << Client::message("debug tree", tree);
 	node->update(tree);
+	cerr << Client::message("debug node", node->toString());
 }
 
 MonteCarloPlayer::MonteCarloPlayer(){}
