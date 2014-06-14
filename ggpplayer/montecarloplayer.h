@@ -5,7 +5,7 @@
 #include <set>
 #include <map>
 #include <string>
-#include<cmath>
+#include <cmath>
 #include "dependgraph.h"
 #include "relation.h"
 #include "node.h"
