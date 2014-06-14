@@ -41,7 +41,7 @@ MonteCarloPlayer::MonteCarloPlayer(Relations rs, string role):state_machine_(rs)
 	}
 	root_.state_ = current_state_;
 	root_.is_terminal_ = is_terminal_;
-	state_node_[current_state_] = &root_;
+	state_node_[root_.state_] = &root_;
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
 
@@ -58,7 +58,6 @@ void MonteCarloPlayer::setState(Propositions state) {
 	state_machine_.setState(state);
 	current_state_ = state;
 	is_terminal_ = state_machine_.is_terminal_;
-	state_node_.clear();
 	root_ = Node();
 	root_.state_ = current_state_;
 	root_.is_terminal_ = is_terminal_;
@@ -186,6 +185,7 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 		root_ = Node();
 		root_.state_ = current_state_;
 		root_.is_terminal_ = is_terminal_;
+		state_node_[root_.state_] = &root_;
 		//cerr << Client::message("debug", "node not found error");
 	}
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
