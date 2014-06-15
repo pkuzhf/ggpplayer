@@ -700,10 +700,10 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 			}
 		}				
 	}	
-	vector<string> output;
+	/*vector<string> output;
 	for (int i = 0; i < true_props.size(); ++i) {
 		output.push_back(true_props[i].toRelation().toString());
-	}	
+	}	*/
 	true_props_size = true_props.size();	
 	time[1] += clock() - s1;
 }

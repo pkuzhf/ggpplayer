@@ -33,9 +33,9 @@ MonteCarloPlayer::MonteCarloPlayer(){}
 MonteCarloPlayer::MonteCarloPlayer(Relations rs, string role):state_machine_(rs) {
 	current_state_ = state_machine_.trues_;
 	is_terminal_ = false;
-	int role_num = Relation::symbol2code[string(role)];
+	int role_code = Relation::symbol2code[string(role)];
 	for (int i = 0; i < state_machine_.prover_.roles_.size(); ++i) {
-		if (state_machine_.prover_.roles_[i].items_[0].head_ == role_num) {
+		if (state_machine_.prover_.roles_[i].items_[0].head_ == role_code) {
 			role_num_ = i;
 			break;
 		}
@@ -73,10 +73,7 @@ Node * MonteCarloPlayer::selectLeafNode() {
 			int move_size = state_machine_.getLegalMoves(role_num_).size();
 			for (int i = 0; i < move_size; i++) {
 				vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_num_, i);
-				vector<Node> nodes;				
-				for (int j = 0; j < jointmoves.size(); j++) {					
-					nodes.push_back(Node(node));
-				}
+				vector<Node> nodes(jointmoves.size(), Node(node));
 				node->sons_.push_back(nodes);
 			}
 			stop = true;

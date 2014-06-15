@@ -68,7 +68,9 @@ void Node::update(string s) {
 	if (s[start] == ')') {
 		return;
 	}
+	bool check = false;
 	if (sons_.size() == 0) {
+		check = true;
 		int i = start;
 		while (s[i] == '(') {
 			vector<Node> nodes;
@@ -88,7 +90,10 @@ void Node::update(string s) {
 	}
 	for (int i = 0; i < sons_.size(); ++i) {
 		++start;
-		for (int j = 0; j < sons_[i].size(); ++j) {			
+		for (int j = 0; j < sons_[i].size(); ++j) {
+			/*if (start >= s.size() || s[start] == ')') {
+				break;
+			}*/
 			end = start;
 			int count = 0;
 			do {

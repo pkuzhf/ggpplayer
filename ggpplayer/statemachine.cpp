@@ -6,6 +6,7 @@
 #include <string>
 #include <time.h>
 #include <stdlib.h>
+#include <algorithm>
 
 #include "statemachine.h"
 #include "prover.h"
@@ -23,6 +24,7 @@ StateMachine::StateMachine(Relations description) :prover_(description) {
 			static_legals_.push_back(prover_.statics_[i]);
 		}
 	}
+	sort(static_legals_.begin(), static_legals_.end());
 	for (int i = 0; i < prover_.inits_.size(); ++i){
 		Proposition p = prover_.inits_[i];
 		p.head_ = r_true;
@@ -60,6 +62,7 @@ void StateMachine::updateLegals(Propositions &ps) {
 			tmps_.push_back(p);
 		}
 	}
+	sort(legals_.begin(), legals_.end());
 }
 
 Propositions StateMachine::getLegalMoves(int role) {	
@@ -153,38 +156,33 @@ void StateMachine::setState(Propositions &current_state)
 vector<vector<Proposition>> StateMachine::getLegalJointMoves(int role, int mymove)
 {
 	vector<vector<Proposition>> rtn;
-	vector<vector<Proposition>> legalMoves;
-	vector<int> idx(prover_.roles_.size(), 0);
+	vector<vector<Proposition>> legal_moves;
 	for(int i = 0 ; i < prover_.roles_.size(); ++i){
 		if (i == role) {
 			vector<Proposition> t;
 			t.push_back(getLegalMoves(role)[mymove]);
-			legalMoves.push_back(t);
+			legal_moves.push_back(t);
 		} else {
 			vector<Proposition> t = getLegalMoves(i);
-			legalMoves.push_back(t);		
+			legal_moves.push_back(t);		
 		}
 	}
+	vector<int> idx(prover_.roles_.size(), 0);
 	while(true){
-		vector<Proposition> jointMove;
+		vector<Proposition> joint_move;
 		for(int i = 0 ; i < prover_.roles_.size(); ++i){
-			jointMove.push_back(legalMoves[i][idx[i]]);
+			joint_move.push_back(legal_moves[i][idx[i]]);
 		}
-		rtn.push_back(jointMove);
+		rtn.push_back(joint_move);
 		int temp = 0;
-		idx[temp] ++;
-		bool finished = false;
-		while(idx[temp] == legalMoves[temp].size()){
-			if(temp == prover_.roles_.size() - 1) {
-				finished = true;
-				break;
-			}
+		while(temp < idx.size() && idx[temp] == legal_moves[temp].size() - 1){
 			idx[temp] = 0;
 			temp ++;
-			idx[temp]++;
 		}
-		if (finished) {
+		if (temp == idx.size()) {
 			break;
+		} else {
+			idx[temp]++;
 		}
 	}
 	return rtn;
