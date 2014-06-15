@@ -135,6 +135,7 @@ void Client::handleMessage(string msg) {
 			state_reader.file_content_ = msg;
 			Propositions state;
 			state_reader.getPropositions(state);
+			player_.setState(state);
 			player_.uct(CLOCKS_PER_SEC * 2);
 			//for (int i = 0; i < 10; ++i) {
 			//	player_.setState(state);
