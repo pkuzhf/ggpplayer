@@ -17,8 +17,8 @@ bool Reader::readFile(string filename) {
 		return false;
 	}
 	while (!f.eof()) {
-		char buffer[100000];
-		f.getline(buffer, 100000);
+		char buffer[1000000];
+		f.getline(buffer, 1000000);
 		readLine(buffer);
 	}
 	f.close();
