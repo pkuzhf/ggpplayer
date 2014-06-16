@@ -43,7 +43,7 @@ int main() {
 	StateMachine machine(rs);
 	//machine.randomGo(clock() + 100000);
 
-	const int buf_size = 100000;
+	const int buf_size = 1000000;
 	char buf[buf_size];
 	cin.getline(buf, buf_size);
 	//r.readLine(buf);
