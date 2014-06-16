@@ -32,24 +32,24 @@ int main() {
 	srand(time(0));
 	Relation::initSymbolTable();
 	Reader r;
-	if (!r.readFile("gdl/rule.txt")) {
-	//if (!r.readFile("gdl/tic_tac_toe.txt")) {
-	//if (!r.readFile("gdl/2pffa_zerosum.kif")) {
-		cerr << Client::message("debug", "read file failed.");
-        return -1;
-    }
-	Relations rs;
-	r.getRelations(rs);
-	StateMachine machine(rs);
-	//machine.randomGo(clock() + 100000);
+	//if (!r.readFile("gdl/rule.txt")) {
+	////if (!r.readFile("gdl/tic_tac_toe.txt")) {
+	////if (!r.readFile("gdl/2pffa_zerosum.kif")) {
+	//	cerr << Client::message("debug", "read file failed.");
+ //       return -1;
+ //   }
+	//Relations rs;
+	//r.getRelations(rs);
+	//StateMachine machine(rs);
+	////machine.randomGo(clock() + 100000);
 
 	const int buf_size = 1000000;
 	char buf[buf_size];
 	cin.getline(buf, buf_size);
-	//r.readLine(buf);
-	//Relations rs;
-	//r.getRelations(rs);
-	//StateMachine machine(rs);
+	r.readLine(buf);
+	Relations rs;
+	r.getRelations(rs);
+	StateMachine machine(rs);
 
 	/*for (int i = 0; i < Prover::time.size(); ++i) {
 		ostringstream msg;
