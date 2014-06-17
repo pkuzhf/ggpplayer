@@ -13,7 +13,9 @@
 #pragma comment(lib,"ws2_32.lib")
 #else
 
-
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>    // for sockaddr_in
 #include <sys/types.h>    // for socket
