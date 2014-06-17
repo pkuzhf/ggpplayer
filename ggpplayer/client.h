@@ -12,6 +12,9 @@
 #include<winsock2.h>
 #pragma comment(lib,"ws2_32.lib")
 #else
+
+
+#include <arpa/inet.h>
 #include <netinet/in.h>    // for sockaddr_in
 #include <sys/types.h>    // for socket
 #include <sys/socket.h>    // for socket
