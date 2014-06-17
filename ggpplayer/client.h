@@ -8,6 +8,10 @@
 #ifdef WIN
 #include<winsock2.h>
 #pragma comment(lib,"ws2_32.lib")
+#else
+#include <netinet/in.h>    // for sockaddr_in
+#include <sys/types.h>    // for socket
+#include <sys/socket.h>    // for socket
 #endif
 
 using namespace std;
@@ -17,6 +21,8 @@ public:
 
 #ifdef WIN
 	SOCKET socket_;
+#else
+	struct sockaddr_in client_addr;
 #endif
 	string buffer_;
 	int length_;
