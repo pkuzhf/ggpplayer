@@ -113,7 +113,7 @@ int Client::connectServer() {
     //向服务器发起连接,连接成功后client_socket代表了客户机和服务器的一个socket连接
     if(connect(client_socket,(struct sockaddr*)&server_addr, server_addr_length) < 0)
     {
-        printf("Can Not Connect To %s!\n");
+        printf("Can Not Connect To!\n");
         exit(1);
     }
 

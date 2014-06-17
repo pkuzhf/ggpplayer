@@ -1,6 +1,9 @@
 #ifndef CONNECT_H
 #define CLIENT_H
 
+#include <stdio.h>        // for printf
+#include <stdlib.h>        // for exit
+#include <string.h>        // for bzero
 #include <string>
 #include "config.h"
 #include "montecarloplayer.h"
@@ -22,7 +25,7 @@ public:
 #ifdef WIN
 	SOCKET socket_;
 #else
-	struct sockaddr_in client_addr;
+	int client_socket;
 #endif
 	string buffer_;
 	int length_;
