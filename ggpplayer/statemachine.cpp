@@ -29,7 +29,8 @@ StateMachine::StateMachine(Relations description) :prover_(description) {
 		Proposition p = prover_.inits_[i];
 		p.head_ = r_true;
 		trues_.push_back(p);		
-	}	
+	}
+	sort(trues_.begin(), trues_.end());
 	Propositions ps = trues_;
 	prover_.generateTrueProps(ps, 0, prover_.dpg_.legal_level_);
 	updateLegals(ps);
@@ -47,6 +48,7 @@ void StateMachine::updateState(Propositions &ps) {
 			trues_.push_back(p);
 		}
 	}
+	sort(trues_.begin(), trues_.end());
 }
 
 void StateMachine::updateLegals(Propositions &ps) {		
