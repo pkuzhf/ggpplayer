@@ -174,7 +174,9 @@ vector<int> Prover::sortCombinations(vector<vector<int> > &combinations, vector<
 	for (int i = 0; i < combinations.size(); ++i) {
 		idx.push_back(i);
 	}
-	quickSortCombinations(combinations, keys, idx, 0, idx.size() - 1);
+	if (keys.size() > 0) {
+		quickSortCombinations(combinations, keys, idx, 0, idx.size() - 1);
+	}
 	return idx;
 }
 

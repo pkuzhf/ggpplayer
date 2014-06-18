@@ -19,32 +19,26 @@
 
 using namespace std;
 
-#ifdef CLIENT
-
-int main() {
+int run_client() {
 	Client client;
 	client.connectServer();
 }
 
-#else
-
-int main() {
-	srand(time(0));
-	Relation::initSymbolTable();
-	Reader r;
-	//if (!r.readFile("gdl/rule.txt")) {
-	////if (!r.readFile("gdl/tic_tac_toe.txt")) {
-	////if (!r.readFile("gdl/2pffa_zerosum.kif")) {
+int run_server() {
+	//Reader r;
+	//if (!r.readFile("gdl/breakthrough.kif")) {
 	//	cerr << Client::message("debug", "read file failed.");
  //       return -1;
  //   }
 	//Relations rs;
 	//r.getRelations(rs);
 	//StateMachine machine(rs);
-	////machine.randomGo(clock() + 100000);
+	//machine.randomGo(clock() + 100000);
 
 	const int buf_size = 1000000;
 	char buf[buf_size];
+
+	Reader r;
 	cin.getline(buf, buf_size);
 	r.readLine(buf);
 	Relations rs;
@@ -131,4 +125,13 @@ int main() {
 	return 0;
 }
 
+int main() {
+	srand(time(0));
+	Relation::initSymbolTable();
+
+#ifdef CLIENT
+	return run_client();
+#else
+	return run_server();
 #endif
+}
