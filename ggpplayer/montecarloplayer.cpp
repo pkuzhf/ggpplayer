@@ -136,12 +136,10 @@ double MonteCarloPlayer::uct(int time_limit) {
 		state_machine_.setState(node->state_);
 		if (node->is_terminal_) {
 			point = state_machine_.getGoal(role_num_);					
-		} else {			
-			if (state_machine_.randomGo(finish_by)) {
-				simu_count++;
-				point = state_machine_.getGoal(role_num_);
-			}				
-		}		
+		} else if (state_machine_.randomGo(finish_by)) {
+			simu_count++;
+			point = state_machine_.getGoal(role_num_);
+		}	
 		if (point != -1) {			
 			do {
 				node->points_ += point;

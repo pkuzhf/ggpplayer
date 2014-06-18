@@ -19,12 +19,12 @@
 
 using namespace std;
 
-int run_client() {
+void run_client() {
 	Client client;
 	client.connectServer();
 }
 
-int run_server() {
+void run_server() {
 	//Reader r;
 	//if (!r.readFile("gdl/breakthrough.kif")) {
 	//	cerr << Client::message("debug", "read file failed.");
@@ -122,7 +122,6 @@ int run_server() {
 			cerr << Client::message("state", Proposition::propsToStr(player.selectLeafNode()->state_));
 		}
 	}
-	return 0;
 }
 
 int main() {
@@ -130,8 +129,9 @@ int main() {
 	Relation::initSymbolTable();
 
 #ifdef CLIENT
-	return run_client();
+	run_client();
 #else
-	return run_server();
+	run_server();
 #endif
+	return 0;
 }
