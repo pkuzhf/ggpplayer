@@ -67,7 +67,9 @@ void run_server() {
 		cerr<<"real moves:"<< moves[0].toString()<<endl;
 		cerr<<"real moves:"<< moves[1].toString()<<endl;
 	}*/	
-		
+	
+	cerr << Client::message("ready", "");
+
 	cin.getline(buf, buf_size);
 	cerr << Client::message("state", Proposition::propsToStr(player.current_state_));
 	cerr << Client::message("move", player.getRandomMove().items_[1].toString());
