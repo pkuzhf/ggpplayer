@@ -55,6 +55,7 @@ Prover::Prover(Relations relations) {
 			head_statics_[true_rs[i].head_].push_back(statics_.size() - 1);
 		}
 	}
+	sort(roles_.begin(), roles_.end());
 	// add key_head which isn't in base sentence
 	/*for(int i = 0 ; i < relations_.size(); ++i){
 		if(relations_[i].type_ == r_base){

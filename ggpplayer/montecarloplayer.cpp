@@ -66,8 +66,6 @@ void MonteCarloPlayer::setState(Propositions state) {
 	root_ = Node();
 	root_.state_ = current_state_;
 	root_.is_terminal_ = is_terminal_;
-	state_node_.clear();
-
 }
 
 Node * MonteCarloPlayer::selectLeafNode() {
