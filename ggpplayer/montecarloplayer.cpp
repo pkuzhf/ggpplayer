@@ -21,6 +21,8 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	cerr << Client::message("debug", "updateTree");
 	cerr << Client::message("debug", Proposition::propsToStr(node->state_));
 	cerr << Client::message("debug", Proposition::propsToStr(state));
+	state_machine_.setState(state);
+	cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_num_)));
 	node->update(tree);
 	int points = node->points_;
 	int attemps = node->attemps_;
