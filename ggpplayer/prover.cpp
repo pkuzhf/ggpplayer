@@ -143,7 +143,8 @@ int Prover::compareCombination(vector<int> &comb_a, vector<int> &comb_b, vector<
 
 void Prover::quickSortCombinations(vector<vector<int> > &combinations, vector<int> &keys, vector<int> &idx, int left, int right) {
 	if (left >= right) return;
-	int pos = rand() % (right - left + 1) + left;
+	//int pos = rand() % (right - left + 1) + left;
+	int pos = (left + right) / 2;
 	int x = idx[pos];
 	idx[pos] = idx[left];
 	int i = left;
