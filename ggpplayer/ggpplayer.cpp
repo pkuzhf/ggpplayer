@@ -120,6 +120,7 @@ void run_server() {
 			cerr << Client::message("debug", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
 			cerr << Client::message("state", Proposition::propsToStr(player.selectLeafNode()->state_));
+			cerr << Client::message("updated", "");
 		}
 	}
 }
