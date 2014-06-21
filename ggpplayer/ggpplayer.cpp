@@ -119,12 +119,9 @@ void run_server() {
 				}
 				o << total_score / nodes.size() << " ";
 			}
-			cerr << Client::message("debug", o.str());
+			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
 			cerr << Client::message("state", Proposition::propsToStr(player.selectLeafNode()->state_));
-			o.clear();
-			o << player.root_.attemps_;
-			cerr << Client::message("stat", o.str());
 			cerr << Client::message("updated", "");
 		}
 	}
