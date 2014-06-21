@@ -25,6 +25,7 @@ public:
 	double getScore();
 	string toString();
 	void update(string s);
+	pair<int, int> getMaximinMove();
 };
 
 #endif

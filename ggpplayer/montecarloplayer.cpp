@@ -54,8 +54,7 @@ Proposition MonteCarloPlayer::getRandomMove() {
 }
 
 Proposition MonteCarloPlayer::getBestMove() {
-	int best_move = getBestMoveOfNode(&root_);	
-	return legal_moves_[best_move];
+	return legal_moves_[root_.getMaximinMove().first];
 }
 
 void MonteCarloPlayer::setState(Propositions state) {
@@ -81,47 +80,17 @@ Node * MonteCarloPlayer::selectLeafNode() {
 			}
 			stop = true;
 		}
-		int best_move = getBestMoveOfNode(node);
-		vector<int> joint_move_candidates;
-		joint_move_candidates.push_back(0);
-		for (int i = 1; i < node->sons_[best_move].size(); ++i) {
-			if (node->sons_[best_move][i].attemps_ < node->sons_[best_move][joint_move_candidates[0]].attemps_) {
-				joint_move_candidates.clear();
-				joint_move_candidates.push_back(i);
-			} else if (node->sons_[best_move][i].attemps_ == node->sons_[best_move][joint_move_candidates[0]].attemps_) {
-				joint_move_candidates.push_back(i);
-			}
-		}
-		int joint_move = joint_move_candidates[rand() % joint_move_candidates.size()];
-		node = &node->sons_[best_move][joint_move];
+		pair<int, int> move = node->getMaximinMove();
+		node = &node->sons_[move.first][move.second];
 		if (node->state_.size() == 0){				
 			state_machine_.setState(node->parent_->state_);	
-			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, best_move)[joint_move]);						
+			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, move.first)[move.second]);						
 			node->state_ = state_machine_.trues_;
 			node->is_terminal_ = state_machine_.is_terminal_;
 			state_node_[node->state_] = node;
 		}
 	}
 	return node;
-}
-
-int MonteCarloPlayer::getBestMoveOfNode(Node * node) {
-	int max = 0;
-	double maxscore = 0;
-	for (int i = 0; i < node->sons_.size(); i++) {
-		vector<Node> nodes = node->sons_[i];
-		double min_score = 1000;
-		for (int j = 0; j < nodes.size(); j++) {
-			if (nodes[j].getScore() < min_score) {
-				min_score = nodes[j].getScore();
-			}
-		}
-		if (min_score > maxscore) {
-			max = i;
-			maxscore = min_score;
-		}					
-	}
-	return max;
 }
 
 double MonteCarloPlayer::uct(int time_limit, int once_simu_limit) {
@@ -159,7 +128,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit) {
 	msg << "UCT simu times per second: " << speed;
 	cerr << Client::message("debug",  msg.str());	
 
-	int best_move = getBestMoveOfNode(&root_);
+	int best_move = root_.getMaximinMove().first;
 	return state_machine_.getLegalMoves(role_num_)[best_move];
 }
 

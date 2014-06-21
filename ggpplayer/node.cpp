@@ -26,15 +26,39 @@ Node::Node(Node * p) {
 }
 
 double Node::getScore() {
-	int c = 40;
-	int max_score = 101;
+	double mean;
+	int range;
 	if (attemps_ == 0) {
-		return max_score;
-	} else if (parent_ != NULL) {
-		return (double)points_ / attemps_ + c * sqrt(2 * log((double)parent_->attemps_) / (double)attemps_);
+		mean = 50;
+		range = 100;
 	} else {
-		return (double)points_ / attemps_;
+		mean = (double)points_ / attemps_;
+		range = 100 / (log((double)attemps_ + 1) / log(2.0));
 	}
+	return mean - (double)range / 2 + rand() % (range + 1);
+}
+
+pair<int, int> Node::getMaximinMove() {
+	int x = -1;
+	int y = -1;
+	double maximin_value;
+	for (int i = 0; i < sons_.size(); ++i) {
+		int min = 0;
+		double min_value = sons_[i][0].getScore();
+		for (int j = 1; j < sons_[i].size(); ++j) {
+			double value = sons_[i][j].getScore();
+			if (value < min_value) {
+				min_value = value;
+				min = j;
+			}
+		}
+		if (x == -1 || min_value > maximin_value) {
+			maximin_value = min_value;
+			x = i;
+			y = min;
+		}
+	}
+	return pair<int, int>(x, y);
 }
 
 string Node::toString() {
