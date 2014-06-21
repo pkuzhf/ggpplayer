@@ -3,7 +3,7 @@ var spawn = require('child_process').spawn;
 
 var ip = '162.105.81.73';
 var port = 10001;
-var n = 20;
+var n = 22;
 var clients = [];
 
 server = net.Socket();
