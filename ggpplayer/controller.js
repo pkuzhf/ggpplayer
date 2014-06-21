@@ -8,18 +8,31 @@ var clients = [];
 
 server = net.Socket();
 server.connect(port, ip);
+server.on('connect', function() {
+    killClients();
+    startClients();
+});
 server.on('data', function(data) {
     killClients();
-    clients = [];
-    for (var i = 0; i < n; ++i) {
-        var client = spawn('./ggp');
-        clients.push(client);
-    }
+    startClients();
 });
 
 server.on('close', function () {
     killClients();
 });
+
+function startClients() {
+    clients = [];
+    for (var i = 0; i < n; ++i) {
+        var client = spawn('./ggp');
+        client.on('exit', function () {
+            console.log('client exit');
+        });
+        client.stderr.on('data', function (data) {
+        });
+        clients.push(client);
+    }
+}
 
 function killClients() {
     for (var i = 0; i < clients.length; ++i) {
