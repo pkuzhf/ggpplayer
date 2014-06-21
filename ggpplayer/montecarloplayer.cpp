@@ -54,7 +54,11 @@ Proposition MonteCarloPlayer::getRandomMove() {
 }
 
 Proposition MonteCarloPlayer::getBestMove() {
-	return legal_moves_[root_.getMaximinMove().first];
+	int best_move = root_.getMaximinMove().first;
+	if (best_move == -1) {
+		best_move = rand() % legal_moves_.size();
+	}
+	return legal_moves_[best_move];
 }
 
 void MonteCarloPlayer::setState(Propositions state) {
@@ -137,23 +141,13 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 	state_machine_.goOneStep(moves);
 	current_state_ = state_machine_.trues_;
 	is_terminal_ = state_machine_.is_terminal_;
-	bool found = false;
-	//for (int i = 0; i < root_.sons_.size() && !found; ++i) {
-	//	for (int j = 0; j < root_.sons_[i].size() && !found; ++j) {
-	//		if (root_.sons_[i][j].state_ == current_state_) {
-	//			root_ = root_.sons_[i][j];
-	//			root_.parent_ = NULL;
-	//			found = true;
-	//		}
-	//	}
-	//}
-	if (!found) {
-		state_node_.clear();
-		root_ = Node();
-		root_.state_ = current_state_;
-		root_.is_terminal_ = is_terminal_;
-		state_node_[root_.state_] = &root_;
-		//cerr << Client::message("debug", "node not found error");
-	}
+	
+	root_ = Node();
+	root_.state_ = current_state_;
+	root_.is_terminal_ = is_terminal_;
+
+	state_node_.clear();
+	state_node_[root_.state_] = &root_;
+	
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
