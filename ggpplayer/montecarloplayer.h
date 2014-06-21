@@ -25,7 +25,7 @@ public:
 	MonteCarloPlayer();
 	MonteCarloPlayer(Relations rs, string role);	
 	Proposition stateMachineSelectMove(int timeout);
-	double uct(int time_limit);
+	double uct(int time_limit, int once_simu_limit);
 	int getBestMoveOfNode(Node * node);
 	Node * selectLeafNode();
 	void goOneStep(Propositions moves);

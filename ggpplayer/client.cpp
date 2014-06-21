@@ -164,7 +164,7 @@ void Client::receiveData(string data) {
 		}
 	}
 }
-//Node node;
+
 void Client::handleMessage(string msg) {
 	cerr << msg << endl;
 	int i = 0;
@@ -186,19 +186,12 @@ void Client::handleMessage(string msg) {
 				sendMessage(message("ready", ""));
 			}
 		} else if (cmd == "state") {
-			//node = Node();
 			Reader state_reader;
 			state_reader.file_content_ = msg;
 			Propositions state;
 			state_reader.getPropositions(state);
 			player_.setState(state);
-			player_.uct(CLOCKS_PER_SEC * 2);
-			//for (int i = 0; i < 10; ++i) {
-			//	player_.setState(state);
-			//	player_.uct(CLOCKS_PER_SEC * 2);
-			//	node.update(player_.root_.toString());
-			//	//node = player_.root_;
-			//}
+			player_.uct(CLOCKS_PER_SEC, CLOCKS_PER_SEC * 5);
 			sendMessage(message("uct", player_.root_.toString()));
 		}
 	}

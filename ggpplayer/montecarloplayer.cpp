@@ -110,7 +110,7 @@ int MonteCarloPlayer::getBestMoveOfNode(Node * node) {
 	double maxscore = 0;
 	for (int i = 0; i < node->sons_.size(); i++) {
 		vector<Node> nodes = node->sons_[i];
-		double min_score = 101;
+		double min_score = 1000;
 		for (int j = 0; j < nodes.size(); j++) {
 			if (nodes[j].getScore() < min_score) {
 				min_score = nodes[j].getScore();
@@ -124,18 +124,17 @@ int MonteCarloPlayer::getBestMoveOfNode(Node * node) {
 	return max;
 }
 
-double MonteCarloPlayer::uct(int time_limit) {
+double MonteCarloPlayer::uct(int time_limit, int once_simu_limit) {
 	int simu_count = 0;
 	int start = clock();
-	int finish_by = start + time_limit;
 	
-	while (clock() < finish_by) {		
+	while (clock() < start + time_limit) {		
 		Node *node = selectLeafNode();		
 		int point = -1;
 		state_machine_.setState(node->state_);
 		if (node->is_terminal_) {
 			point = state_machine_.getGoal(role_num_);					
-		} else if (state_machine_.randomGo(finish_by)) {
+		} else if (state_machine_.randomGo(start + once_simu_limit)) {
 			simu_count++;
 			point = state_machine_.getGoal(role_num_);
 		}	
@@ -155,7 +154,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit) {
 	if (state_machine_.getLegalMoves(role_num_).size() == 1){
 		return state_machine_.getLegalMoves(role_num_)[0];
 	}
-	double speed = uct(time_limit);	
+	double speed = uct(time_limit, time_limit);	
 	ostringstream msg;
 	msg << "UCT simu times per second: " << speed;
 	cerr << Client::message("debug",  msg.str());	
