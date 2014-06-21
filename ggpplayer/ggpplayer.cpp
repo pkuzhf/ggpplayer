@@ -117,7 +117,7 @@ void run_server() {
 				for (int j = 0; j < nodes.size(); j++) {
 					total_score += nodes[j].getScore();
 				}
-				o << total_score / nodes.size() << " ";
+				o << (int)(total_score / nodes.size()) << " ";
 			}
 			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
