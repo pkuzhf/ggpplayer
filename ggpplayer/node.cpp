@@ -78,8 +78,8 @@ string Node::toString() {
 }
 
 void Node::update(string s) {	
-	//cerr << Client::message("debug s: ", s);
-	//cerr << Client::message("debug node: ", toString());
+	cerr << Client::message("debug s: ", s);
+	cerr << Client::message("debug node: ", toString());
 	int start = 2;
 	int end = start + 1;
 	while (s[end] != ')') ++end;
