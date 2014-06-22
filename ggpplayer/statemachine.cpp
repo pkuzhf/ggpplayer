@@ -10,7 +10,6 @@
 
 #include "statemachine.h"
 #include "prover.h"
-#include "reader.h"
 #include "relation.h"
 #include "client.h"
 

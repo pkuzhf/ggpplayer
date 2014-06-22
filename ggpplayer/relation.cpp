@@ -9,7 +9,6 @@
 
 #include "relation.h"
 #include "time.h"
-#include "prover.h"
 
 using namespace std;
 
