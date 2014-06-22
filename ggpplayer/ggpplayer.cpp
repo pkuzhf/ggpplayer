@@ -112,12 +112,11 @@ void run_server() {
 			ostringstream o;
 			o << "(" << player.root_.points_ << "/" << player.root_.attemps_ << ") ";
 			for (int i = 0; i < player.root_.sons_.size(); ++i) {
-				vector<Node> nodes = player.root_.sons_[i];
-				double total_score = 0;
-				for (int j = 0; j < nodes.size(); j++) {
-					total_score += nodes[j].getScore();
+				o << "{";
+				for (int j = 0; j < player.root_.sons_[i].size(); j++) {
+					o << "<" << player.root_.sons_[i][j].points_ << "/" << player.root_.sons_[i][j].attemps_ << ">";
 				}
-				o << (int)(total_score / nodes.size()) << " ";
+				o << "} ";
 			}
 			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());

@@ -13,12 +13,11 @@ class Node
 {
 public:
 	Propositions state_;
+	bool is_terminal_;
 	long long points_;
 	long long attemps_;
-	double maximin_;
 	vector<vector<Node > > sons_;
 	Node * parent_;
-	bool is_terminal_;
 
 	Node(Node * p); 
 	Node();

@@ -35,7 +35,8 @@ double Node::getScore() {
 		mean = (double)points_ / attemps_;
 		range = 100 / (log((double)attemps_ + 1) / log(2.0));
 	}
-	return mean - (double)range / 2 + rand() % (range + 1);
+	int ret = mean - (double)range / 2 + rand() % (range + 1);
+	return ret;
 }
 
 pair<int, int> Node::getMaximinMove() {
