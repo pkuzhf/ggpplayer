@@ -27,16 +27,18 @@ Node::Node(Node * p) {
 
 double Node::getScore() {
 	double mean;
-	int range;
+	int times;
 	if (attemps_ == 0) {
 		mean = 50;
-		range = 100;
+		times = 1;
 	} else {
 		mean = (double)points_ / attemps_;
-		range = 100 / (log((double)attemps_ / 10 + 2) / log(2.0));
+		times = sqrt((double)attemps_);
 	}
-	int ret = mean - (double)range / 2 + rand() % (range + 1);
-	return ret;
+	for (int i = 0; i < times; ++i) {
+		mean += (rand() % 201 - 100) / (double)times;
+	}
+	return mean;
 }
 
 pair<int, int> Node::getMaximinMove() {

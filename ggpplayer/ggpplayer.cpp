@@ -25,24 +25,24 @@ void run_client() {
 }
 
 void run_server() {
-	Reader r;
-	if (!r.readFile("gdl/tic_tac_toe.txt")) {
-		cerr << Client::message("debug", "read file failed.");
-    }
-	Relations rs;
-	r.getRelations(rs);
+	//Reader r;
+	//if (!r.readFile("gdl/tic_tac_toe.txt")) {
+	//	cerr << Client::message("debug", "read file failed.");
+ //   }
+	//Relations rs;
+	//r.getRelations(rs);
 	//StateMachine machine(rs);
 	//machine.randomGo(clock() + 100000);
 	
 	const int buf_size = 100000;
 	char buf[buf_size];
 
-	//Reader r;
-	//cin.getline(buf, buf_size);
-	//r.readLine(buf);
-	//Relations rs;
-	//r.getRelations(rs);
-	//StateMachine machine(rs);
+	Reader r;
+	cin.getline(buf, buf_size);
+	r.readLine(buf);
+	Relations rs;
+	r.getRelations(rs);
+	StateMachine machine(rs);
 
 	/*for (int i = 0; i < Prover::time.size(); ++i) {
 		ostringstream msg;
@@ -54,18 +54,7 @@ void run_server() {
 	string role = string(buf);
 
 	MonteCarloPlayer player(rs, role);   // montecarlo player
-	player.uct(CLOCKS_PER_SEC * 10, CLOCKS_PER_SEC * 5, 10000000);
-	/*MonteCarloPlayer Mplayer1(rs, 0);
-	MonteCarloPlayer Mplayer2(rs, 1);
-	while(!Mplayer1.is_terminal_){
-		Propositions moves;
-		moves.push_back(Mplayer1.stateMachineSelectMove(2000));
-		moves.push_back(Mplayer2.stateMachineSelectMove(2000));
-		Mplayer1.goOneStep(moves);
-		Mplayer2.goOneStep(moves);
-		cerr<<"real moves:"<< moves[0].toString()<<endl;
-		cerr<<"real moves:"<< moves[1].toString()<<endl;
-	}*/	
+	//player.uct(CLOCKS_PER_SEC * 10, CLOCKS_PER_SEC * 5, 10000000);
 	
 	cerr << Client::message("ready", "");
 
@@ -109,15 +98,15 @@ void run_server() {
 			state_reader.getPropositions(state);			
 			player.updateTree(state, string(semi + 1));
 			ostringstream o;
-			/*o << "(" << player.root_.points_ << "/" << player.root_.attemps_ << ") ";
+			o << "(" << player.root_.points_ << "/" << player.root_.attemps_ << ") ";
 			for (int i = 0; i < player.root_.sons_.size(); ++i) {
 				o << "{";
 				for (int j = 0; j < player.root_.sons_[i].size(); j++) {
 					o << "<" << player.root_.sons_[i][j].points_ << "/" << player.root_.sons_[i][j].attemps_ << ">";
 				}
 				o << "} ";
-			}*/
-			o << player.root_.toString();
+			}
+			//o << player.root_.toString();
 			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
 			cerr << Client::message("state", Proposition::propsToStr(player.selectLeafNode()->state_));
