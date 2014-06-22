@@ -22,9 +22,11 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	//cerr << Client::message("debug", node->toString());
 	state_machine_.setState(state);
 	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_num_)));
+	long long old_points = node->points_;
+	long long old_attemps = node->attemps_;
 	node->update(tree);
-	int points = node->points_;
-	int attemps = node->attemps_;
+	long long points = node->points_ - old_points;
+	long long attemps = node->attemps_ - old_attemps;
 	while (node->parent_) {
 		node = node->parent_;
 		node->points_ += points;
