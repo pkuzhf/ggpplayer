@@ -6,4 +6,5 @@ ipch
 *.swp
 *.user
 *.filters
+*.o
 node_modules
