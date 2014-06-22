@@ -97,18 +97,19 @@ Node * MonteCarloPlayer::selectLeafNode() {
 	return node;
 }
 
-double MonteCarloPlayer::uct(int time_limit, int once_simu_limit) {
+double MonteCarloPlayer::uct(int time_limit, int once_simu_limit, int max_simu_times) {
 	int simu_count = 0;
 	int start = clock();
 	
-	while (clock() < start + time_limit) {		
+	while (clock() < start + time_limit && simu_count < max_simu_times) {
+		simu_count++;
 		Node *node = selectLeafNode();		
 		int point = -1;
 		state_machine_.setState(node->state_);
 		if (node->is_terminal_) {
 			point = state_machine_.getGoal(role_num_);					
 		} else if (state_machine_.randomGo(start + once_simu_limit)) {
-			simu_count++;
+			
 			point = state_machine_.getGoal(role_num_);
 		}	
 		if (point != -1) {			
@@ -127,7 +128,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit) {
 	if (state_machine_.getLegalMoves(role_num_).size() == 1){
 		return state_machine_.getLegalMoves(role_num_)[0];
 	}
-	double speed = uct(time_limit, time_limit);	
+	double speed = uct(time_limit, time_limit, 10000000);	
 	ostringstream msg;
 	msg << "UCT simu times per second: " << speed;
 	cerr << Client::message("debug",  msg.str());	
