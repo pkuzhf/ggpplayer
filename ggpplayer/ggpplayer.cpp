@@ -25,25 +25,24 @@ void run_client() {
 }
 
 void run_server() {
+	Reader r;
+	if (!r.readFile("gdl/tic_tac_toe.txt")) {
+		cerr << Client::message("debug", "read file failed.");
+    }
+	Relations rs;
+	r.getRelations(rs);
+	//StateMachine machine(rs);
+	//machine.randomGo(clock() + 100000);
+	
+	const int buf_size = 100000;
+	char buf[buf_size];
+
 	//Reader r;
-	//if (!r.readFile("gdl/breakthrough.kif")) {
-	//	cerr << Client::message("debug", "read file failed.");
- //       return -1;
- //   }
+	//cin.getline(buf, buf_size);
+	//r.readLine(buf);
 	//Relations rs;
 	//r.getRelations(rs);
 	//StateMachine machine(rs);
-	//machine.randomGo(clock() + 100000);
-
-	const int buf_size = 1000000;
-	char buf[buf_size];
-
-	Reader r;
-	cin.getline(buf, buf_size);
-	r.readLine(buf);
-	Relations rs;
-	r.getRelations(rs);
-	StateMachine machine(rs);
 
 	/*for (int i = 0; i < Prover::time.size(); ++i) {
 		ostringstream msg;
@@ -55,7 +54,7 @@ void run_server() {
 	string role = string(buf);
 
 	MonteCarloPlayer player(rs, role);   // montecarlo player
-	// check montecarlo player
+	player.uct(CLOCKS_PER_SEC * 10, CLOCKS_PER_SEC * 5, 10000000);
 	/*MonteCarloPlayer Mplayer1(rs, 0);
 	MonteCarloPlayer Mplayer2(rs, 1);
 	while(!Mplayer1.is_terminal_){

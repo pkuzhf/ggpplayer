@@ -35,7 +35,7 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 MonteCarloPlayer::MonteCarloPlayer(){}
 MonteCarloPlayer::MonteCarloPlayer(Relations rs, string role):state_machine_(rs) {
 	current_state_ = state_machine_.trues_;
-	is_terminal_ = false;
+	is_terminal_ = state_machine_.is_terminal_;
 	int role_code = Relation::symbol2code[string(role)];
 	for (int i = 0; i < state_machine_.prover_.roles_.size(); ++i) {
 		if (state_machine_.prover_.roles_[i].items_[0].head_ == role_code) {

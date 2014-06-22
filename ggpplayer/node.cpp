@@ -33,7 +33,7 @@ double Node::getScore() {
 		range = 100;
 	} else {
 		mean = (double)points_ / attemps_;
-		range = 100 / (log((double)attemps_ + 1) / log(2.0));
+		range = 100 / (log((double)attemps_ / 10 + 2) / log(2.0));
 	}
 	int ret = mean - (double)range / 2 + rand() % (range + 1);
 	return ret;
