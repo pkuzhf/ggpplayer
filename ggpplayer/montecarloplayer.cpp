@@ -103,7 +103,10 @@ double MonteCarloPlayer::uct(int time_limit, int once_simu_limit, int max_simu_t
 	int simu_count = 0;
 	int start = clock();
 	
-	while (clock() < start + time_limit && simu_count < max_simu_times) {
+	while (clock() < start + time_limit) {
+		if (simu_count < max_simu_times) {
+			continue;
+		}
 		simu_count++;
 		Node *node = selectLeafNode();		
 		int point = -1;
@@ -111,7 +114,6 @@ double MonteCarloPlayer::uct(int time_limit, int once_simu_limit, int max_simu_t
 		if (node->is_terminal_) {
 			point = state_machine_.getGoal(role_num_);					
 		} else if (state_machine_.randomGo(start + once_simu_limit)) {
-			
 			point = state_machine_.getGoal(role_num_);
 		}	
 		if (point != -1) {			
