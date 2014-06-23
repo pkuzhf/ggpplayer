@@ -1,5 +1,6 @@
 var net = require('net');
 var spawn = require('child_process').spawn;
+var exec = require('child_process').exec;
 
 var ip = '162.105.81.73';
 var port = 10001;
@@ -13,8 +14,18 @@ server.on('connect', function() {
     startClients();
 });
 server.on('data', function(data) {
-    killClients();
-    startClients();
+    data = String(data);
+    if (data === 'start') {
+        killClients();
+        startClients();
+    } else if (data === 'reset') {
+        killClients();
+        setTimeout(function() {
+            child = exec('git pull; make', {}, function() {
+                startClients();
+            });
+        }, 1000);
+    }
 });
 
 server.on('close', function () {
@@ -31,6 +42,7 @@ function startClients() {
         client.stderr.on('data', function (data) {
         });
         clients.push(client);
+        console.log('client start');
     }
 }
 
