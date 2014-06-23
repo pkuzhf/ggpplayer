@@ -98,11 +98,11 @@ void run_server() {
 			state_reader.getPropositions(state);			
 			player.updateTree(state, string(semi + 1));
 			ostringstream o;
-			o << "(" << player.root_.points_ / player.root_.attemps_ << "/" << player.root_.attemps_ << ") ";
+			o << "(" << player.root_.getScore() << "/" << player.root_.attemps_ << ") ";
 			for (int i = 0; i < player.root_.sons_.size(); ++i) {
 				o << "{";
 				for (int j = 0; j < player.root_.sons_[i].size(); j++) {
-					o << "<" << player.root_.sons_[i][j].points_ / player.root_.sons_[i][j].attemps_ << "/" << player.root_.sons_[i][j].attemps_ << "> ";
+					o << "<" << player.root_.sons_[i][j].getScore() << "/" << player.root_.sons_[i][j].attemps_ << "> ";
 				}
 				o << "} ";
 			}
