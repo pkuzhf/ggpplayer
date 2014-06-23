@@ -5,6 +5,7 @@
 #include <sstream>
 #include <cmath>
 #include <stdlib.h>
+#include <algorithm>
 
 #include "dependgraph.h"
 #include "node.h"
@@ -13,18 +14,18 @@
 
 using namespace std;
 
-void MonteCarloPlayer::updateTree(Propositions state, string tree) {
-	if (state_node_.find(Proposition::propsToStr(state)) == state_node_.end()) {
+void MonteCarloPlayer::updateTree(int code, Propositions state, string tree) {
+	if (code >= nodes_.size() || nodes_[code].state_ != state) {
 		return;
 	}
-	Node * node = state_node_[Proposition::propsToStr(state)];
+	Node * node = &nodes_[code];
 	//cerr << Client::message("debug", "updateTree");
 	//cerr << Client::message("debug", node->toString());
-	state_machine_.setState(state);
+	//state_machine_.setState(state);
 	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_num_)));
 	long long old_points = node->points_;
 	long long old_attemps = node->attemps_;
-	node->update(tree);
+	updateNode(node, tree);
 	long long points = node->points_ - old_points;
 	long long attemps = node->attemps_ - old_attemps;
 	while (node->parent_) {
@@ -45,9 +46,11 @@ MonteCarloPlayer::MonteCarloPlayer(Relations rs, string role):state_machine_(rs)
 			break;
 		}
 	}
-	root_.state_ = current_state_;
-	root_.is_terminal_ = is_terminal_;
-	state_node_[Proposition::propsToStr(root_.state_)] = &root_;
+	nodes_.push_back(Node());
+	root_ = &nodes_[0];
+	root_->state_ = current_state_;
+	root_->is_terminal_ = is_terminal_;
+	root_->code_ = 0;
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
 
@@ -56,7 +59,7 @@ Proposition MonteCarloPlayer::getRandomMove() {
 }
 
 Proposition MonteCarloPlayer::getBestMove() {
-	int best_move = root_.getMaximinMove().first;
+	int best_move = root_->getMaximinMove().first;
 	if (best_move == -1) {
 		best_move = rand() % legal_moves_.size();
 	}
@@ -67,33 +70,41 @@ void MonteCarloPlayer::setState(Propositions state) {
 	state_machine_.setState(state);
 	current_state_ = state;
 	is_terminal_ = state_machine_.is_terminal_;
-	root_ = Node();
-	root_.state_ = current_state_;
-	root_.is_terminal_ = is_terminal_;
+	nodes_.clear();
+	nodes_.push_back(Node());
+	root_ = &nodes_[0];
+	root_->state_ = current_state_;
+	root_->is_terminal_ = is_terminal_;
+	root_->code_ = 0;
 }
 
 Node * MonteCarloPlayer::selectLeafNode() {
-	Node *node = &root_;
+	Node *node = root_;
 	bool stop = false;
-	while (!node->is_terminal_ && !stop) {
+	while (!node->attemps_ == 0 && !node->is_terminal_ && !stop) {
 		if (node->sons_.size() == 0) {
 			state_machine_.setState(node->state_);
 			int move_size = state_machine_.getLegalMoves(role_num_).size();
 			for (int i = 0; i < move_size; i++) {
 				vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_num_, i);
-				vector<Node> nodes(jointmoves.size(), Node(node));
+				vector<Node *> nodes;
+				for (int j = 0; j < jointmoves.size(); ++j) {
+					nodes_.push_back(Node(node));
+					Node * new_node = &nodes_[nodes_.size() - 1];
+					new_node->code_ = nodes_.size() - 1;
+					nodes.push_back(new_node);
+				}
 				node->sons_.push_back(nodes);
 			}
 			stop = true;
 		}
 		pair<int, int> move = node->getMaximinMove();
-		node = &node->sons_[move.first][move.second];
+		node = node->sons_[move.first][move.second];
 		if (node->state_.size() == 0){				
 			state_machine_.setState(node->parent_->state_);	
 			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, move.first)[move.second]);						
 			node->state_ = state_machine_.trues_;
 			node->is_terminal_ = state_machine_.is_terminal_;
-			state_node_[Proposition::propsToStr(node->state_)] = node;
 		}
 	}
 	return node;
@@ -137,22 +148,93 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit) {
 	msg << "UCT simu times per second: " << speed;
 	cerr << Client::message("debug",  msg.str());	
 
-	int best_move = root_.getMaximinMove().first;
+	int best_move = root_->getMaximinMove().first;
 	return state_machine_.getLegalMoves(role_num_)[best_move];
 }
 
 void MonteCarloPlayer::goOneStep(Propositions moves) {	
+	sort(moves.begin(), moves.end());
 	state_machine_.setState(current_state_);	
 	state_machine_.goOneStep(moves);
 	current_state_ = state_machine_.trues_;
 	is_terminal_ = state_machine_.is_terminal_;
 	
-	root_ = Node();
-	root_.state_ = current_state_;
-	root_.is_terminal_ = is_terminal_;
+	if (root_->sons_.size() > 0) {
+		bool find = false;
+		for (int i = 0; i < root_->sons_.size() && !find; ++i) {
+			for (int j = 0; j < root_->sons_[i].size() && !find; ++j) {
+				if (root_->sons_[i][j]->state_ == current_state_) {
+					find = true;
+					root_ = root_->sons_[i][j];
+				}
+			}
+		}
+	} else {
+		nodes_.clear();
+		nodes_.push_back(Node());
+		root_ = &nodes_[0];
+		root_->code_ = 0;
+	}
+	root_->state_ = current_state_;
+	root_->is_terminal_ = is_terminal_;
 
-	state_node_.clear();
-	state_node_[Proposition::propsToStr(root_.state_)] = &root_;
-	
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
+}
+
+void MonteCarloPlayer::updateNode(Node * node, string s) {	
+	//cerr << Client::message("debug s: ", s);
+	//cerr << Client::message("debug node: ", toString());
+	int start = 2;
+	int end = start + 1;
+	while (s[end] != ')') ++end;
+	node->points_ += atoi(s.substr(start, end - start).c_str());
+	start = end + 2;
+	end = start + 1;
+	while (s[end] != ')') ++end;
+	node->attemps_ += atoi(s.substr(start, end - start).c_str());
+	start = end + 1;
+	if (s[start] == ')') {
+		return;
+	}
+	bool check = false;
+	if (node->sons_.size() == 0) {
+		check = true;
+		int i = start;
+		while (s[i] == '(') {
+			vector<Node *> nodes;
+			++i;
+			while (s[i] == '(') {
+				nodes_.push_back(Node(node));
+				Node * new_node = &nodes_[nodes_.size() - 1];
+				new_node->code_ = nodes_.size() - 1;
+				nodes.push_back(new_node);
+				int count = 0;
+				do {
+					if (s[i] == '(') ++count;
+					if (s[i] == ')') --count;
+					++i;
+				} while (count > 0);
+			}
+			++i;
+			node->sons_.push_back(nodes);
+		}
+	}
+	for (int i = 0; i < node->sons_.size(); ++i) {
+		++start;
+		for (int j = 0; j < node->sons_[i].size(); ++j) {
+			/*if (start >= s.size() || s[start] == ')') {
+				break;
+			}*/
+			end = start;
+			int count = 0;
+			do {
+				if (s[end] == '(') ++count;
+				if (s[end] == ')') --count;
+				++end;
+			} while (count > 0);
+			updateNode(node->sons_[i][j], s.substr(start, end - start));
+			start = end;
+		}
+		++start;
+	}
 }

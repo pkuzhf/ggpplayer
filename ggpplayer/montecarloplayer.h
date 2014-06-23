@@ -17,10 +17,10 @@ public:
 	StateMachine state_machine_;
 	Propositions current_state_;
 	bool is_terminal_;
-	Node root_;
+	Node * root_;
 	Propositions legal_moves_;
 	int role_num_;
-	map<string, Node *> state_node_;
+	vector<Node> nodes_;
 
 	MonteCarloPlayer();
 	MonteCarloPlayer(Relations rs, string role);	
@@ -29,9 +29,10 @@ public:
 	Node * selectLeafNode();
 	void goOneStep(Propositions moves);
 	void setState(Propositions state);
-	void updateTree(Propositions state, string tree);
+	void updateTree(int code, Propositions state, string tree);
 	Proposition getRandomMove();
 	Proposition getBestMove();
+	void updateNode(Node * node, string s);
 };
 
 #endif

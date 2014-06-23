@@ -7,6 +7,7 @@
 #include <sstream>
 #include <time.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "reader.h"
 #include "relation.h"
@@ -63,13 +64,13 @@ void run_server() {
 
 	while (true) {				
 		cin.getline(buf, buf_size);
-		char * space = strstr(buf, " ");
-		if (space == NULL) continue;
-		*space = '\0';
+		char * p_space = strstr(buf, " ");
+		if (p_space == NULL) continue;
+		*p_space = '\0';
 		string cmd = string(buf);		
 		if (cmd == "server") {
 			Reader move_reader;
-			move_reader.file_content_ = string(space + 1);
+			move_reader.file_content_ = string(p_space + 1);
 			Propositions joint_move;
 			move_reader.getPropositions(joint_move);
 			for (int i = 0; i < joint_move.size(); ++i) {
@@ -86,30 +87,36 @@ void run_server() {
 			//Proposition move = player.stateMachineSelectMove(playclock);
 			//cerr << move.items_[1].toString() << endl;
 			cerr << Client::message("move", player.getRandomMove().items_[1].toString());
-			cerr << Client::message("state", Proposition::propsToStr(player.root_.state_));
+			cerr << Client::message("state", Proposition::propsToStr(player.root_->state_));
 		} else if (cmd == "client") {
-			char * semi = strstr(space + 1, ";");
-			if (semi == NULL) continue;
-			*semi = '\0';
+			char * p_code = p_space + 1;
+			char * p_semi = strstr(p_code, ";");
+			*p_semi = '\0';
+			char * p_state = p_semi + 1;
+			p_semi = strstr(p_state, ";");
+			*p_semi = '\0';
+			char * p_tree = p_semi + 1;
 			Reader state_reader;
-			state_reader.file_content_ = string(space + 1);
+			state_reader.file_content_ = string(p_state);
 			Propositions state;
 			state_reader.getPropositions(state);			
-			player.updateTree(state, string(semi + 1));
+			player.updateTree(atoi(p_code), state, string(p_tree));
 			ostringstream o;
-			o << "(" << player.root_.points_ / (player.root_.attemps_ + 1) << "/" << player.root_.attemps_ << ") ";
-			for (int i = 0; i < player.root_.sons_.size(); ++i) {
+			o << "(" << player.root_->points_ / (player.root_->attemps_ + 1) << "/" << player.root_->attemps_ << ") ";
+			for (int i = 0; i < player.root_->sons_.size(); ++i) {
 				o << "{ ";
-				for (int j = 0; j < player.root_.sons_[i].size(); j++) {
-					o << "<" << player.root_.sons_[i][j].points_ / (player.root_.sons_[i][j].attemps_ + 1) << "/" << player.root_.sons_[i][j].attemps_ << "> ";
+				for (int j = 0; j < player.root_->sons_[i].size(); j++) {
+					o << "<" << player.root_->sons_[i][j]->points_ / (player.root_->sons_[i][j]->attemps_ + 1) << "/" << player.root_->sons_[i][j]->attemps_ << "> ";
 				}
 				o << "} ";
 			}
-			pair<int, int> move = player.root_.getMaximinMove();
+			pair<int, int> move = player.root_->getMaximinMove();
 			o << move.first << " " << move.second;
-			//o << player.root_.toString();
+			//o << player.root_->toString();
 			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
+			Node 
+			cerr << Client::message("code", player
 			cerr << Client::message("state", Proposition::propsToStr(player.selectLeafNode()->state_));
 			cerr << Client::message("updated", "");
 		}
