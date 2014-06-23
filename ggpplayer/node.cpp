@@ -46,19 +46,19 @@ pair<int, int> Node::getMaximinMove() {
 	int y = -1;
 	double maximin_value;
 	for (int i = 0; i < sons_.size(); ++i) {
-		int min = 0;
+		int min_node = 0;
 		double min_value = sons_[i][0].getScore();
 		for (int j = 1; j < sons_[i].size(); ++j) {
 			double value = sons_[i][j].getScore();
 			if (value < min_value) {
 				min_value = value;
-				min = j;
+				min_node = j;
 			}
 		}
 		if (x == -1 || min_value > maximin_value) {
 			maximin_value = min_value;
 			x = i;
-			y = min;
+			y = min_node;
 		}
 	}
 	return pair<int, int>(x, y);
