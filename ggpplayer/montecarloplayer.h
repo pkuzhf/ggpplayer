@@ -20,7 +20,7 @@ public:
 	Node root_;
 	Propositions legal_moves_;
 	int role_num_;
-	map<Propositions, Node *> state_node_;
+	map<string, Node *> state_node_;
 
 	MonteCarloPlayer();
 	MonteCarloPlayer(Relations rs, string role);	

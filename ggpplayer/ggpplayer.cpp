@@ -100,7 +100,7 @@ void run_server() {
 			ostringstream o;
 			o << "(" << (int)player.root_.getScore() << "/" << player.root_.attemps_ << ") ";
 			for (int i = 0; i < player.root_.sons_.size(); ++i) {
-				o << "{";
+				o << "{ ";
 				for (int j = 0; j < player.root_.sons_[i].size(); j++) {
 					o << "<" << (int)player.root_.sons_[i][j].getScore() << "/" << player.root_.sons_[i][j].attemps_ << "> ";
 				}

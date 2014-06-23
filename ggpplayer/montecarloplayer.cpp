@@ -14,10 +14,10 @@
 using namespace std;
 
 void MonteCarloPlayer::updateTree(Propositions state, string tree) {
-	if (state_node_.find(state) == state_node_.end()) {
+	if (state_node_.find(Proposition::propsToStr(state)) == state_node_.end()) {
 		return;
 	}
-	Node * node = state_node_[state];
+	Node * node = state_node_[Proposition::propsToStr(state)];
 	//cerr << Client::message("debug", "updateTree");
 	//cerr << Client::message("debug", node->toString());
 	state_machine_.setState(state);
@@ -47,7 +47,7 @@ MonteCarloPlayer::MonteCarloPlayer(Relations rs, string role):state_machine_(rs)
 	}
 	root_.state_ = current_state_;
 	root_.is_terminal_ = is_terminal_;
-	state_node_[root_.state_] = &root_;
+	state_node_[Proposition::propsToStr(root_.state_)] = &root_;
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
 
@@ -93,7 +93,7 @@ Node * MonteCarloPlayer::selectLeafNode() {
 			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, move.first)[move.second]);						
 			node->state_ = state_machine_.trues_;
 			node->is_terminal_ = state_machine_.is_terminal_;
-			state_node_[node->state_] = node;
+			state_node_[Proposition::propsToStr(node->state_)] = node;
 		}
 	}
 	return node;
@@ -150,7 +150,7 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 	root_.is_terminal_ = is_terminal_;
 
 	state_node_.clear();
-	state_node_[root_.state_] = &root_;
+	state_node_[Proposition::propsToStr(root_.state_)] = &root_;
 	
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
