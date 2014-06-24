@@ -100,9 +100,9 @@ void run_server() {
 			p_semi = strstr(p_state, ";");
 			*p_semi = '\0';
 			char * p_tree = p_semi + 1;
-			Client::message("debug", p_code);
-			Client::message("debug", p_state);
-			Client::message("debug", p_tree);
+			cerr << Client::message("debug", p_code);
+			cerr << Client::message("debug", p_state);
+			cerr << Client::message("debug", p_tree);
 			Reader state_reader;
 			state_reader.file_content_ = string(p_state);
 			Propositions state;
