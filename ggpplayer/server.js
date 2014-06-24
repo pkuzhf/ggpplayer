@@ -222,7 +222,7 @@ function handleExeMessage(message) {
     } else if (cmd === 'debug') {
         //console.log('debug: ' + message)
     } else if (cmd === 'stat') {
-        console.log('msgs: ' + ggp.msgs.length + ' stat: ' + message);
+        console.log('cons: ' + controllers.length + ' clients: ' + clients.length + ' msgs: ' + ggp.msgs.length + ' stat: ' + message);
     }
 }
 
@@ -296,7 +296,7 @@ var server = net.createServer(function (sock) {
     client.buffer = '';
     client.data_length = null;
     clients.push(client);
-    console.log('connected ' + sock.remoteAddress + ':' + sock.remotePort);
+    console.log('connected client ' + sock.remoteAddress + ':' + sock.remotePort);
     sock.on('data', function(data) {
         for (var i = 0; i < clients.length; ++i) {
             if (clients[i].sock === sock) {
@@ -306,11 +306,10 @@ var server = net.createServer(function (sock) {
         }
     });
     sock.on('close', function(has_err) {
-        console.log('close ' + sock.remoteAddress);
         var client = null;
         for (var i = 0; i < clients.length; ++i) {
             if (clients[i].sock === sock) {
-                console.log('close ' + sock.remoteAddress);
+                console.log('close client');
                 clients.splice(i, 1);
                 break;
             }
@@ -334,16 +333,15 @@ net.createServer(function (sock) {
                 break;
             }
         }
+        console.log('close controller ' + sock.remoteAddress);
     });
     if (!reseted[sock.remoteAddress]) {
         sock.write('reset');
         reseted[sock.remoteAddress] = true;
         console.log('reset ' + sock.remoteAddress);
-    } else {
-        controllers.push(sock);
     }
+    controllers.push(sock);
     console.log('controller ' + sock.remoteAddress + ' connected');
-
 }).listen(10001);
 
 process.on('uncaughtException', function(err) {
