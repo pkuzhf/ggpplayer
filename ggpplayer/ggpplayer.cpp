@@ -115,7 +115,7 @@ void run_server() {
 				o << "} ";
 			}
 			pair<int, int> move = player.root_->getMaximinMove();
-			o << move.first << " " << move.second;
+			o << player.nodes_.size();
 			//o << player.root_->toString();
 			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
