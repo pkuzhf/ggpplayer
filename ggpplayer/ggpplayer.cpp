@@ -58,22 +58,24 @@ void run_server() {
 	}*/
 	cerr << Client::message("ready", "");
 
-	cin.getline(buf, buf_size);
 	ostringstream s;
 	s << player.root_->code_ << ";" << Proposition::propsToStr(player.root_->state_);
 	cerr << Client::message("state", s.str());
 	cerr << Client::message("move", player.getRandomMove().items_[1].toString());
 	
-
 	while (true) {				
 		cin.getline(buf, buf_size);
 		char * p_space = strstr(buf, " ");
 		if (p_space == NULL) continue;
 		*p_space = '\0';
-		string cmd = string(buf);		
+		string cmd = string(buf);
 		if (cmd == "server") {
+			string move = string(p_space + 1);
+			if (move == "nil") {
+				continue;
+			}
 			Reader move_reader;
-			move_reader.file_content_ = string(p_space + 1);
+			move_reader.file_content_ = move;
 			Propositions joint_move;
 			move_reader.getPropositions(joint_move);
 			for (int i = 0; i < joint_move.size(); ++i) {
