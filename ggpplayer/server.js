@@ -3,6 +3,7 @@ var util = require('util');
 var fs = require('fs');
 var spawn = require('child_process').spawn;
 var net = require('net');
+var fs = require('fs');
 var clients = [];
 var controllers = [];
 var ggp = {};
@@ -222,7 +223,9 @@ function handleExeMessage(message) {
     } else if (cmd === 'debug') {
         //console.log('debug: ' + message)
     } else if (cmd === 'stat') {
-        console.log(controllers.length + '-' + clients.length + ' msgs: ' + ggp.msgs.length + ' stat: ' + message);
+        var line = controllers.length + '-' + clients.length + ' msgs: ' + ggp.msgs.length + ' stat: ' + message;
+        console.log(line);
+        log(ggp.game, line + '\n');
     }
 }
 
@@ -265,9 +268,11 @@ function handleClientMessage(client, message) {
         var update_state = false;
         if (cmd === 'uct') {
             var msg = 'client ' + client.state + ';' + message + '\n';
-            ggp.msgs.push(msg);
-            if (ggp.msgs.length === 1) {
+            if (ggp.msgs.length === 0) {
+                ggp.msgs.push(msg);
                 ggp.exe.stdin.write(ggp.msgs[0]);
+            } else {
+                ggp.msgs.splice(1, 0, msg);
             }
             update_state = true;
         } else if (cmd === 'ready') {
@@ -296,7 +301,7 @@ var server = net.createServer(function (sock) {
     client.buffer = '';
     client.data_length = null;
     clients.push(client);
-    console.log('connected client ' + sock.remoteAddress + ':' + sock.remotePort);
+    console.log('connected client ' + sock.remoteAddress + ':' + sock.remotePort + ' total: ' + clients.length);
     sock.on('data', function(data) {
         for (var i = 0; i < clients.length; ++i) {
             if (clients[i].sock === sock) {
@@ -309,8 +314,8 @@ var server = net.createServer(function (sock) {
         var client = null;
         for (var i = 0; i < clients.length; ++i) {
             if (clients[i].sock === sock) {
-                console.log('close client');
                 clients.splice(i, 1);
+                console.log('client closed. total: ' + clients.length);
                 break;
             }
         }
@@ -343,6 +348,10 @@ net.createServer(function (sock) {
     }
     controllers.push(sock);
 }).listen(10001);
+
+function log(file, data) {
+    fs.appendFileSync('log/' + file, data);
+}
 
 process.on('uncaughtException', function(err) {
     console.log(util.inspect(err));
