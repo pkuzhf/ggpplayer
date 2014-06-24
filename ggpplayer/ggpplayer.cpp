@@ -58,11 +58,11 @@ void run_server() {
 	}*/
 	cerr << Client::message("ready", "");
 
-	cin.getline(buf, buf_size);
 	ostringstream s;
 	s << player.root_->code_ << ";" << Proposition::propsToStr(player.root_->state_);
 	cerr << Client::message("state", s.str());
 	cerr << Client::message("move", player.getRandomMove().items_[1].toString());
+	cin.getline(buf, buf_size);
 
 	while (true) {				
 		cin.getline(buf, buf_size);
