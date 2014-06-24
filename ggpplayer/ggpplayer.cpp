@@ -59,7 +59,9 @@ void run_server() {
 	cerr << Client::message("ready", "");
 
 	cin.getline(buf, buf_size);
-	cerr << Client::message("state", Proposition::propsToStr(player.current_state_));
+	ostringstream s;
+	s << player.root_->code_ << ";" << Proposition::propsToStr(player.root_->state_);
+	cerr << Client::message("state", s.str());
 	cerr << Client::message("move", player.getRandomMove().items_[1].toString());
 
 	while (true) {				
@@ -87,7 +89,9 @@ void run_server() {
 			//Proposition move = player.stateMachineSelectMove(playclock);
 			//cerr << move.items_[1].toString() << endl;
 			cerr << Client::message("move", player.getRandomMove().items_[1].toString());
-			cerr << Client::message("state", Proposition::propsToStr(player.root_->state_));
+			ostringstream s;
+			s << player.root_->code_ << ";" << Proposition::propsToStr(player.root_->state_);
+			cerr << Client::message("state", s.str());
 		} else if (cmd == "client") {
 			char * p_code = p_space + 1;
 			char * p_semi = strstr(p_code, ";");
@@ -115,8 +119,9 @@ void run_server() {
 			//o << player.root_->toString();
 			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
+			Node * node = player.selectLeafNode();
 			ostringstream s;
-			s << player.root_->code_ << ";" << Proposition::propsToStr(player.selectLeafNode()->state_);
+			s << node->code_ << ";" << Proposition::propsToStr(node->state_);
 			cerr << Client::message("state", s.str());
 			cerr << Client::message("updated", "");
 		}
