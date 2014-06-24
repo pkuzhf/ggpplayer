@@ -326,6 +326,7 @@ server.listen(10000);
 
 var reseted = {};
 net.createServer(function (sock) {
+    console.log('controller ' + sock.remoteAddress + ' connected');
     sock.on('close', function() {
         for (var i = 0; i < controllers.length; ++i) {
             if (controllers[i] === sock) {
@@ -338,10 +339,9 @@ net.createServer(function (sock) {
     if (!reseted[sock.remoteAddress]) {
         sock.write('reset');
         reseted[sock.remoteAddress] = true;
-        console.log('reset ' + sock.remoteAddress);
+        console.log('reset controller ' + sock.remoteAddress);
     }
     controllers.push(sock);
-    console.log('controller ' + sock.remoteAddress + ' connected');
 }).listen(10001);
 
 process.on('uncaughtException', function(err) {
