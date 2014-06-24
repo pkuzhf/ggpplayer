@@ -222,7 +222,7 @@ function handleExeMessage(message) {
     } else if (cmd === 'debug') {
         //console.log('debug: ' + message)
     } else if (cmd === 'stat') {
-        console.log('cons: ' + controllers.length + ' clients: ' + clients.length + ' msgs: ' + ggp.msgs.length + ' stat: ' + message);
+        console.log(controllers.length + '-' + clients.length + ' msgs: ' + ggp.msgs.length + ' stat: ' + message);
     }
 }
 
