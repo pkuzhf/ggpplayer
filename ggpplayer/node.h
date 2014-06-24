@@ -14,14 +14,15 @@ class Node
 public:
 	long long points_;
 	long long attemps_;
-	Propositions state_;
 	int code_;
+	Propositions state_;
 	bool is_terminal_;
 	vector<vector<Node *> > sons_;
 	Node * parent_;
-
+	
 	Node(Node * p); 
 	Node();
+	void init(Propositions & state, bool is_terminal);
 	double getScore();
 	string toString();
 	pair<int, int> getMaximinMove();

@@ -82,3 +82,7 @@ string Node::toString() {
 	return ret.str();
 }
 
+void Node::init(Propositions & state, bool is_terminal) {
+	state_ = state;
+	is_terminal_ = is_terminal;
+}
