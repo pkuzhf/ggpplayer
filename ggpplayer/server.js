@@ -99,7 +99,7 @@ http.createServer(function (req, res) {
             break;
         case 'start' :
             for (var i = 0; i < controllers.length; ++i) {
-                controllers[i].write('reset');
+                controllers[i].write('start');
             }
             fs.writeFileSync('gdl/rule.txt', request.rule);
             ggp.game = request.id;
@@ -221,7 +221,7 @@ function handleExeMessage(message) {
     } else if (cmd === 'debug') {
         console.log('debug: ' + message)
     } else if (cmd === 'stat') {
-        console.log('stat: ' + message);
+        console.log('msgs: ' + ggp.msgs.length + ' stat: ' + message);
     }
 }
 
@@ -324,6 +324,7 @@ var server = net.createServer(function (sock) {
 
 server.listen(10000);
 
+var reseted = {};
 net.createServer(function (sock) {
     sock.on('close', function() {
         for (var i = 0; i < controllers.length; ++i) {
@@ -333,8 +334,15 @@ net.createServer(function (sock) {
             }
         }
     });
-    controllers.push(sock);
+    if (!reseted[sock.remoteAddress]) {
+        sock.write('reset');
+        reseted[sock.remoteAddress] = true;
+        console.log('reset ' + sock.remoteAddress);
+    } else {
+        controllers.push(sock);
+    }
     console.log('controller ' + sock.remoteAddress + ' connected');
+
 }).listen(10001);
 
 process.on('uncaughtException', function(err) {
