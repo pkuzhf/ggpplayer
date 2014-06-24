@@ -46,11 +46,9 @@ MonteCarloPlayer::MonteCarloPlayer(Relations rs, string role):state_machine_(rs)
 			break;
 		}
 	}
-	nodes_.push_back(Node());
-	root_ = &nodes_[0];
+	root_ = newNode();
 	root_->state_ = current_state_;
 	root_->is_terminal_ = is_terminal_;
-	root_->code_ = 0;
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
 
@@ -71,17 +69,14 @@ void MonteCarloPlayer::setState(Propositions state) {
 	current_state_ = state;
 	is_terminal_ = state_machine_.is_terminal_;
 	nodes_.clear();
-	nodes_.push_back(Node());
-	root_ = &nodes_[0];
+	root_ = newNode();
 	root_->state_ = current_state_;
 	root_->is_terminal_ = is_terminal_;
-	root_->code_ = 0;
 }
 
 Node * MonteCarloPlayer::selectLeafNode() {
 	Node *node = root_;
-	bool stop = false;
-	while (!node->attemps_ == 0 && !node->is_terminal_ && !stop) {
+	while (!node->attemps_ == 0 && !node->is_terminal_) {
 		if (node->sons_.size() == 0) {
 			state_machine_.setState(node->state_);
 			int move_size = state_machine_.getLegalMoves(role_num_).size();
@@ -89,14 +84,10 @@ Node * MonteCarloPlayer::selectLeafNode() {
 				vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_num_, i);
 				vector<Node *> nodes;
 				for (int j = 0; j < jointmoves.size(); ++j) {
-					nodes_.push_back(Node(node));
-					Node * new_node = &nodes_[nodes_.size() - 1];
-					new_node->code_ = nodes_.size() - 1;
-					nodes.push_back(new_node);
+					nodes.push_back(newNode());
 				}
 				node->sons_.push_back(nodes);
 			}
-			stop = true;
 		}
 		pair<int, int> move = node->getMaximinMove();
 		node = node->sons_[move.first][move.second];
@@ -171,15 +162,20 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 		}
 	} else {
 		nodes_.clear();
-		nodes_.push_back(Node());
-		root_ = &nodes_[0];
-		root_->code_ = 0;
+		root_ = newNode();
 	}
 	root_->state_ = current_state_;
 	root_->is_terminal_ = is_terminal_;
 
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
+
+Node * MonteCarloPlayer::newNode() {	
+	nodes_.push_back(Node());
+	nodes_[nodes_.size() - 1].code_ = nodes_.size() - 1;
+	return &nodes_[nodes_.size() - 1];
+}
+
 
 void MonteCarloPlayer::updateNode(Node * node, string s) {	
 	//cerr << Client::message("debug s: ", s);
@@ -204,10 +200,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 			vector<Node *> nodes;
 			++i;
 			while (s[i] == '(') {
-				nodes_.push_back(Node(node));
-				Node * new_node = &nodes_[nodes_.size() - 1];
-				new_node->code_ = nodes_.size() - 1;
-				nodes.push_back(new_node);
+				nodes.push_back(newNode());
 				int count = 0;
 				do {
 					if (s[i] == '(') ++count;

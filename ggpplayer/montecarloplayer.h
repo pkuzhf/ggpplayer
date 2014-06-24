@@ -23,7 +23,7 @@ public:
 	vector<Node> nodes_;
 
 	MonteCarloPlayer();
-	MonteCarloPlayer(Relations rs, string role);	
+	MonteCarloPlayer(Relations rs, string role);
 	Proposition stateMachineSelectMove(int timeout);
 	double uct(int time_limit, int once_simu_limit, int max_simu_times);
 	Node * selectLeafNode();
@@ -32,6 +32,7 @@ public:
 	void updateTree(int code, Propositions state, string tree);
 	Proposition getRandomMove();
 	Proposition getBestMove();
+	Node * newNode();
 	void updateNode(Node * node, string s);
 };
 
