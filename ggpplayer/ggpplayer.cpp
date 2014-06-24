@@ -119,8 +119,8 @@ void run_server() {
 			//o << player.root_->toString();
 			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
+			cerr << Client::message("debug", player.root_->toString());
 			Node * node = player.selectLeafNode();
-			cerr << Client::message("debug", "select node completed");
 			ostringstream s;
 			s << node->code_ << ";" << Proposition::propsToStr(node->state_);
 			cerr << Client::message("state", s.str());
