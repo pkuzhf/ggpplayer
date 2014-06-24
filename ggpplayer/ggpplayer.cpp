@@ -100,9 +100,6 @@ void run_server() {
 			p_semi = strstr(p_state, ";");
 			*p_semi = '\0';
 			char * p_tree = p_semi + 1;
-			cerr << Client::message("debug", p_code);
-			cerr << Client::message("debug", p_state);
-			cerr << Client::message("debug", p_tree);
 			Reader state_reader;
 			state_reader.file_content_ = string(p_state);
 			Propositions state;
@@ -123,6 +120,7 @@ void run_server() {
 			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
 			Node * node = player.selectLeafNode();
+			cerr << Client::message("debug", "select node completed");
 			ostringstream s;
 			s << node->code_ << ";" << Proposition::propsToStr(node->state_);
 			cerr << Client::message("state", s.str());
