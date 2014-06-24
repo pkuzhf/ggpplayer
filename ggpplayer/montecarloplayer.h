@@ -20,7 +20,7 @@ public:
 	Node * root_;
 	Propositions legal_moves_;
 	int role_num_;
-	vector<Node> nodes_;
+	vector<Node *> nodes_;
 
 	MonteCarloPlayer();
 	MonteCarloPlayer(Relations rs, string role);
@@ -32,8 +32,9 @@ public:
 	void updateTree(int code, Propositions state, string tree);
 	Proposition getRandomMove();
 	Proposition getBestMove();
-	Node * newNode();
+	Node * newNode(Node * parent = NULL);
 	void updateNode(Node * node, string s);
+	void deleteNodes();
 };
 
 #endif

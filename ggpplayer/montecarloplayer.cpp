@@ -15,10 +15,10 @@
 using namespace std;
 
 void MonteCarloPlayer::updateTree(int code, Propositions state, string tree) {
-	if (code >= nodes_.size() || nodes_[code].state_ != state) {
+	if (code >= nodes_.size() || nodes_[code]->state_ != state) {
 		return;
 	}
-	Node * node = &nodes_[code];
+	Node * node = nodes_[code];
 	//cerr << Client::message("debug", "updateTree");
 	//cerr << Client::message("debug", node->toString());
 	//state_machine_.setState(state);
@@ -68,7 +68,7 @@ void MonteCarloPlayer::setState(Propositions state) {
 	state_machine_.setState(state);
 	current_state_ = state;
 	is_terminal_ = state_machine_.is_terminal_;
-	nodes_.clear();
+	deleteNodes();
 	root_ = newNode();
 	root_->state_ = current_state_;
 	root_->is_terminal_ = is_terminal_;
@@ -84,7 +84,7 @@ Node * MonteCarloPlayer::selectLeafNode() {
 				vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_num_, i);
 				vector<Node *> nodes;
 				for (int j = 0; j < jointmoves.size(); ++j) {
-					nodes.push_back(newNode());
+					nodes.push_back(newNode(node));
 				}
 				node->sons_.push_back(nodes);
 			}
@@ -161,7 +161,7 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 			}
 		}
 	} else {
-		nodes_.clear();
+		deleteNodes();
 		root_ = newNode();
 	}
 	root_->state_ = current_state_;
@@ -170,12 +170,19 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
 
-Node * MonteCarloPlayer::newNode() {	
-	nodes_.push_back(Node());
-	nodes_[nodes_.size() - 1].code_ = nodes_.size() - 1;
-	return &nodes_[nodes_.size() - 1];
+Node * MonteCarloPlayer::newNode(Node * parent) {
+	Node * node = new Node(parent);
+	nodes_.push_back(node);
+	node->code_ = nodes_.size() - 1;
+	return node;
 }
 
+void MonteCarloPlayer::deleteNodes() {
+	for (int i = 0; i < nodes_.size(); ++i) {
+		delete nodes_[i];
+	}
+	nodes_.clear();
+}
 
 void MonteCarloPlayer::updateNode(Node * node, string s) {	
 	//cerr << Client::message("debug s: ", s);
