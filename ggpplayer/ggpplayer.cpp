@@ -26,23 +26,23 @@ void run_client() {
 }
 
 void run_server() {
-	Reader r;
-	if (!r.readFile("gdl/tic_tac_toe.txt")) {
-		cerr << Client::message("debug", "read file failed.");
-    }
-	Relations rs;
-	r.getRelations(rs);
+	//Reader r;
+	//if (!r.readFile("gdl/tic_tac_toe.txt")) {
+	//	cerr << Client::message("debug", "read file failed.");
+ //   }
+	//Relations rs;
+	//r.getRelations(rs);
 	//StateMachine machine(rs);
 	//machine.randomGo(clock() + 100000);
 	//
 	const int buf_size = 100000;
 	char buf[buf_size];
 
-	//Reader r;
-	//cin.getline(buf, buf_size);
-	//r.readLine(buf);
-	//Relations rs;
-	//r.getRelations(rs);
+	Reader r;
+	cin.getline(buf, buf_size);
+	r.readLine(buf);
+	Relations rs;
+	r.getRelations(rs);
 
     cin.getline(buf, buf_size);
 	string role = string(buf);
