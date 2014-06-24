@@ -202,9 +202,10 @@ function handleExeMessage(message) {
     if (cmd === 'ready') {
         ggp.res.end('ready');
     } else if (cmd === 'move') {
-        //console.log('Exe Message: ' + message)
+        //console.log('move: ' + message)
         ggp.move = message;
-    } else if (cmd === 'state') {        
+    } else if (cmd === 'state') {
+        //console.log('state: ' + message);
         ggp.state = message;
         for (var i = 0; i < clients.length; ++i) {
             if (clients[i].game === ggp.game && !clients[i].state) {
@@ -219,7 +220,7 @@ function handleExeMessage(message) {
             ggp.exe.stdin.write(ggp.msgs[0]);
         }
     } else if (cmd === 'debug') {
-        console.log('debug: ' + message)
+        //console.log('debug: ' + message)
     } else if (cmd === 'stat') {
         console.log('msgs: ' + ggp.msgs.length + ' stat: ' + message);
     }

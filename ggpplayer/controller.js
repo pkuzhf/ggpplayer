@@ -39,6 +39,8 @@ function startClients() {
         client.on('exit', function () {
             console.log('client exit');
         });
+        client.stdout.on('data', function (data) {
+        });
         client.stderr.on('data', function (data) {
         });
         clients.push(client);
