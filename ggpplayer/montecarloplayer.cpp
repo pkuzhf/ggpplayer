@@ -19,10 +19,10 @@ void MonteCarloPlayer::updateTree(int code, Propositions state, string tree) {
 		return;
 	}
 	Node * node = nodes_[code];
-	//cerr << Client::message("debug", "updateTree");
-	//cerr << Client::message("debug", node->toString());
-	//state_machine_.setState(state);
-	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_num_)));
+	cerr << Client::message("debug", "updateTree");
+	cerr << Client::message("debug", node->toString());
+	state_machine_.setState(state);
+	cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_num_)));
 	long long old_points = node->points_;
 	long long old_attemps = node->attemps_;
 	updateNode(node, tree);
