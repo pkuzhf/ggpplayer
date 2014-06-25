@@ -22,7 +22,9 @@ Node::Node(Node * p) {
 	points_ = 0;
 	attemps_ = 0;
 	is_terminal_ = false;
-	parent_.push_back(p);
+	if (p != NULL) {
+		parent_.push_back(p);
+	}
 	code_ = -1;
 }
 
