@@ -90,6 +90,7 @@ Node * MonteCarloPlayer::selectLeafNode() {
 			state_machine_.setState(parent->state_);
 			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_, move.first)[move.second]);
 			if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
+				delete node;
 				node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
 				parent->sons_[move.first][move.second] = node;
 				node->parent_.push_back(parent);
@@ -175,7 +176,10 @@ void MonteCarloPlayer::deleteNodes() {
 				}
 			}
 		}
-		delete node;
+		
+	}
+	for (unordered_map<string, Node *>::iterator i = map_state_node_.begin(); i != map_state_node_.end(); ++i) {
+		delete i->second;
 	}
 	map_state_node_.clear();
 	code_num_ = 0;
