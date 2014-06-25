@@ -176,7 +176,6 @@ void MonteCarloPlayer::deleteNodes() {
 				}
 			}
 		}
-		
 	}
 	for (unordered_map<string, Node *>::iterator i = map_state_node_.begin(); i != map_state_node_.end(); ++i) {
 		delete i->second;
@@ -241,13 +240,21 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 }
 
 void MonteCarloPlayer::updateParents(Node * node, long long points, long long attemps) {
-	if (node == root_) {
+	vector<Node *> ancients;
+	getAncients(node, ancients);
+	for (int i = 0; i < ancients.size(); ++i) {
+		ancients[i]->points_ += points;
+		ancients[i]->attemps_ += attemps;
+	}
+}
+
+void MonteCarloPlayer::getAncients(Node * node, vector<Node *> &ancients) {
+	if (node == root_ || find(ancients.begin(), ancients.end(), node) != ancients.end()) {
 		return;
 	}
+	ancients.push_back(node);
 	for (int i = 0; i < node->parent_.size(); ++i) {
-		node->parent_[i]->points_ += points;
-		node->parent_[i]->attemps_ += attemps;
-		updateParents(node->parent_[i], points, attemps);
+		getAncients(node->parent_[i], ancients);
 	}
 }
 

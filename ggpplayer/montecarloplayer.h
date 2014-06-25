@@ -38,6 +38,7 @@ public:
 	void initNode(Node * node, Propositions & state, bool is_terminal);
 	void deleteNodes();
 	void updateParents(Node * node, long long points, long long attemps);
+	void getAncients(Node * node, vector<Node *> &ancients);
 };
 
 #endif
