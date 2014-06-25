@@ -240,19 +240,19 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 }
 
 void MonteCarloPlayer::updateParents(Node * node, long long points, long long attemps) {
-	vector<Node *> ancients;
+	unordered_set<Node *> ancients;
 	getAncients(node, ancients);
-	for (int i = 0; i < ancients.size(); ++i) {
-		ancients[i]->points_ += points;
-		ancients[i]->attemps_ += attemps;
+	for (unordered_set<Node *>::iterator i = ancients.begin(); i != ancients.end(); ++i) {
+		(*i)->points_ += points;
+		(*i)->attemps_ += attemps;
 	}
 }
 
-void MonteCarloPlayer::getAncients(Node * node, vector<Node *> &ancients) {
+void MonteCarloPlayer::getAncients(Node * node, unordered_set<Node *> &ancients) {
 	if (find(ancients.begin(), ancients.end(), node) != ancients.end()) {
 		return;
 	}
-	ancients.push_back(node);
+	ancients.insert(node);
 	if (node == root_) {
 		return;
 	}
