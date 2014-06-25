@@ -86,20 +86,33 @@ Node * MonteCarloPlayer::selectLeafNode() {
 		}
 		cerr << Client::message("debug", "2");
 		pair<int, int> move = node->getMaximinMove();
-		Node * parent = node;
-		node = node->sons_[move.first][move.second];
-		if (node->state_.size() == 0){				
-			state_machine_.setState(parent->state_);	
-			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, move.first)[move.second]);
-			if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
-				Node * used_node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
-				parent->sons_[move.first][move.second] = used_node;
-				used_node->parent_.push_back(parent);
-			} else {
-				initNode(node, state_machine_.trues_, state_machine_.is_terminal_);
-			}
-		}
 		cerr << Client::message("debug", "3");
+		Node * parent = node;
+		cerr << Client::message("debug", "4");
+		node = node->sons_[move.first][move.second];
+		cerr << Client::message("debug", "5");
+		if (node->state_.size() == 0){
+			cerr << Client::message("debug", "6");
+			state_machine_.setState(parent->state_);
+			cerr << Client::message("debug", "7");
+			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, move.first)[move.second]);
+			cerr << Client::message("debug", "8");
+			if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
+				cerr << Client::message("debug", "9");
+				Node * used_node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
+				cerr << Client::message("debug", "10");
+				parent->sons_[move.first][move.second] = used_node;
+				cerr << Client::message("debug", "11");
+				used_node->parent_.push_back(parent);
+				cerr << Client::message("debug", "12");
+			} else {
+				cerr << Client::message("debug", "13");
+				initNode(node, state_machine_.trues_, state_machine_.is_terminal_);
+				cerr << Client::message("debug", "14");
+			}
+			cerr << Client::message("debug", "15");
+		}
+		cerr << Client::message("debug", "16");
 	}
 	return node;
 }
