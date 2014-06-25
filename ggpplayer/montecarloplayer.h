@@ -19,8 +19,9 @@ public:
 	bool is_terminal_;
 	Node * root_;
 	Propositions legal_moves_;
-	int role_num_;
+	int role_;
 	vector<Node *> nodes_;
+	int code_num_;
 	unordered_map<string, Node *> map_state_node_;
 
 	MonteCarloPlayer();

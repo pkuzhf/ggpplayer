@@ -15,14 +15,14 @@
 using namespace std;
 
 void MonteCarloPlayer::updateTree(int code, Propositions state, string tree) {
-	if (code >= nodes_.size() || nodes_[code]->state_ != state) {
+	if (map_state_node_.find(Proposition::propsToStr(state)) == map_state_node_.end()) {
 		return;
 	}
-	Node * node = nodes_[code];
+	Node * node = map_state_node_[Proposition::propsToStr(state)];
 	//cerr << Client::message("debug", "updateTree");
 	//cerr << Client::message("debug", node->toString());
 	//state_machine_.setState(state);
-	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_num_)));
+	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_)));
 	long long old_points = node->points_;
 	long long old_attemps = node->attemps_;
 	updateNode(node, tree);
@@ -38,13 +38,13 @@ MonteCarloPlayer::MonteCarloPlayer(Relations rs, string role):state_machine_(rs)
 	int role_code = Relation::symbol2code[string(role)];
 	for (int i = 0; i < state_machine_.prover_.roles_.size(); ++i) {
 		if (state_machine_.prover_.roles_[i].items_[0].head_ == role_code) {
-			role_num_ = i;
+			role_ = i;
 			break;
 		}
 	}
 	root_ = newNode();
 	initNode(root_, current_state_, is_terminal_);
-	legal_moves_ = state_machine_.getLegalMoves(role_num_);
+	legal_moves_ = state_machine_.getLegalMoves(role_);
 }
 
 Proposition MonteCarloPlayer::getRandomMove() {
@@ -73,9 +73,9 @@ Node * MonteCarloPlayer::selectLeafNode() {
 	while (node->attemps_ > 0 && !node->is_terminal_) {
 		if (node->sons_.size() == 0) {
 			state_machine_.setState(node->state_);
-			int move_size = state_machine_.getLegalMoves(role_num_).size();
+			int move_size = state_machine_.getLegalMoves(role_).size();
 			for (int i = 0; i < move_size; i++) {
-				vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_num_, i);
+				vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_, i);
 				vector<Node *> nodes;
 				for (int j = 0; j < jointmoves.size(); ++j) {
 					nodes.push_back(newNode(node));
@@ -88,7 +88,7 @@ Node * MonteCarloPlayer::selectLeafNode() {
 		node = node->sons_[move.first][move.second];
 		if (node->state_.size() == 0){
 			state_machine_.setState(parent->state_);
-			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, move.first)[move.second]);
+			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_, move.first)[move.second]);
 			if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
 				node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
 				parent->sons_[move.first][move.second] = node;
@@ -114,9 +114,9 @@ double MonteCarloPlayer::uct(int time_limit, int once_simu_limit, int max_simu_t
 		int point = -1;
 		state_machine_.setState(node->state_);
 		if (node->is_terminal_) {
-			point = state_machine_.getGoal(role_num_);					
+			point = state_machine_.getGoal(role_);					
 		} else if (state_machine_.randomGo(start + once_simu_limit)) {
-			point = state_machine_.getGoal(role_num_);
+			point = state_machine_.getGoal(role_);
 		}	
 		if (point != -1) {
 			node->points_ += point;
@@ -129,8 +129,8 @@ double MonteCarloPlayer::uct(int time_limit, int once_simu_limit, int max_simu_t
 }
 
 Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit) {
-	if (state_machine_.getLegalMoves(role_num_).size() == 1){
-		return state_machine_.getLegalMoves(role_num_)[0];
+	if (state_machine_.getLegalMoves(role_).size() == 1){
+		return state_machine_.getLegalMoves(role_)[0];
 	}
 	double speed = uct(time_limit, time_limit, 10000000);	
 	ostringstream msg;
@@ -138,7 +138,7 @@ Proposition MonteCarloPlayer::stateMachineSelectMove(int time_limit) {
 	cerr << Client::message("debug",  msg.str());	
 
 	int best_move = root_->getMaximinMove().first;
-	return state_machine_.getLegalMoves(role_num_)[best_move];
+	return state_machine_.getLegalMoves(role_)[best_move];
 }
 
 void MonteCarloPlayer::goOneStep(Propositions moves) {	
@@ -155,7 +155,7 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 		root_ = newNode();
 		initNode(root_, current_state_, is_terminal_);
 	}
-	legal_moves_ = state_machine_.getLegalMoves(role_num_);
+	legal_moves_ = state_machine_.getLegalMoves(role_);
 }
 
 Node * MonteCarloPlayer::newNode(Node * parent) {
