@@ -71,6 +71,7 @@ void MonteCarloPlayer::setState(Propositions state) {
 Node * MonteCarloPlayer::selectLeafNode() {
 	Node *node = root_;
 	while (!node->attemps_ == 0 && !node->is_terminal_) {
+		cerr << Client::message("debug", "1");
 		if (node->sons_.size() == 0) {
 			state_machine_.setState(node->state_);
 			int move_size = state_machine_.getLegalMoves(role_num_).size();
@@ -83,6 +84,7 @@ Node * MonteCarloPlayer::selectLeafNode() {
 				node->sons_.push_back(nodes);
 			}
 		}
+		cerr << Client::message("debug", "2");
 		pair<int, int> move = node->getMaximinMove();
 		Node * parent = node;
 		node = node->sons_[move.first][move.second];
@@ -97,6 +99,7 @@ Node * MonteCarloPlayer::selectLeafNode() {
 				initNode(node, state_machine_.trues_, state_machine_.is_terminal_);
 			}
 		}
+		cerr << Client::message("debug", "3");
 	}
 	return node;
 }
