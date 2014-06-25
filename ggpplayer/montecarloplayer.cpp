@@ -90,10 +90,12 @@ Node * MonteCarloPlayer::selectLeafNode() {
 			state_machine_.setState(parent->state_);	
 			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, move.first)[move.second]);
 			if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
+				cerr << Client::message("debug", "1");
 				Node * used_node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
 				parent->sons_[move.first][move.second] = used_node;
 				used_node->parent_.push_back(parent);
 			} else {
+				cerr << Client::message("debug", "2");
 				initNode(node, state_machine_.trues_, state_machine_.is_terminal_);
 			}
 		}
