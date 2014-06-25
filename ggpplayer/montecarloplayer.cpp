@@ -70,7 +70,7 @@ void MonteCarloPlayer::setState(Propositions state) {
 
 Node * MonteCarloPlayer::selectLeafNode() {
 	Node *node = root_;
-	while (!node->attemps_ == 0 && !node->is_terminal_) {
+	while (node->attemps_ > 0 && !node->is_terminal_) {
 		if (node->sons_.size() == 0) {
 			state_machine_.setState(node->state_);
 			int move_size = state_machine_.getLegalMoves(role_num_).size();
@@ -153,21 +153,13 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 	current_state_ = state_machine_.trues_;
 	is_terminal_ = state_machine_.is_terminal_;
 	
-	if (root_->sons_.size() > 0) {
-		bool find = false;
-		for (int i = 0; i < root_->sons_.size() && !find; ++i) {
-			for (int j = 0; j < root_->sons_[i].size() && !find; ++j) {
-				if (root_->sons_[i][j]->state_ == current_state_) {
-					find = true;
-					root_ = root_->sons_[i][j];
-				}
-			}
-		}
+	if (map_state_node_.find(Proposition::propsToStr(current_state_)) != map_state_node_.end()) {
+		root_ = map_state_node_[Proposition::propsToStr(current_state_)];
 	} else {
 		deleteNodes();
 		root_ = newNode();
+		initNode(root_, current_state_, is_terminal_);
 	}
-	initNode(root_, current_state_, is_terminal_);
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
 
