@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <set>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <cmath>
 #include "dependgraph.h"
@@ -21,6 +21,7 @@ public:
 	Propositions legal_moves_;
 	int role_num_;
 	vector<Node *> nodes_;
+	unordered_map<string, Node *> map_state_node_;
 
 	MonteCarloPlayer();
 	MonteCarloPlayer(Relations rs, string role);
@@ -34,7 +35,9 @@ public:
 	Proposition getBestMove();
 	Node * newNode(Node * parent = NULL);
 	void updateNode(Node * node, string s);
+	void initNode(Node * node, Propositions & state, bool is_terminal);
 	void deleteNodes();
+	void updateParents(Node * node, long long points, long long attemps);
 };
 
 #endif

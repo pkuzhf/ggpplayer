@@ -15,7 +15,6 @@ Node::Node(){
 	points_ = 0;
 	attemps_ = 0;
 	is_terminal_ = false;
-	parent_ = NULL;
 	code_ = -1;
 }
 
@@ -23,7 +22,7 @@ Node::Node(Node * p) {
 	points_ = 0;
 	attemps_ = 0;
 	is_terminal_ = false;
-	parent_ = p;
+	parent_.push_back(p);
 	code_ = -1;
 }
 
@@ -80,9 +79,4 @@ string Node::toString() {
 	}
 	ret << ")";
 	return ret.str();
-}
-
-void Node::init(Propositions & state, bool is_terminal) {
-	state_ = state;
-	is_terminal_ = is_terminal;
 }

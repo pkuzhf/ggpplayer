@@ -28,11 +28,7 @@ void MonteCarloPlayer::updateTree(int code, Propositions state, string tree) {
 	updateNode(node, tree);
 	long long points = node->points_ - old_points;
 	long long attemps = node->attemps_ - old_attemps;
-	while (node->parent_) {
-		node = node->parent_;
-		node->points_ += points;
-		node->attemps_ += attemps;
-	}
+	updateParents(node, points, attemps);
 }
 
 MonteCarloPlayer::MonteCarloPlayer(){}
@@ -47,7 +43,7 @@ MonteCarloPlayer::MonteCarloPlayer(Relations rs, string role):state_machine_(rs)
 		}
 	}
 	root_ = newNode();
-	root_->init(current_state_, is_terminal_);
+	initNode(root_, current_state_, is_terminal_);
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
 
@@ -69,7 +65,7 @@ void MonteCarloPlayer::setState(Propositions state) {
 	is_terminal_ = state_machine_.is_terminal_;
 	deleteNodes();
 	root_ = newNode();
-	root_->init(current_state_, is_terminal_);
+	initNode(root_, current_state_, is_terminal_);
 }
 
 Node * MonteCarloPlayer::selectLeafNode() {
@@ -88,11 +84,18 @@ Node * MonteCarloPlayer::selectLeafNode() {
 			}
 		}
 		pair<int, int> move = node->getMaximinMove();
+		Node * parent = node;
 		node = node->sons_[move.first][move.second];
 		if (node->state_.size() == 0){				
-			state_machine_.setState(node->parent_->state_);	
-			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, move.first)[move.second]);						
-			node->init(state_machine_.trues_, state_machine_.is_terminal_);
+			state_machine_.setState(parent->state_);	
+			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_num_, move.first)[move.second]);
+			if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
+				Node * used_node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
+				parent->sons_[move.first][move.second] = used_node;
+				used_node->parent_.push_back(parent);
+			} else {
+				initNode(node, state_machine_.trues_, state_machine_.is_terminal_);
+			}
 		}
 	}
 	return node;
@@ -115,12 +118,10 @@ double MonteCarloPlayer::uct(int time_limit, int once_simu_limit, int max_simu_t
 		} else if (state_machine_.randomGo(start + once_simu_limit)) {
 			point = state_machine_.getGoal(role_num_);
 		}	
-		if (point != -1) {			
-			do {
-				node->points_ += point;
-				++node->attemps_;
-				node = node->parent_;
-			} while (node != NULL);
+		if (point != -1) {
+			node->points_ += point;
+			++node->attemps_;
+			updateParents(node, point, 1);
 		}
 	}
 	int stop = clock();
@@ -161,7 +162,7 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 		deleteNodes();
 		root_ = newNode();
 	}
-	root_->init(current_state_, is_terminal_);
+	initNode(root_, current_state_, is_terminal_);
 	legal_moves_ = state_machine_.getLegalMoves(role_num_);
 }
 
@@ -177,6 +178,7 @@ void MonteCarloPlayer::deleteNodes() {
 		delete nodes_[i];
 	}
 	nodes_.clear();
+	map_state_node_.clear();
 }
 
 void MonteCarloPlayer::updateNode(Node * node, string s) {	
@@ -232,4 +234,18 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 		}
 		++start;
 	}
+}
+
+void MonteCarloPlayer::updateParents(Node * node, long long points, long long attemps) {
+	for (int i = 0; i < node->parent_.size(); ++i) {
+		node->parent_[i]->points_ += points;
+		node->parent_[i]->attemps_ += attemps;
+		updateParents(node->parent_[i], points, attemps);
+	}
+}
+
+void MonteCarloPlayer::initNode(Node * node, Propositions & state, bool is_terminal) {
+	node->state_ = state;
+	node->is_terminal_ = is_terminal;
+	map_state_node_[Proposition::propsToStr(state)] = node;
 }
