@@ -249,10 +249,13 @@ void MonteCarloPlayer::updateParents(Node * node, long long points, long long at
 }
 
 void MonteCarloPlayer::getAncients(Node * node, vector<Node *> &ancients) {
-	if (node == root_ || find(ancients.begin(), ancients.end(), node) != ancients.end()) {
+	if (find(ancients.begin(), ancients.end(), node) != ancients.end()) {
 		return;
 	}
 	ancients.push_back(node);
+	if (node == root_) {
+		return;
+	}
 	for (int i = 0; i < node->parent_.size(); ++i) {
 		getAncients(node->parent_[i], ancients);
 	}
