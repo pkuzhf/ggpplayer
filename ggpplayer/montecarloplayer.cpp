@@ -160,17 +160,25 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 
 Node * MonteCarloPlayer::newNode(Node * parent) {
 	Node * node = new Node(parent);
-	nodes_.push_back(node);
-	node->code_ = nodes_.size() - 1;
+	node->code_ = code_num_;
+	++code_num_;
 	return node;
 }
 
 void MonteCarloPlayer::deleteNodes() {
-	for (int i = 0; i < nodes_.size(); ++i) {
-		delete nodes_[i];
+	for (unordered_map<string, Node *>::iterator i = map_state_node_.begin(); i != map_state_node_.end(); ++i) {
+		Node * node = i->second;
+		for (int j = 0; j < node->sons_.size(); ++j) {
+			for (int k = 0; k < node->sons_[j].size(); ++k) {
+				if (node->sons_[j][k]->state_.size() == 0) {
+					delete node->sons_[j][k];
+				}
+			}
+		}
+		delete node;
 	}
-	nodes_.clear();
 	map_state_node_.clear();
+	code_num_ = 0;
 }
 
 void MonteCarloPlayer::updateNode(Node * node, string s) {	
