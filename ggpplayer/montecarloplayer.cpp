@@ -88,7 +88,10 @@ Node * MonteCarloPlayer::selectLeafNode() {
 		pair<int, int> move = node->getMaximinMove();
 		cerr << Client::message("debug", "3");
 		Node * parent = node;
-		cerr << Client::message("debug", "4");
+		ostringstream o;
+		o << move.first << " " << move.second;
+		cerr << Client::message("debug", node->toString());
+		cerr << Client::message("debug", o.str());
 		node = node->sons_[move.first][move.second];
 		cerr << Client::message("debug", "5");
 		if (node->state_.size() == 0){
