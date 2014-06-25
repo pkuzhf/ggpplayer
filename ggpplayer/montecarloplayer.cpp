@@ -229,6 +229,9 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 }
 
 void MonteCarloPlayer::updateParents(Node * node, long long points, long long attemps) {
+	if (node == root_) {
+		return;
+	}
 	for (int i = 0; i < node->parent_.size(); ++i) {
 		node->parent_[i]->points_ += points;
 		node->parent_[i]->attemps_ += attemps;
