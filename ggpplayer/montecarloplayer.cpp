@@ -184,7 +184,7 @@ void MonteCarloPlayer::deleteNodes() {
 
 void MonteCarloPlayer::updateNode(Node * node, string s) {	
 	cerr << Client::message("debug s: ", s);
-	cerr << Client::message("debug node: ", node->toString());
+	//cerr << Client::message("debug node: ", node->toString());
 	int start = 2;
 	int end = start + 1;
 	while (s[end] != ')') ++end;
