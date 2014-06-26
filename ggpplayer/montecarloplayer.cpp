@@ -206,7 +206,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	if (node->state_.size() == 0) {
 		cerr << Client::message("debug state:", s.substr(start + 1, end - start - 2));
 		Reader r;
-		r.file_content_ = s.substr(start + 1, end - start - 1);
+		r.file_content_ = s.substr(start + 1, end - start - 2);
 		r.getPropositions(node->state_);
 	}
 	start = end;
