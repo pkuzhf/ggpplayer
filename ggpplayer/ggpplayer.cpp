@@ -35,17 +35,16 @@ void run_server() {
 	//StateMachine machine(rs);
 	//machine.randomGo(clock() + 100000);
 	//
-	const int buf_size = 1000000;
-	char buf[buf_size];
+	string buf;
 
 	Reader r;
-	cin.getline(buf, buf_size);
+	getline(cin, buf);
 	r.readLine(buf);
 	Relations rs;
 	r.getRelations(rs);
 
-    cin.getline(buf, buf_size);
-	string role = string(buf);
+    getline(cin, buf);
+	string role = buf;
 
 	MonteCarloPlayer player(rs, role);   // montecarlo player
 	//for (int i = 0; i < 10000; ++i) {
@@ -64,13 +63,12 @@ void run_server() {
 	cerr << Client::message("move", player.getRandomMove().items_[1].toString());
 	
 	while (true) {				
-		cin.getline(buf, buf_size);
-		char * p_space = strstr(buf, " ");
-		if (p_space == NULL) continue;
-		*p_space = '\0';
-		string cmd = string(buf);
+		getline(cin, buf);
+		int p_space = buf.find(" ");
+		if (p_space == buf.npos) continue;
+		string cmd = buf.substr(0, p_space);
 		if (cmd == "server") {
-			string move = string(p_space + 1);
+			string move = buf.substr(p_space + 1);
 			if (move == "nil") {
 				continue;
 			}
@@ -96,15 +94,15 @@ void run_server() {
 			s << Proposition::propsToStr(player.root_->state_);
 			cerr << Client::message("state", s.str());
 		} else if (cmd == "client") {
-			char * p_state = p_space + 1;
-			char * p_semi = strstr(p_state, ";");
-			*p_semi = '\0';
-			char * p_tree = p_semi + 1;
+			int p_state = p_space + 1;
+			int p_semi = buf.find(";", p_state);
+			string s_state = buf.substr(p_state, p_semi - p_state);
+			string s_tree = buf.substr(p_semi + 1);
 			Reader state_reader;
-			state_reader.file_content_ = string(p_state);
+			state_reader.file_content_ = s_state;
 			Propositions state;
 			state_reader.getPropositions(state);
-			player.updateTree(state, string(p_tree));
+			player.updateTree(state, s_tree);
 			ostringstream o;
 			o << "(" << player.root_->points_ / (player.root_->attemps_ + 1) << "/" << player.root_->attemps_ << ") ";
 			for (int i = 0; i < player.root_->sons_.size(); ++i) {

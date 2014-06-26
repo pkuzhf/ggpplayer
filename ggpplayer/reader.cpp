@@ -17,17 +17,17 @@ bool Reader::readFile(string filename) {
 		return false;
 	}
 	while (!f.eof()) {
-		char buffer[1000000];
-		f.getline(buffer, 1000000);
+		string buffer;
+		getline(f, buffer);
 		readLine(buffer);
 	}
 	f.close();
 	return true;
 }
 
-void Reader::readLine(char *buffer) {	
+void Reader::readLine(string &buffer) {	
 	int i = 0;
-	while (i < strlen(buffer) && buffer[i] != ';'){
+	while (i < buffer.size() && buffer[i] != ';'){
 		file_content_ += buffer[i];
 		++i;
 	}

@@ -15,7 +15,7 @@ using namespace std;
 
 class Reader {
 public:
-	void readLine(char *buffer);
+	void readLine(string &buffer);
 	bool readFile(string filename);
 	bool getRelations(Relations &relations);
 	void getPropositions(Propositions &propositions);
