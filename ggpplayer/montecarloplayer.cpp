@@ -219,10 +219,13 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	}
 	for (int i = 0; i < node->sons_.size(); ++i) {
 		++start;
+		ostringstream o;
+		o << i;
+		cerr << Client::message("debug", o.str());
 		for (int j = 0; j < node->sons_[i].size(); ++j) {
-			/*if (start >= s.size() || s[start] == ')') {
+			if (start >= s.size() || s[start] == ')') {
 				break;
-			}*/
+			}
 			end = start;
 			int count = 0;
 			do {
