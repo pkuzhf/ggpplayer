@@ -29,7 +29,7 @@ public:
 	Node * selectLeafNode();
 	void goOneStep(Propositions moves);
 	void setState(Propositions state);
-	void updateTree(int code, Propositions state, string tree);
+	void updateTree(Propositions state, string tree);
 	Proposition getRandomMove();
 	Proposition getBestMove();
 	Node * newNode(Node * parent = NULL);

@@ -14,7 +14,7 @@
 
 using namespace std;
 
-void MonteCarloPlayer::updateTree(int code, Propositions state, string tree) {
+void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	if (map_state_node_.find(Proposition::propsToStr(state)) == map_state_node_.end()) {
 		return;
 	}

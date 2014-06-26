@@ -96,18 +96,15 @@ void run_server() {
 			s << Proposition::propsToStr(player.root_->state_);
 			cerr << Client::message("state", s.str());
 		} else if (cmd == "client") {
-			char * p_code = p_space + 1;
-			char * p_semi = strstr(p_code, ";");
-			*p_semi = '\0';
-			char * p_state = p_semi + 1;
-			p_semi = strstr(p_state, ";");
+			char * p_state = p_space + 1;
+			char * p_semi = strstr(p_state, ";");
 			*p_semi = '\0';
 			char * p_tree = p_semi + 1;
 			Reader state_reader;
 			state_reader.file_content_ = string(p_state);
 			Propositions state;
 			state_reader.getPropositions(state);			
-			player.updateTree(atoi(p_code), state, string(p_tree));
+			player.updateTree(state, string(p_tree));
 			ostringstream o;
 			o << "(" << player.root_->points_ / (player.root_->attemps_ + 1) << "/" << player.root_->attemps_ << ") ";
 			for (int i = 0; i < player.root_->sons_.size(); ++i) {
