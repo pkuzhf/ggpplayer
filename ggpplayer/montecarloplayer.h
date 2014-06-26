@@ -20,7 +20,6 @@ public:
 	Node * root_;
 	Propositions legal_moves_;
 	int role_;
-	int code_num_;
 	unordered_map<string, Node *> map_state_node_;
 
 	MonteCarloPlayer();
