@@ -35,7 +35,7 @@ void run_server() {
 	//StateMachine machine(rs);
 	//machine.randomGo(clock() + 100000);
 	//
-	const int buf_size = 100000;
+	const int buf_size = 1000000;
 	char buf[buf_size];
 
 	Reader r;

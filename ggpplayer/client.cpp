@@ -53,11 +53,12 @@ int Client::connectServer() {
 	
 	// 新的连接建立后，就可以互相通信了，在这个简单的例子中，我们直接关闭连接，
 	// 并关闭监听Socket，然后退出应用程序
-	char buf[100000];
+	const int buf_size = 1000000;
+	char buf[buf_size];
 	int len;
 
 	while(true) {
-		len = recv(socket_, buf, 100000, 0);
+		len = recv(socket_, buf, buf_size, 0);
 		if (len > 0) {
 			buf[len] = '\0';
 			receiveData(string(buf));
@@ -120,11 +121,12 @@ int Client::connectServer() {
 	
 	// 新的连接建立后，就可以互相通信了，在这个简单的例子中，我们直接关闭连接，
 	// 并关闭监听Socket，然后退出应用程序
-	char buf[100000];
+	int buf_size = 1000000;
+	char buf[buf_size];
 	int len;
 
 	while(true) {
-		len = recv(client_socket, buf, 100000, 0);
+		len = recv(client_socket, buf, buf_size, 0);
 		if (len > 0) {
 			buf[len] = '\0';
 			receiveData(string(buf));
