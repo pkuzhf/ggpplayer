@@ -2,7 +2,7 @@ var net = require('net');
 var spawn = require('child_process').spawn;
 var exec = require('child_process').exec;
 
-var ip = '162.105.81.73';
+var ip = '162.105.81.43';
 var port = 10001;
 var n = 22;
 var clients = [];

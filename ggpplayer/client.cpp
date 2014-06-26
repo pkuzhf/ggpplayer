@@ -28,7 +28,7 @@ int Client::connectServer() {
 	WSADATA wsaData;
 	SOCKADDR_IN ServerAddr;
 	int Port = 10000;
-	char Addr[] = "162.105.81.73";
+	char Addr[] = "162.105.81.43";
 
 	//初始化Windows Socket 2.2
 
@@ -78,7 +78,7 @@ void Client::sendMessage(string msg) {
 int Client::connectServer() {
 
 	int Port = 10000;
-	char Addr[] = "162.105.81.73";
+	char Addr[] = "162.105.81.43";
 
 	struct sockaddr_in client_addr;
     bzero(&client_addr,sizeof(client_addr)); //把一段内存区的内容全部设置为0

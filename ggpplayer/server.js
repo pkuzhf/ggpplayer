@@ -113,7 +113,6 @@ http.createServer(function (req, res) {
             ggp.buffer = '';
             ggp.data_length = null;
             ggp.msgs = [];
-            ggp.timer = null;
             if (ggp.exe) {
                 ggp.exe.kill('SIGKILL');
             }
@@ -138,6 +137,9 @@ http.createServer(function (req, res) {
                     clients[i].sock.write(msg.length + ' ' + msg);
                 }
             }
+            ggp.timer = setTimeout(function () {
+                res.end('ready');
+            }, (request.startclock - 2) * 1000);
             break;
         case 'play' :
             if (ggp.exe) {
@@ -145,6 +147,9 @@ http.createServer(function (req, res) {
                 ggp.msgs.splice(1);
                 ggp.exe.stdin.write("server " + request.move + '\n');
                 ggp.res = res;
+                if (ggp.timer) {
+                    clearTimeout(ggp.timer);
+                }
                 ggp.timer = setTimeout(function() {
                     if (ggp.move) {
                         console.log('move: ' + ggp.move);
@@ -201,7 +206,7 @@ function handleExeMessage(message) {
     var cmd = message.substring(0, i);
     message = message.substring(i + 1);
     if (cmd === 'ready') {
-        ggp.res.end('ready');
+        //ggp.res.end('ready');
     } else if (cmd === 'move') {
         //console.log('move: ' + message)
         ggp.move = message;

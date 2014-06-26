@@ -19,8 +19,8 @@ public:
 	bool is_terminal_;
 	Node * root_;
 	Propositions legal_moves_;
-	int role_num_;
-	vector<Node *> nodes_;
+	int role_;
+	int code_num_;
 	unordered_map<string, Node *> map_state_node_;
 
 	MonteCarloPlayer();
@@ -38,6 +38,7 @@ public:
 	void initNode(Node * node, Propositions & state, bool is_terminal);
 	void deleteNodes();
 	void updateParents(Node * node, long long points, long long attemps);
+	void getAncients(Node * node, unordered_set<Node *> &ancients);
 };
 
 #endif
