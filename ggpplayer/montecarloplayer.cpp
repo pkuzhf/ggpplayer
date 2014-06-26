@@ -26,6 +26,7 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	long long old_points = node->points_;
 	long long old_attemps = node->attemps_;
 	updateNode(node, tree);
+	cerr << Client::message("debug", "updateNode complete");
 	long long points = node->points_ - old_points;
 	long long attemps = node->attemps_ - old_attemps;
 	updateParents(node, points, attemps);
@@ -182,8 +183,8 @@ void MonteCarloPlayer::deleteNodes() {
 }
 
 void MonteCarloPlayer::updateNode(Node * node, string s) {	
-	//cerr << Client::message("debug s: ", s);
-	//cerr << Client::message("debug node: ", toString());
+	cerr << Client::message("debug s: ", s);
+	cerr << Client::message("debug node: ", toString());
 	int start = 2;
 	int end = start + 1;
 	while (s[end] != ')') ++end;
