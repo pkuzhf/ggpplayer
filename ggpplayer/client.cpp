@@ -186,18 +186,13 @@ void Client::handleMessage(string msg) {
 				sendMessage(message("ready", ""));
 			}
 		} else if (cmd == "state") {
-			i = 0;
-			while (i < msg.size() && msg[i] != ';') ++i; // skip code
-			if (i < msg.size()) {
-				msg = msg.substr(i + 1);
-				Reader state_reader;
-				state_reader.file_content_ = msg;
-				Propositions state;
-				state_reader.getPropositions(state);
-				player_.setState(state);
-				player_.uct(CLOCKS_PER_SEC * 0.5, CLOCKS_PER_SEC * 5, 1000);
-				sendMessage(message("uct", player_.root_->toString()));
-			}
+			Reader state_reader;
+			state_reader.file_content_ = msg;
+			Propositions state;
+			state_reader.getPropositions(state);
+			player_.setState(state);
+			player_.uct(CLOCKS_PER_SEC * 0.5, CLOCKS_PER_SEC * 5, 1000);
+			sendMessage(message("uct", player_.root_->toString()));
 		}
 	}
 }

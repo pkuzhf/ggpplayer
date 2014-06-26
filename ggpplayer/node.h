@@ -14,7 +14,6 @@ class Node
 public:
 	long long points_;
 	long long attemps_;
-	int code_;
 	Propositions state_;
 	bool is_terminal_;
 	vector<vector<Node *> > sons_;

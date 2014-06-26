@@ -59,7 +59,7 @@ void run_server() {
 	cerr << Client::message("ready", "");
 
 	ostringstream s;
-	s << player.root_->code_ << ";" << Proposition::propsToStr(player.root_->state_);
+	s << Proposition::propsToStr(player.root_->state_);
 	cerr << Client::message("state", s.str());
 	cerr << Client::message("move", player.getRandomMove().items_[1].toString());
 	
@@ -93,7 +93,7 @@ void run_server() {
 			//cerr << move.items_[1].toString() << endl;
 			cerr << Client::message("move", player.getRandomMove().items_[1].toString());
 			ostringstream s;
-			s << player.root_->code_ << ";" << Proposition::propsToStr(player.root_->state_);
+			s << Proposition::propsToStr(player.root_->state_);
 			cerr << Client::message("state", s.str());
 		} else if (cmd == "client") {
 			char * p_code = p_space + 1;
@@ -124,7 +124,7 @@ void run_server() {
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
 			Node * node = player.selectLeafNode();
 			ostringstream s;
-			s << node->code_ << ";" << Proposition::propsToStr(node->state_);
+			s << Proposition::propsToStr(node->state_);
 			cerr << Client::message("state", s.str());
 			cerr << Client::message("updated", "");
 		}

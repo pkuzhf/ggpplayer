@@ -15,7 +15,6 @@ Node::Node(){
 	points_ = 0;
 	attemps_ = 0;
 	is_terminal_ = false;
-	code_ = -1;
 }
 
 Node::Node(Node * p) {
@@ -25,7 +24,6 @@ Node::Node(Node * p) {
 	if (p != NULL) {
 		parent_.push_back(p);
 	}
-	code_ = -1;
 }
 
 double Node::getScore() {

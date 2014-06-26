@@ -169,7 +169,6 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 Node * MonteCarloPlayer::newNode(Node * parent) {
 	Node * node = new Node(parent);
 	nodes_.push_back(node);
-	node->code_ = nodes_.size() - 1;
 	return node;
 }
 
