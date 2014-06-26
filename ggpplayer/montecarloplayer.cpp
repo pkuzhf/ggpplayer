@@ -195,6 +195,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	node->attemps_ += atoi(s.substr(start, end - start).c_str());
 	start = end + 1;
 	if (s[start] == ')') {
+		cerr << Client::message("debug ~s: ", s);
 		return;
 	}
 	bool check = false;
@@ -238,6 +239,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 		}
 		++start;
 	}
+	cerr << Client::message("debug ~s: ", s);
 }
 
 void MonteCarloPlayer::updateParents(Node * node, long long points, long long attemps) {
