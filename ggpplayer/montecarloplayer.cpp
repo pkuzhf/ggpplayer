@@ -11,6 +11,7 @@
 #include "node.h"
 #include "montecarloplayer.h"
 #include "client.h"
+#include "reader.h"
 
 using namespace std;
 
@@ -195,6 +196,19 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	while (s[end] != ')') ++end;
 	node->attemps_ += atoi(s.substr(start, end - start).c_str());
 	start = end + 1;
+	end = start;
+	int count = 0;
+	do {
+		if (s[end] == '(') ++count;
+		if (s[end] == ')') --count;
+		++end;
+	} while(count > 0);
+	if (node->state_.size() == 0) {
+		Reader r;
+		r.file_content_ = s.substr(start + 1, end - start - 1);
+		r.getPropositions(node->state_);
+	}
+	start = end;
 	if (s[start] == ')') {
 		//cerr << Client::message("debug ~s: ", s);
 		return;

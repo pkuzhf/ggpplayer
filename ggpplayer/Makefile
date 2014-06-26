@@ -7,7 +7,7 @@ client.o : client.cpp client.h reader.h relation.h
 	g++ -O3 -c -std=c++11 client.cpp
 dependgraph.o : dependgraph.cpp dependgraph.h relation.h reader.h
 	g++ -O3 -c -std=c++11 dependgraph.cpp
-montecarloplayer.o : montecarloplayer.cpp montecarloplayer.h dependgraph.h node.h client.h
+montecarloplayer.o : montecarloplayer.cpp montecarloplayer.h dependgraph.h node.h client.h reader.h
 	g++ -O3 -c -std=c++11 montecarloplayer.cpp
 node.o : node.cpp node.h client.h dependgraph.h
 	g++ -O3 -c -std=c++11 node.cpp
