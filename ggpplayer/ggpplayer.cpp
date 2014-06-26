@@ -105,7 +105,6 @@ void run_server() {
 			Propositions state;
 			state_reader.getPropositions(state);
 			player.updateTree(state, string(p_tree));
-			cerr << Client::message("debug", "update tree complete");
 			ostringstream o;
 			o << "(" << player.root_->points_ / (player.root_->attemps_ + 1) << "/" << player.root_->attemps_ << ") ";
 			for (int i = 0; i < player.root_->sons_.size(); ++i) {

@@ -19,17 +19,18 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 		return;
 	}
 	Node * node = map_state_node_[Proposition::propsToStr(state)];
-	cerr << Client::message("debug", "updateTree");
+	//cerr << Client::message("debug", "updateTree");
 	//cerr << Client::message("debug", node->toString());
-	state_machine_.setState(state);
-	cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_)));
+	//state_machine_.setState(state);
+	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_)));
 	long long old_points = node->points_;
 	long long old_attemps = node->attemps_;
 	updateNode(node, tree);
-	cerr << Client::message("debug", "updateNode complete");
+	//cerr << Client::message("debug", "updateNode complete");
 	long long points = node->points_ - old_points;
 	long long attemps = node->attemps_ - old_attemps;
 	updateParents(node, points, attemps);
+	//cerr << Client::message("debug", "update tree complete");
 }
 
 MonteCarloPlayer::MonteCarloPlayer(){}
@@ -183,7 +184,7 @@ void MonteCarloPlayer::deleteNodes() {
 }
 
 void MonteCarloPlayer::updateNode(Node * node, string s) {	
-	cerr << Client::message("debug s: ", s);
+	//cerr << Client::message("debug s: ", s);
 	//cerr << Client::message("debug node: ", node->toString());
 	int start = 2;
 	int end = start + 1;
@@ -195,7 +196,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	node->attemps_ += atoi(s.substr(start, end - start).c_str());
 	start = end + 1;
 	if (s[start] == ')') {
-		cerr << Client::message("debug ~s: ", s);
+		//cerr << Client::message("debug ~s: ", s);
 		return;
 	}
 	bool check = false;
@@ -220,9 +221,6 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	}
 	for (int i = 0; i < node->sons_.size(); ++i) {
 		++start;
-		ostringstream o;
-		o << i;
-		cerr << Client::message("debug", o.str());
 		for (int j = 0; j < node->sons_[i].size(); ++j) {
 			if (start >= s.size() || s[start] == ')') {
 				break;
@@ -239,7 +237,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 		}
 		++start;
 	}
-	cerr << Client::message("debug ~s: ", s);
+	//cerr << Client::message("debug ~s: ", s);
 }
 
 void MonteCarloPlayer::updateParents(Node * node, long long points, long long attemps) {
