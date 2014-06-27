@@ -15,6 +15,8 @@
 
 using namespace std;
 
+int t_node = 1;
+int t_total = 1;
 void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	if (map_state_node_.find(Proposition::propsToStr(state)) == map_state_node_.end()) {
 		return;
@@ -26,11 +28,17 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_)));
 	long long old_points = node->points_;
 	long long old_attemps = node->attemps_;
+	int start = clock();
 	updateNode(node, tree);
+	t_node += clock() - start;
 	//cerr << Client::message("debug", "updateNode complete");
 	long long points = node->points_ - old_points;
 	long long attemps = node->attemps_ - old_attemps;
 	updateParents(node, points, attemps);
+	t_total += clock() - start;
+	ostringstream o;
+	o << (double)t_node / t_total;
+	Client::message("stat", o.str());
 	//cerr << Client::message("debug", "updateTree complete");
 }
 
@@ -298,7 +306,7 @@ void MonteCarloPlayer::updateParents(Node * node, long long points, long long at
 	}
 	ostringstream o;
 	o << ancients.size();
-	cerr << Client::message("stat", o.str());
+	//cerr << Client::message("stat", o.str());
 }
 
 void MonteCarloPlayer::getAncients(Node * node, unordered_set<Node *> &ancients) {
