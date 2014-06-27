@@ -15,7 +15,6 @@ public:
 	long long points_;
 	long long attemps_;
 	Propositions state_;
-	string s_state_;
 	bool is_terminal_;
 	vector<vector<Node *> > sons_;
 	vector<Node *> parent_;
