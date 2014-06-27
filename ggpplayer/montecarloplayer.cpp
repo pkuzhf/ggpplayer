@@ -229,7 +229,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 		Propositions state;
 		int p_start = clock();
 		r.getPropositions(state);
-		p_time += clock() - p_start;
+		
 		if (map_state_node_.find(Proposition::propsToStr(state)) != map_state_node_.end()) {
 			Node * used_node = map_state_node_[Proposition::propsToStr(state)];
 			for (int i = 0; i < node->parent_.size(); ++i) {
@@ -251,6 +251,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 		} else {
 			initNode(node, state, is_terminal);
 		}
+		p_time += clock() - p_start;
 	}
 	//cerr << Client::message("debug", s.substr(start));
 	if (s[start] == ')') {
