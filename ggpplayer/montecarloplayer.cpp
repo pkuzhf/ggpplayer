@@ -41,7 +41,7 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	ostringstream o;
 	//o << (double)t_node / t_total;
 	//cerr << Client::message("stat", o.str());
-	o << (double)p_time/ t_time;
+	o << (double)p_time/ t_node;
 	cerr << Client::message("stat", o.str());
 	//cerr << Client::message("debug", "updateTree complete");
 }
@@ -254,7 +254,6 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	//cerr << Client::message("debug", s.substr(start));
 	if (s[start] == ')') {
 		//cerr << Client::message("debug ~s: ", s);
-		t_time += clock() - s_time;
 		return;
 	}
 	bool check = false;
@@ -295,7 +294,6 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 		}
 		++start;
 	}
-	t_time += clock() - s_time;
 	//cerr << Client::message("debug ~s: ", s);
 }
 
