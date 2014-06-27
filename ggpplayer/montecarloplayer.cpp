@@ -38,10 +38,10 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	updateParents(node, points, attemps);
 	t_total += clock() - start;
 	ostringstream o;
-	//o << (double)t_node / t_total;
-	//cerr << Client::message("stat", o.str());
-	o << (double)p_time/ t_node;
+	o << (double)t_node / t_total;
 	cerr << Client::message("stat", o.str());
+	/*o << (double)p_time/ t_node;
+	cerr << Client::message("stat", o.str());*/
 	//cerr << Client::message("debug", "updateTree complete");
 }
 
@@ -212,12 +212,10 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	end = s.find(" ", start);
 	int state_length = atoi(s.substr(start, end - start).c_str());
 	start = end + 1; // skip " "
-	int s_time = clock();
 	string s_state = s.substr(start, state_length);
 	start += state_length + 1;  // skip state and ")"
 	end = s.find(")", start) + 1;
 	bool is_terminal = atoi(s.substr(start + 1, end - start - 2).c_str());
-	p_time += clock() - s_time;
 	start = end;
 	//cerr << Client::message("debug", s.substr(start + 1, end - start - 2));
 	if (!node->inited() && s_state != "") {
