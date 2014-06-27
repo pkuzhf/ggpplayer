@@ -31,7 +31,7 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	long long points = node->points_ - old_points;
 	long long attemps = node->attemps_ - old_attemps;
 	updateParents(node, points, attemps);
-	cerr << Client::message("debug", "update tree complete");
+	cerr << Client::message("debug", "updateTree complete");
 }
 
 MonteCarloPlayer::MonteCarloPlayer(){}
