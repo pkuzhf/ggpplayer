@@ -8,6 +8,7 @@
 #include "dependgraph.h"
 #include "node.h"
 #include "client.h"
+#include "reader.h"
 
 using namespace std;
 
@@ -84,4 +85,31 @@ string Node::toString() {
 	}
 	ret << ")";
 	return ret.str();
+}
+
+void Node::init(string &s_state, bool is_terminal) {
+	s_state_ = s_state;
+	is_terminal_ = is_terminal;
+}
+
+void Node::init(Propositions &state, bool is_terminal) {
+	state_ = state;
+	is_terminal_ = is_terminal;
+}
+
+bool Node::inited() {
+	if (s_state_ == "" && state_.size() == 0) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+Propositions & Node::getState() {
+	if (state_.size() == 0 && s_state_ != "") {
+		Reader r;
+		r.file_content_ = s_state_;
+		r.getPropositions(state_);
+	}
+	return state_;
 }

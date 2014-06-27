@@ -11,7 +11,6 @@
 #include "node.h"
 #include "montecarloplayer.h"
 #include "client.h"
-#include "reader.h"
 
 using namespace std;
 
@@ -87,7 +86,7 @@ Node * MonteCarloPlayer::selectLeafNode() {
 	Node *node = root_;
 	while (node->attemps_ > 0 && !node->is_terminal_) {
 		if (node->sons_.size() == 0) {
-			state_machine_.setState(node->state_);
+			state_machine_.setState(node->getState());
 			int move_size = state_machine_.getLegalMoves(role_).size();
 			for (int i = 0; i < move_size; i++) {
 				vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_, i);
@@ -101,8 +100,8 @@ Node * MonteCarloPlayer::selectLeafNode() {
 		pair<int, int> move = node->getMaximinMove();
 		Node * parent = node;
 		node = node->sons_[move.first][move.second];
-		if (node->state_.size() == 0){
-			state_machine_.setState(parent->state_);
+		if (!node->inited()){
+			state_machine_.setState(parent->getState());
 			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_, move.first)[move.second]);
 			if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
 				delete node;
@@ -129,7 +128,7 @@ double MonteCarloPlayer::uct(int time_limit, int once_simu_limit, int max_simu_t
 		simu_count++;
 		Node *node = selectLeafNode();		
 		int point = -1;
-		state_machine_.setState(node->state_);
+		state_machine_.setState(node->getState());
 		if (node->is_terminal_) {
 			point = state_machine_.getGoal(role_);					
 		} else if (state_machine_.randomGo(start + once_simu_limit)) {
@@ -186,7 +185,7 @@ void MonteCarloPlayer::deleteNodes() {
 		Node * node = i->second;
 		for (int j = 0; j < node->sons_.size(); ++j) {
 			for (int k = 0; k < node->sons_[j].size(); ++k) {
-				if (node->sons_[j][k]->state_.size() == 0) {
+				if (!node->sons_[j][k]->inited()) {
 					delete node->sons_[j][k];
 				}
 			}
@@ -223,7 +222,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	start = end;
 	//cerr << Client::message("debug", s.substr(start + 1, end - start - 2));
 	int s_time = clock();
-	if (node->state_.size() == 0 && s_state != "") {
+	if (!node->inited() && s_state != "") {
 		//cerr << Client::message("debug state:", s_state);
 		if (map_state_node_.find(s_state) != map_state_node_.end()) {
 			Node * used_node = map_state_node_[s_state];
@@ -244,11 +243,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 			delete node;
 			node = used_node;
 		} else {
-			Reader r;
-			r.file_content_ = s_state;
-			Propositions state;
-			r.getPropositions(state);
-			initNode(node, state, is_terminal);
+			initNode(node, s_state, is_terminal);
 		}
 	}
 	p_time += clock() - s_time;
@@ -321,9 +316,13 @@ void MonteCarloPlayer::getAncients(Node * node, unordered_set<Node *> &ancients)
 }
 
 void MonteCarloPlayer::initNode(Node * node, Propositions & state, bool is_terminal) {
-	node->state_ = state;
-	node->is_terminal_ = is_terminal;
+	node->init(state, is_terminal);
 	map_state_node_[Proposition::propsToStr(state)] = node;
+}
+
+void MonteCarloPlayer::initNode(Node * node, string & s_state, bool is_terminal) {
+	node->init(s_state, is_terminal);
+	map_state_node_[s_state] = node;
 }
 
 void MonteCarloPlayer::updateValidNumber(Node * node, int number) {

@@ -35,6 +35,7 @@ public:
 	Node * newNode(Node * parent = NULL);
 	void updateNode(Node * node, string s);
 	void initNode(Node * node, Propositions & state, bool is_terminal);
+	void initNode(Node * node, string & state, bool is_terminal);
 	void deleteNodes();
 	void updateParents(Node * node, long long points, long long attemps);
 	void getAncients(Node * node, unordered_set<Node *> &ancients);
