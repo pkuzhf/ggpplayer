@@ -201,6 +201,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	
 	//cerr << Client::message("debug s: ", s);
 	//cerr << Client::message("debug node: ", node->toString());
+	int s_time = clock();
 	int start = 2;
 	int end = s.find(")", start);
 	node->points_ += atoi(s.substr(start, end - start).c_str());
@@ -208,10 +209,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	end = s.find(")", start);
 	node->attemps_ += atoi(s.substr(start, end - start).c_str());
 	start = end + 2; // skip ")("
-	int s_time = clock();
-	p_time += clock() - s_time;
-	end = start;
-	while (s[end] != ' ') ++end;
+	end = s.find(" ", start);
 	int state_length = atoi(s.substr(start, end - start).c_str());
 	start = end + 1; // skip " "
 	string s_state = s.substr(start, state_length);
@@ -220,7 +218,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	bool is_terminal = atoi(s.substr(start + 1, end - start - 2).c_str());
 	start = end;
 	//cerr << Client::message("debug", s.substr(start + 1, end - start - 2));
-	
+	p_time += clock() - s_time;
 	if (!node->inited() && s_state != "") {
 		//cerr << Client::message("debug state:", s_state);
 		if (map_state_node_.find(s_state) != map_state_node_.end()) {
