@@ -14,10 +14,6 @@
 
 using namespace std;
 
-int t_node = 1;
-int t_total = 1;
-int p_time = 1;
-int t_time = 1;
 void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	if (map_state_node_.find(Proposition::propsToStr(state)) == map_state_node_.end()) {
 		return;
@@ -29,19 +25,11 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_)));
 	long long old_points = node->points_;
 	long long old_attemps = node->attemps_;
-	int start = clock();
 	updateNode(node, tree);
-	t_node += clock() - start;
 	//cerr << Client::message("debug", "updateNode complete");
 	long long points = node->points_ - old_points;
 	long long attemps = node->attemps_ - old_attemps;
 	updateParents(node, points, attemps);
-	t_total += clock() - start;
-	ostringstream o;
-	o << (double)t_node / t_total;
-	//cerr << Client::message("stat", o.str());
-	//o << (double)p_time/ t_node;
-	//cerr << Client::message("stat", o.str());
 	//cerr << Client::message("debug", "updateTree complete");
 }
 
@@ -82,7 +70,10 @@ void MonteCarloPlayer::setState(Propositions state) {
 	initNode(root_, current_state_, is_terminal_);
 }
 
+int total = 1;
+int part = 1;
 Node * MonteCarloPlayer::selectLeafNode() {
+	int start = clock();
 	Node *node = root_;
 	while (node->attemps_ > 0 && !node->is_terminal_) {
 		if (node->sons_.size() == 0) {
@@ -101,8 +92,10 @@ Node * MonteCarloPlayer::selectLeafNode() {
 		Node * parent = node;
 		node = node->sons_[move.first][move.second];
 		if (!node->inited()){
+			int s = clock();
 			state_machine_.setState(parent->getState());
 			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_, move.first)[move.second]);
+			part += clock() - s;
 			if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
 				delete node;
 				node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
@@ -114,6 +107,10 @@ Node * MonteCarloPlayer::selectLeafNode() {
 			}
 		}
 	}
+	total += clock() - start;
+	ostringstream o;
+	o << (double)part / total;
+	cerr << Client::message("stat", o.str());
 	return node;
 }
 
