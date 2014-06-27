@@ -224,14 +224,13 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	//cerr << Client::message("debug", s.substr(start + 1, end - start - 2));
 	if (node->state_.size() == 0 && s_state != "") {
 		//cerr << Client::message("debug state:", s_state);
+		int p_start = clock();
 		Reader r;
 		r.file_content_ = s_state;
 		Propositions state;
-		int p_start = clock();
 		r.getPropositions(state);
-		
-		if (map_state_node_.find(Proposition::propsToStr(state)) != map_state_node_.end()) {
-			Node * used_node = map_state_node_[Proposition::propsToStr(state)];
+		if (map_state_node_.find(s_state) != map_state_node_.end()) {
+			Node * used_node = map_state_node_[s_state];
 			for (int i = 0; i < node->parent_.size(); ++i) {
 				Node * parent = node->parent_[i];
 				bool find = false;
