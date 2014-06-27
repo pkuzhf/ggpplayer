@@ -15,6 +15,8 @@
 
 using namespace std;
 
+int node_time = 0;
+int total_time = 0;
 void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	if (map_state_node_.find(Proposition::propsToStr(state)) == map_state_node_.end()) {
 		return;
@@ -26,11 +28,17 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_)));
 	long long old_points = node->points_;
 	long long old_attemps = node->attemps_;
+	int start = clock();
 	updateNode(node, tree);
+	node_time += clock() - start;
 	//cerr << Client::message("debug", "updateNode complete");
 	long long points = node->points_ - old_points;
 	long long attemps = node->attemps_ - old_attemps;
 	updateParents(node, points, attemps);
+	total_time += clock() - start;
+	ostringstream o;
+	o << (double)node_time / total_time;
+	cerr << Client::message("stat", o.str());
 	//cerr << Client::message("debug", "updateTree complete");
 }
 
