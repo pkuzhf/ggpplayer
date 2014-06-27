@@ -195,6 +195,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	node->attemps_ += atoi(s.substr(start, end - start).c_str());
 	start = end + 1;
 	end = start;
+	cerr << Client::message("debug", "here");
 	int count = 0;
 	do {
 		if (s[end] == '(') ++count;

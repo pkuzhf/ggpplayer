@@ -104,7 +104,6 @@ void run_server() {
 			state_reader.getPropositions(state);
 			player.updateTree(state, s_tree);
 			ostringstream o;
-			cerr << Client::message("debug", "m0");
 			o << "(" << player.root_->points_ / (player.root_->attemps_ + 1) << "/" << player.root_->attemps_ << ") ";
 			for (int i = 0; i < player.root_->sons_.size(); ++i) {
 				o << "{ ";
@@ -113,7 +112,6 @@ void run_server() {
 				}
 				o << "} ";
 			}
-			cerr << Client::message("debug", "m1");
 			pair<int, int> move = player.root_->getMaximinMove();
 			cerr << Client::message("debug", "m2");
 			o << player.map_state_node_.size();
