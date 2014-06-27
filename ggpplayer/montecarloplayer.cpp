@@ -17,6 +17,8 @@ using namespace std;
 
 int t_node = 1;
 int t_total = 1;
+int p_time = 1;
+int t_time = 1;
 void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	if (map_state_node_.find(Proposition::propsToStr(state)) == map_state_node_.end()) {
 		return;
@@ -196,8 +198,6 @@ void MonteCarloPlayer::deleteNodes() {
 	map_state_node_.clear();
 }
 
-int p_time = 1;
-int t_time = 1;
 void MonteCarloPlayer::updateNode(Node * node, string s) {	
 	int s_time = clock();
 	//cerr << Client::message("debug s: ", s);
