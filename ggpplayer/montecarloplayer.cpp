@@ -221,10 +221,10 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	end = s.find(")", start) + 1;
 	bool is_terminal = atoi(s.substr(start + 1, end - start - 2).c_str());
 	start = end;
+	p_time += clock() - s_time;
 	//cerr << Client::message("debug", s.substr(start + 1, end - start - 2));
 	if (node->state_.size() == 0 && s_state != "") {
 		//cerr << Client::message("debug state:", s_state);
-		int p_start = clock();
 		Reader r;
 		r.file_content_ = s_state;
 		Propositions state;
@@ -250,7 +250,6 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 		} else {
 			initNode(node, state, is_terminal);
 		}
-		p_time += clock() - p_start;
 	}
 	//cerr << Client::message("debug", s.substr(start));
 	if (s[start] == ')') {
