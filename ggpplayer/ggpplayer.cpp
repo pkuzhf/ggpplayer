@@ -65,11 +65,12 @@ void run_server() {
 	int io_time = 1;
 	int total_time = 1;
 	int update_time = 1;
-	char * buffer = new char[1024 * 1024 * 1024];
+	const int buf_size = 1024 * 1024 * 1024;
+	char * buffer = new char[buf_size];
 	while (true) {
 		int start = clock();
 		//getline(cin, buf);
-		gets(buffer);
+		buffer = fgets(buffer, buf_size, stdin);
 		io_time += clock() - start;
 		buf = string(buffer);
 		Client::message("stat", buf);
