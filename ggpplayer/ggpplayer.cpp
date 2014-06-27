@@ -107,9 +107,9 @@ void run_server() {
 			state_reader.file_content_ = s_state;
 			Propositions state;
 			state_reader.getPropositions(state);
-			int s = clock();
+			int s_update = clock();
 			player.updateTree(state, s_tree);
-			update_time += clock() - s;
+			update_time += clock() - s_update;
 			ostringstream o;
 			o << "(" << player.root_->points_ / (player.root_->attemps_ + 1) << "/" << player.root_->attemps_ << ") ";
 			for (int i = 0; i < player.root_->sons_.size(); ++i) {
