@@ -222,7 +222,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 				for (int j = 0; j < parent->sons_.size() && !find; ++j) {
 					for (int k = 0; k < parent->sons_[j].size() && !find; ++k) {
 						if (parent->sons_[j][k] == node) {
-							find = true;
+							//find = true;
 							parent->sons_[j][k] = used_node;
 						}
 					}
