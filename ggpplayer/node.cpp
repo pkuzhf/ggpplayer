@@ -40,6 +40,9 @@ double Node::getScore() {
 		mean = (double)points_ / attemps_;
 		times = sqrt((double)attemps_);
 	}
+	if (times > 1000) {
+		times = 1000;
+	}
 	for (int i = 0; i < times; ++i) {
 		mean += (rand() % 201 - 100) / (double)times;
 	}
