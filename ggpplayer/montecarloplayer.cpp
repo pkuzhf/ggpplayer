@@ -207,7 +207,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	bool is_terminal = atoi(s.substr(start + 1, end - start - 2).c_str());
 	start = end;
 	//cerr << Client::message("debug", s.substr(start + 1, end - start - 2));
-	if (node->state_.size() == 0) {
+	if (node->state_.size() == 0 && s_state != "") {
 		cerr << Client::message("debug state:", s_state);
 		Reader r;
 		r.file_content_ = s_state;
@@ -222,7 +222,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 				for (int j = 0; j < parent->sons_.size() && !find; ++j) {
 					for (int k = 0; k < parent->sons_[j].size() && !find; ++k) {
 						if (parent->sons_[j][k] == node) {
-							//find = true;
+							find = true;
 							parent->sons_[j][k] = used_node;
 						}
 					}
