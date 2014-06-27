@@ -122,7 +122,7 @@ void run_server() {
 			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
 			int s_update = clock();
-			Node * node = player.selectLeafNode();
+			Node * node = player.selectLeafNodeServer();
 			update_time += clock() - s_update;
 			ostringstream s;
 			s << Proposition::propsToStr(node->getState());

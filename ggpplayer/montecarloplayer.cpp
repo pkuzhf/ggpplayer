@@ -70,10 +70,7 @@ void MonteCarloPlayer::setState(Propositions state) {
 	initNode(root_, current_state_, is_terminal_);
 }
 
-int total = 1;
-int part = 1;
 Node * MonteCarloPlayer::selectLeafNode() {
-	int start = clock();
 	Node *node = root_;
 	while (node->attemps_ > 0 && !node->is_terminal_) {
 		if (node->sons_.size() == 0) {
@@ -92,10 +89,8 @@ Node * MonteCarloPlayer::selectLeafNode() {
 		Node * parent = node;
 		node = node->sons_[move.first][move.second];
 		if (!node->inited()){
-			int s = clock();
 			state_machine_.setState(parent->getState());
 			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_, move.first)[move.second]);
-			part += clock() - s;
 			if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
 				delete node;
 				node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
@@ -107,10 +102,15 @@ Node * MonteCarloPlayer::selectLeafNode() {
 			}
 		}
 	}
-	total += clock() - start;
-	ostringstream o;
-	o << (double)part / total;
-	cerr << Client::message("stat", o.str());
+	return node;
+}
+
+Node * MonteCarloPlayer::selectLeafNodeServer() {
+	Node *node = root_;
+	while (node->sons_.size() > 0) {
+		pair<int, int> move = node->getMaximinMove();
+		node = node->sons_[move.first][move.second];
+	}
 	return node;
 }
 

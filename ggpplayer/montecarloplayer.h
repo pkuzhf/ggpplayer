@@ -27,6 +27,7 @@ public:
 	Proposition stateMachineSelectMove(int timeout);
 	double uct(int time_limit, int once_simu_limit, int max_simu_times);
 	Node * selectLeafNode();
+	Node * selectLeafNodeServer();
 	void goOneStep(Propositions moves);
 	void setState(Propositions state);
 	void updateTree(Propositions state, string tree);
