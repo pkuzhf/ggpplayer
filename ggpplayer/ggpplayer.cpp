@@ -69,7 +69,7 @@ void run_server() {
 	while (true) {
 		int start = clock();
 		//getline(cin, buf);
-		gets(buffer);
+		fgets(buffer, 1024 * 1024 * 1024, stdin);
 		buf = string(buffer);
 		io_time += clock() - start;
 		int p_space = buf.find(" ");
