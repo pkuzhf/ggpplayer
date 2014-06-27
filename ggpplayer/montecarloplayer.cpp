@@ -80,7 +80,18 @@ Node * MonteCarloPlayer::selectLeafNode() {
 				vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_, i);
 				vector<Node *> nodes;
 				for (int j = 0; j < jointmoves.size(); ++j) {
-					nodes.push_back(newNode(node));
+					state_machine_.setState(node->getState());
+					state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_, i)[j]);
+					if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
+						Node * used_node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
+						used_node->parent_.push_back(node);
+						used_node->valid_number_ = node->valid_number_;
+						nodes.push_back(used_node);
+					} else {
+						Node * new_node = newNode(node);
+						initNode(node, state_machine_.trues_, state_machine_.is_terminal_);
+						nodes.push_back(new_node);
+					}
 				}
 				node->sons_.push_back(nodes);
 			}
@@ -88,19 +99,6 @@ Node * MonteCarloPlayer::selectLeafNode() {
 		pair<int, int> move = node->getMaximinMove();
 		Node * parent = node;
 		node = node->sons_[move.first][move.second];
-		if (!node->inited()){
-			state_machine_.setState(parent->getState());
-			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_, move.first)[move.second]);
-			if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
-				delete node;
-				node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
-				parent->sons_[move.first][move.second] = node;
-				node->parent_.push_back(parent);
-				node->valid_number_ = parent->valid_number_;
-			} else {
-				initNode(node, state_machine_.trues_, state_machine_.is_terminal_);
-			}
-		}
 	}
 	return node;
 }
