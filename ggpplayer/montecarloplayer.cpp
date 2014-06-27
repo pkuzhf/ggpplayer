@@ -207,18 +207,14 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	start = end + 2;
 	end = s.find(")", start);
 	node->attemps_ += atoi(s.substr(start, end - start).c_str());
-	start = end + 1;
-	end = start;
+	start = end + 2; // skip ")("
 	int s_time = clock();
-	int count = 0;
-	do {
-		if (s[end] == '(') ++count;
-		if (s[end] == ')') --count;
-		++end;
-	} while(count > 0);
+	end = s.find(" ", start);
+	int state_length = atoi(s.substr(start, end - start).c_str());
+	start = end + 1; // skip " "
 	p_time += clock() - s_time;
-	string s_state = s.substr(start + 1, end - start - 2);
-	start = end;
+	string s_state = s.substr(start, state_length);
+	start += state_length + 1;  // skip state and ")"
 	end = s.find(")", start) + 1;
 	bool is_terminal = atoi(s.substr(start + 1, end - start - 2).c_str());
 	start = end;

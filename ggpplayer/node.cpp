@@ -74,7 +74,8 @@ string Node::toString() {
 	ret << "(";
 	ret << "(" << points_ << ")";
 	ret << "(" << attemps_ << ")";
-	ret << "(" << Proposition::propsToStr(state_) << ")";
+	string s = Proposition::propsToStr(state_);
+	ret << "(" << s.size() << " " << s << ")";
 	ret << "(" << (is_terminal_ ? 1 : 0) << ")";
 	for (int i = 0; i < sons_.size(); ++i) {
 		ret << "(";
