@@ -72,6 +72,7 @@ void run_server() {
 		fgets(buffer, 1024 * 1024 * 1024, stdin);
 		buf = string(buffer);
 		io_time += clock() - start;
+		Client::message("stat", buf);
 		int p_space = buf.find(" ");
 		if (p_space == buf.npos) continue;
 		string cmd = buf.substr(0, p_space);
