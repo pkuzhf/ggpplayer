@@ -20,18 +20,18 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 		return;
 	}
 	Node * node = map_state_node_[Proposition::propsToStr(state)];
-	cerr << Client::message("debug", "updateTree");
+	//cerr << Client::message("debug", "updateTree");
 	//cerr << Client::message("debug", node->toString());
 	//state_machine_.setState(state);
 	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_)));
 	long long old_points = node->points_;
 	long long old_attemps = node->attemps_;
 	updateNode(node, tree);
-	cerr << Client::message("debug", "updateNode complete");
+	//cerr << Client::message("debug", "updateNode complete");
 	long long points = node->points_ - old_points;
 	long long attemps = node->attemps_ - old_attemps;
 	updateParents(node, points, attemps);
-	cerr << Client::message("debug", "updateTree complete");
+	//cerr << Client::message("debug", "updateTree complete");
 }
 
 MonteCarloPlayer::MonteCarloPlayer(){}
@@ -185,8 +185,8 @@ void MonteCarloPlayer::deleteNodes() {
 }
 
 void MonteCarloPlayer::updateNode(Node * node, string s) {	
-	cerr << Client::message("debug s: ", s);
-	cerr << Client::message("debug node: ", node->toString());
+	//cerr << Client::message("debug s: ", s);
+	//cerr << Client::message("debug node: ", node->toString());
 	int start = 2;
 	int end = s.find(")", start);
 	node->points_ += atoi(s.substr(start, end - start).c_str());
@@ -208,7 +208,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	start = end;
 	//cerr << Client::message("debug", s.substr(start + 1, end - start - 2));
 	if (node->state_.size() == 0 && s_state != "") {
-		cerr << Client::message("debug state:", s_state);
+		//cerr << Client::message("debug state:", s_state);
 		Reader r;
 		r.file_content_ = s_state;
 		Propositions state;

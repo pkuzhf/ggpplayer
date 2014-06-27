@@ -113,7 +113,6 @@ void run_server() {
 				o << "} ";
 			}
 			pair<int, int> move = player.root_->getMaximinMove();
-			cerr << Client::message("debug", "m2");
 			o << player.map_state_node_.size();
 			//o << player.root_->toString();
 			cerr << Client::message("stat", o.str());
