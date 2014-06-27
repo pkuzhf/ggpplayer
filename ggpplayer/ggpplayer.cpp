@@ -65,9 +65,12 @@ void run_server() {
 	int io_time = 1;
 	int total_time = 1;
 	int update_time = 1;
+	char * buffer = new char[1024 * 1024 * 1024];
 	while (true) {
 		int start = clock();
-		getline(cin, buf);
+		//getline(cin, buf);
+		gets(buffer);
+		buf = string(buffer);
 		io_time += clock() - start;
 		int p_space = buf.find(" ");
 		if (p_space == buf.npos) continue;
