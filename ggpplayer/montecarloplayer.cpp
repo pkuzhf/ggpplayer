@@ -210,9 +210,9 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	start = end + 2; // skip ")("
 	int s_time = clock();
 	end = s.find(" ", start);
+	p_time += clock() - s_time;
 	int state_length = atoi(s.substr(start, end - start).c_str());
 	start = end + 1; // skip " "
-	p_time += clock() - s_time;
 	string s_state = s.substr(start, state_length);
 	start += state_length + 1;  // skip state and ")"
 	end = s.find(")", start) + 1;
