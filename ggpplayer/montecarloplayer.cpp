@@ -89,7 +89,7 @@ Node * MonteCarloPlayer::selectLeafNode() {
 						nodes.push_back(used_node);
 					} else {
 						Node * new_node = newNode(node);
-						initNode(node, state_machine_.trues_, state_machine_.is_terminal_);
+						initNode(new_node, state_machine_.trues_, state_machine_.is_terminal_);
 						nodes.push_back(new_node);
 					}
 				}
