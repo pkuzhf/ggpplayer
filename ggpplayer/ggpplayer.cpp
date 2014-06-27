@@ -69,9 +69,9 @@ void run_server() {
 	while (true) {
 		int start = clock();
 		//getline(cin, buf);
-		fgets(buffer, 1024 * 1024 * 1024, stdin);
-		buf = string(buffer);
+		gets(buffer);
 		io_time += clock() - start;
+		buf = string(buffer);
 		Client::message("stat", buf);
 		int p_space = buf.find(" ");
 		if (p_space == buf.npos) continue;
