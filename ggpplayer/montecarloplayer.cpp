@@ -188,12 +188,10 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	//cerr << Client::message("debug s: ", s);
 	//cerr << Client::message("debug node: ", node->toString());
 	int start = 2;
-	int end = start + 1;
-	while (s[end] != ')') ++end;
+	int end = s.find(")", start);
 	node->points_ += atoi(s.substr(start, end - start).c_str());
 	start = end + 2;
-	end = start + 1;
-	while (s[end] != ')') ++end;
+	end = s.find(")", start);
 	node->attemps_ += atoi(s.substr(start, end - start).c_str());
 	start = end + 1;
 	end = start;
@@ -203,13 +201,38 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 		if (s[end] == ')') --count;
 		++end;
 	} while(count > 0);
+	string s_state = s.substr(start + 1, end - start - 2);
+	start = end;
+	end = s.find(")", start) + 1;
+	bool is_terminal = atoi(s.substr(start + 1, end - start - 2).c_str());
 	if (node->state_.size() == 0) {
 		cerr << Client::message("debug state:", s.substr(start + 1, end - start - 2));
 		Reader r;
-		r.file_content_ = s.substr(start + 1, end - start - 2);
-		r.getPropositions(node->state_);
+		r.file_content_ = s_state;
+		Propositions state;
+		r.getPropositions(state);
+
+		if (map_state_node_.find(Proposition::propsToStr(state)) != map_state_node_.end()) {
+			Node * used_node = map_state_node_[Proposition::propsToStr(state)];
+			for (int i = 0; i < node->parent_.size(); ++i) {
+				Node * parent = node->parent_[i];
+				bool find = false;
+				for (int j = 0; j < parent->sons_.size() && !find; ++j) {
+					for (int k = 0; k < parent->sons_[j].size() && !find; ++k) {
+						if (parent->sons_[j][k] == node) {
+							find = true;
+							parent->sons_[j][k] = used_node;
+						}
+					}
+				}
+			}
+			used_node->parent_.insert(used_node->parent_.end(), node->parent_.begin(), node->parent_.end());
+			delete node;
+			node = used_node;
+		} else {
+			initNode(node, state, is_terminal);
+		}
 	}
-	start = end;
 	if (s[start] == ')') {
 		//cerr << Client::message("debug ~s: ", s);
 		return;
