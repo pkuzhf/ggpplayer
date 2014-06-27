@@ -198,7 +198,7 @@ void MonteCarloPlayer::deleteNodes() {
 }
 
 void MonteCarloPlayer::updateNode(Node * node, string s) {	
-	int s_time = clock();
+	
 	//cerr << Client::message("debug s: ", s);
 	//cerr << Client::message("debug node: ", node->toString());
 	int start = 2;
@@ -209,12 +209,14 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	node->attemps_ += atoi(s.substr(start, end - start).c_str());
 	start = end + 1;
 	end = start;
+	int s_time = clock();
 	int count = 0;
 	do {
 		if (s[end] == '(') ++count;
 		if (s[end] == ')') --count;
 		++end;
 	} while(count > 0);
+	p_time += clock() - s_time;
 	string s_state = s.substr(start + 1, end - start - 2);
 	start = end;
 	end = s.find(")", start) + 1;
@@ -246,7 +248,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 			initNode(node, s_state, is_terminal);
 		}
 	}
-	p_time += clock() - s_time;
+	
 	//cerr << Client::message("debug", s.substr(start));
 	if (s[start] == ')') {
 		//cerr << Client::message("debug ~s: ", s);
