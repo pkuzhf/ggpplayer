@@ -76,10 +76,13 @@ Node * MonteCarloPlayer::selectLeafNode() {
 		if (node->sons_.size() == 0) {
 			state_machine_.setState(node->getState());
 			int move_size = state_machine_.getLegalMoves(role_).size();
+			vector<int> jointmove_sizes;
+			for (int i = 0; i < move_size; ++i) {
+				jointmove_sizes.push_back(state_machine_.getLegalJointMoves(role_, i).size());
+			}
 			for (int i = 0; i < move_size; i++) {
-				vector<vector<Proposition>> jointmoves = state_machine_.getLegalJointMoves(role_, i);
 				vector<Node *> nodes;
-				for (int j = 0; j < jointmoves.size(); ++j) {
+				for (int j = 0; j < jointmove_sizes[i]; ++j) {
 					state_machine_.setState(node->getState());
 					state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_, i)[j]);
 					if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
