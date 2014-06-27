@@ -107,9 +107,7 @@ void run_server() {
 			state_reader.file_content_ = s_state;
 			Propositions state;
 			state_reader.getPropositions(state);
-			int s_update = clock();
 			player.updateTree(state, s_tree);
-			update_time += clock() - s_update;
 			ostringstream o;
 			o << "(" << player.root_->points_ / (player.root_->attemps_ + 1) << "/" << player.root_->attemps_ << ") ";
 			for (int i = 0; i < player.root_->sons_.size(); ++i) {
@@ -123,7 +121,9 @@ void run_server() {
 			o << " | " << io_time / (double)total_time << " | " << update_time / (double)total_time;
 			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
+			int s_update = clock();
 			Node * node = player.selectLeafNode();
+			update_time += clock() - s_update;
 			ostringstream s;
 			s << Proposition::propsToStr(node->getState());
 			cerr << Client::message("state", s.str());
