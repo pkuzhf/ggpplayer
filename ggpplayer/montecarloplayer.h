@@ -38,6 +38,7 @@ public:
 	void deleteNodes();
 	void updateParents(Node * node, long long points, long long attemps);
 	void getAncients(Node * node, unordered_set<Node *> &ancients);
+	void updateValidNumber(Node * node, int number);
 };
 
 #endif

@@ -15,14 +15,17 @@ Node::Node(){
 	points_ = 0;
 	attemps_ = 0;
 	is_terminal_ = false;
+	valid_number_ = 0;
 }
 
 Node::Node(Node * p) {
 	points_ = 0;
 	attemps_ = 0;
 	is_terminal_ = false;
+	valid_number_ = 0;
 	if (p != NULL) {
 		parent_.push_back(p);
+		valid_number_ = p->valid_number_;
 	}
 }
 

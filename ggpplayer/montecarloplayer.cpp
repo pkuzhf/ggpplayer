@@ -97,6 +97,7 @@ Node * MonteCarloPlayer::selectLeafNode() {
 				node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
 				parent->sons_[move.first][move.second] = node;
 				node->parent_.push_back(parent);
+				node->valid_number_ = parent->valid_number_;
 			} else {
 				initNode(node, state_machine_.trues_, state_machine_.is_terminal_);
 			}
@@ -154,6 +155,7 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 	
 	if (map_state_node_.find(Proposition::propsToStr(current_state_)) != map_state_node_.end()) {
 		root_ = map_state_node_[Proposition::propsToStr(current_state_)];
+		updateValidNumber(root_, root_->valid_number_ + 1);
 	} else {
 		deleteNodes();
 		root_ = newNode();
@@ -232,6 +234,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 				}
 			}
 			used_node->parent_.insert(used_node->parent_.end(), node->parent_.begin(), node->parent_.end());
+			used_node->valid_number_ = node->valid_number_;
 			delete node;
 			node = used_node;
 		} else {
@@ -299,13 +302,10 @@ void MonteCarloPlayer::updateParents(Node * node, long long points, long long at
 }
 
 void MonteCarloPlayer::getAncients(Node * node, unordered_set<Node *> &ancients) {
-	if (find(ancients.begin(), ancients.end(), node) != ancients.end()) {
+	if (node->valid_number_ < root_->valid_number_ || find(ancients.begin(), ancients.end(), node) != ancients.end()) {
 		return;
 	}
 	ancients.insert(node);
-	if (node == root_) {
-		return;
-	}
 	for (int i = 0; i < node->parent_.size(); ++i) {
 		getAncients(node->parent_[i], ancients);
 	}
@@ -315,4 +315,16 @@ void MonteCarloPlayer::initNode(Node * node, Propositions & state, bool is_termi
 	node->state_ = state;
 	node->is_terminal_ = is_terminal;
 	map_state_node_[Proposition::propsToStr(state)] = node;
+}
+
+void MonteCarloPlayer::updateValidNumber(Node * node, int number) {
+	if (node->valid_number_ == number) {
+		return;
+	}
+	node->valid_number_ = number;
+	for (int i = 0; i < node->sons_.size(); ++i) {
+		for (int j = 0; j < node->sons_[i].size(); ++j) {
+			updateValidNumber(node->sons_[i][j], number);
+		}
+	}
 }

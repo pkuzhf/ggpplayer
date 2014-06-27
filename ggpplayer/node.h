@@ -18,6 +18,7 @@ public:
 	bool is_terminal_;
 	vector<vector<Node *> > sons_;
 	vector<Node *> parent_;
+	int valid_number_;
 	
 	Node(Node * p); 
 	Node();
