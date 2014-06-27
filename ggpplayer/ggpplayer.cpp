@@ -70,7 +70,7 @@ void run_server() {
 	while (true) {
 		int start = clock();
 		//getline(cin, buf);
-		buffer = fgets(buffer, buf_size, stdin);
+		gets(buffer);
 		io_time += clock() - start;
 		buf = string(buffer);
 		Client::message("stat", buf);
