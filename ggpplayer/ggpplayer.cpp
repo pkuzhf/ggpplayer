@@ -62,8 +62,12 @@ void run_server() {
 	cerr << Client::message("state", s.str());
 	cerr << Client::message("move", player.getRandomMove().items_[1].toString());
 	
-	while (true) {				
+	int io_time = 1;
+	int total_time = 1;
+	while (true) {
+		int start = clock();
 		getline(cin, buf);
+		io_time += clock() - start;
 		int p_space = buf.find(" ");
 		if (p_space == buf.npos) continue;
 		string cmd = buf.substr(0, p_space);
@@ -114,6 +118,7 @@ void run_server() {
 			}
 			pair<int, int> move = player.root_->getMaximinMove();
 			o << player.map_state_node_.size();
+			o << " | " << io_time / (double)total_time;
 			//o << player.root_->toString();
 			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
@@ -123,6 +128,7 @@ void run_server() {
 			cerr << Client::message("state", s.str());
 			cerr << Client::message("updated", "");
 		}
+		total_time += clock() - start;
 	}
 }
 
