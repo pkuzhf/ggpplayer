@@ -118,8 +118,7 @@ void run_server() {
 			}
 			o << player.map_state_node_.size();
 			o << " | " << io_time / (double)total_time;
-			//o << player.root_->toString();
-			//cerr << Client::message("stat", o.str());
+			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
 			Node * node = player.selectLeafNode();
 			ostringstream s;

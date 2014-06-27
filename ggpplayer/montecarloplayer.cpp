@@ -39,9 +39,9 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	t_total += clock() - start;
 	ostringstream o;
 	o << (double)t_node / t_total;
-	cerr << Client::message("stat", o.str());
-	/*o << (double)p_time/ t_node;
-	cerr << Client::message("stat", o.str());*/
+	//cerr << Client::message("stat", o.str());
+	//o << (double)p_time/ t_node;
+	//cerr << Client::message("stat", o.str());
 	//cerr << Client::message("debug", "updateTree complete");
 }
 
