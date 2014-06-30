@@ -17,7 +17,6 @@ public:
 	bool is_terminal_;
 	vector<vector<Node *> > sons_;
 	vector<Node *> parent_;
-	int valid_number_;
 private:
 	Propositions state_;
 	string s_state_;
