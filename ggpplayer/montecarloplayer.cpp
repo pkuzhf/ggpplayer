@@ -29,7 +29,7 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	//cerr << Client::message("debug", "updateNode complete");
 	long long points = node->points_ - old_points;
 	long long attemps = node->attemps_ - old_attemps;
-	vector<Node *> path = map_state_path_[node->toString()];
+	vector<Node *> path = map_state_path_[node];
 	for (int i = 0; i < path.size(); ++i) {
 		path[i]->points_ += points;
 		path[i]->attemps_ += attemps;
@@ -120,7 +120,7 @@ Node * MonteCarloPlayer::selectLeafNodeServer() {
 		pair<int, int> move = node->getMaximinMove();
 		node = node->sons_[move.first][move.second];
 	}
-	map_state_path_[node->toString()] = path;
+	map_state_path_[node] = path;
 	return node;
 }
 

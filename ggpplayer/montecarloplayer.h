@@ -21,7 +21,7 @@ public:
 	Propositions legal_moves_;
 	int role_;
 	unordered_map<string, Node *> map_state_node_;
-	unordered_map<string, vector<Node *>> map_state_path_;
+	unordered_map<Node *, vector<Node *>> map_state_path_;
 
 	MonteCarloPlayer();
 	MonteCarloPlayer(Relations rs, string role);
