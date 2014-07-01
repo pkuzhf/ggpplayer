@@ -62,13 +62,13 @@ void run_server() {
 	cerr << Client::message("state", s.str());
 	cerr << Client::message("move", player.getRandomMove().items_[1].toString());
 	
-	int io_time = 1;
-	int total_time = 1;
-	int update_time = 1;
+	clock_t io_time = 1;
+	clock_t total_time = 1;
+	clock_t update_time = 1;
 	const int buf_size = 1024 * 1024 * 1024;
 	char * buffer = new char[buf_size];
 	while (true) {
-		int start = clock();
+		clock_t start = clock();
 		//getline(cin, buf);
 		gets(buffer);
 		io_time += clock() - start;
@@ -126,7 +126,7 @@ void run_server() {
 			o << " | " << io_time / (double)total_time << " | " << update_time / (double)total_time;
 			cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
-			int s_update = clock();
+			clock_t s_update = clock();
 			Node * node = player.selectLeafNodeServer();
 			update_time += clock() - s_update;
 			ostringstream s;

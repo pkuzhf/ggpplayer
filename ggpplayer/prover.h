@@ -6,10 +6,10 @@
 #include <unordered_set>
 #include <map>
 #include <string>
-#include<cmath>
+#include <cmath>
+#include <time.h>
 #include "dependgraph.h"
 #include "relation.h"
-
 
 using namespace std;
 
@@ -34,7 +34,7 @@ typedef struct{
 
 class Prover {
 public:	
-	static vector<int> time;
+	static vector<clock_t> time;
 
 	Propositions bases_;
 	Propositions inputs_;

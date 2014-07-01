@@ -14,7 +14,7 @@
 #include "time.h"
 using namespace std;
 
-vector<int> Prover::time = vector<int>(6);
+vector<clock_t> Prover::time = vector<clock_t>(6);
 
 Prover::Prover(Relations relations) {
 	relations_ = relations;
@@ -343,7 +343,7 @@ vector<vector<int> > & Prover::mergeMultipleCombinations(
 	vector<pair<int, int> > &variable_distincts,
 	vector<pair<int, int> > &constant_distincts) {	
 		
-	int s2 = clock();
+	clock_t s2 = clock();
 	int size = multiple_combinations.size();
 	if (size == 0) {
 		multiple_combinations.push_back(vector<vector<int> >());
@@ -524,7 +524,7 @@ void Prover::markNonStatic(int index, vector<int> & mark)
 }
 
 void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end_stra) {
-	int s1 = clock();
+	clock_t s1 = clock();
 	static int true_props_size = true_props.size() * 10;
 	true_props.reserve(true_props_size * 2);		
 	/*vector<string> input;
@@ -639,7 +639,7 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 					if (true_props_set.find(p) == true_props_set.end()) {																	
 						head_propositions[p.head_].push_back(true_props.size());												
 						true_props.push_back(p);
-						int s5 = clock();
+						clock_t s5 = clock();
 						true_props_set.insert(p);						
 						time[5] += clock() - s5;
 						current_stratum_props.push_back(p);						

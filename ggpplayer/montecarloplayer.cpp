@@ -124,10 +124,10 @@ Node * MonteCarloPlayer::selectLeafNodeServer() {
 	return node;
 }
 
-double MonteCarloPlayer::uct(int time_limit, int once_simu_limit, int max_simu_times) {
+double MonteCarloPlayer::uct(clock_t time_limit, clock_t once_simu_limit, int max_simu_times) {
 	int simu_count = 0;
-	int start = clock();
-	cout << start << endl;
+	clock_t start = clock();
+	
 	while (clock() < start + time_limit) {
 		if (simu_count > max_simu_times) {
 			continue;
@@ -149,7 +149,7 @@ double MonteCarloPlayer::uct(int time_limit, int once_simu_limit, int max_simu_t
 			}
 		}
 	}
-	int stop = clock();
+	clock_t stop = clock();
 	return (double)simu_count / (stop - start) * CLOCKS_PER_SEC;
 }
 
