@@ -30,7 +30,7 @@ public:
 	Propositions getLegalMoves(int role);	
 	Proposition getRandomMove(int role);	
 	void goOneStep(Propositions & move);		
-	bool randomGo(int time_limit);
+	bool randomGo(clock_t time_limit);
 	int getGoal(int role);
 	void setState(Propositions &currentState);
 	vector<vector<Proposition>> getLegalJointMoves(int role, int mymove);

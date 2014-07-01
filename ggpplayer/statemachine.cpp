@@ -115,7 +115,7 @@ void StateMachine::goOneStep(Propositions & move)
 	updateLegals(ps);
 }
 
-bool StateMachine::randomGo(int time_limit)
+bool StateMachine::randomGo(clock_t time_limit)
 {
 	clock_t begin = clock();
 	int count = 0;
