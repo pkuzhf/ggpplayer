@@ -6,6 +6,7 @@
 #include "client.h"
 #include "reader.h"
 #include "relation.h"
+#include "montecarloplayer.h"
 
 using namespace std;
 
