@@ -11,6 +11,7 @@
 #include "node.h"
 #include "montecarloplayer.h"
 #include "client.h"
+#include "statemachine.h"
 
 using namespace std;
 
