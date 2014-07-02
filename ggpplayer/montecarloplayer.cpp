@@ -12,6 +12,7 @@
 #include "montecarloplayer.h"
 #include "client.h"
 #include "statemachine.h"
+#include "prover.h"
 
 using namespace std;
 
