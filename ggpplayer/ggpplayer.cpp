@@ -26,22 +26,23 @@ void run_client() {
 }
 
 void run_server() {
-	//Reader r;
-	//if (!r.readFile("gdl/rule.txt")) {
-	//	cerr << Client::message("debug", "read file failed.");
- //   }
-	//Relations rs;
-	//r.getRelations(rs);
-	//StateMachine machine(rs);
-	//machine.randomGo(clock() + 100000);
-	
-	string buf;
-
 	Reader r;
-	getline(cin, buf);
-	r.readLine(buf);
+	if (!r.readFile("gdl/checkers.kif")) {
+		cerr << Client::message("debug", "read file failed.");
+    }
 	Relations rs;
 	r.getRelations(rs);
+	cout << clock() << endl;
+	StateMachine machine(rs);
+	machine.randomGo(clock() + 100000);
+	cout << clock() << endl;
+	string buf;
+
+	//Reader r;
+	//getline(cin, buf);
+	//r.readLine(buf);
+	//Relations rs;
+	//r.getRelations(rs);
 
     getline(cin, buf);
 	string role = buf;

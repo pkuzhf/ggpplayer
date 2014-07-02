@@ -33,8 +33,10 @@ StateMachine::StateMachine(Relations description) :prover_(description) {
 	Propositions ps;
 	ps.insert(ps.end(), trues_.begin(), trues_.end());
 	ps.insert(ps.end(), prover_.partly_statics_.begin(), prover_.partly_statics_.end());
+	cout << clock() << endl;
 	prover_.generateTrueProps(ps, 0, prover_.dpg_.legal_level_);
 	updateLegals(ps);
+	cout << clock() << endl;
 }
 
 void StateMachine::updateState(Propositions &ps) {
