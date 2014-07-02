@@ -20,6 +20,14 @@ void DependGraph::buildGraph(vector<Derivation> derivations)
 	vector<vector<int> > edges_out_; // 出边的另一个顶点的num
 	vector<bool> MARK;
 
+	addNode(r_legal, edges_in_, edges_out_, MARK);
+	addNode(r_does, edges_in_, edges_out_, MARK);
+	addNode(r_goal, edges_in_, edges_out_, MARK);
+	addNode(r_terminal, edges_in_, edges_out_, MARK);
+	addNode(r_next, edges_in_, edges_out_, MARK);
+	addNode(r_base, edges_in_, edges_out_, MARK);
+	addNode(r_input, edges_in_, edges_out_, MARK);
+
 	derivations_ = derivations;
 	for(int i = 0 ; i < derivations_.size(); ++i){
 		if (node_num_.find(derivations_[i].target_.head_) == node_num_.end()) {

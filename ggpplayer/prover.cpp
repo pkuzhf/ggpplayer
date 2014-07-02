@@ -30,9 +30,7 @@ Prover::Prover(Relations relations) {
 	prepareStaticRelation();
 	Propositions true_rs;
 	for(int i = 0 ; i < relations_.size(); ++i){
-		if(relations_[i].head_ == r_role 
-			|| relations_[i].head_ == r_init
-			|| relations_[i].head_ >= relation_type_num){
+		if(relations_[i].head_ != r_derivation) {
 				true_rs.push_back(relations_[i].toProposition());
 		}
 	}

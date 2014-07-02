@@ -1,2 +1,9 @@
-(role white)(base (r 1))(base (r 2))(input white move)(init (r 1))(legal white move)(<= (next (r 2))(true (r 1)))(goal white 0)(<= terminal (true (r 2
-)))
+(role white)
+(base (r 1))
+(base (r 2))
+(input white move)
+(init (r 1))
+(legal white move)
+(<= (next (r 2))(true (r 1)))
+(goal white 0)
+(<= terminal (true (r 2)))
