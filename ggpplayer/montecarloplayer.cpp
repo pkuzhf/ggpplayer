@@ -131,7 +131,7 @@ double MonteCarloPlayer::uct(clock_t time_limit, clock_t once_simu_limit, int ma
 	clock_t start = clock();
 	
 	while (clock() < start + time_limit) {
-		if (simu_count > max_simu_times) {
+		if (simu_count >= max_simu_times) {
 			continue;
 		}
 		simu_count++;
