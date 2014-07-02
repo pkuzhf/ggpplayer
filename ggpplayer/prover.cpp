@@ -30,8 +30,11 @@ Prover::Prover(Relations relations) {
 	prepareStaticRelation();
 	Propositions true_rs;
 	for(int i = 0 ; i < relations_.size(); ++i){
-		if(relations_[i].head_ != r_derivation) {
-				true_rs.push_back(relations_[i].toProposition());
+		if (relations_[i].head_ != r_derivation) {
+			true_rs.push_back(relations_[i].toProposition());
+			if (find(static_heads_.begin(), static_heads_.end(), true_rs[i].head_) == static_heads_.end()) {
+				partly_statics_.push_back(relations_[i].toProposition());
+			}
 		}
 	}
 	generateTrueProps(true_rs, 0, dpg_.stra_deriv_.size() - 1);
@@ -51,8 +54,6 @@ Prover::Prover(Relations relations) {
 			statics_.push_back(true_rs[i]);	
 			statics_set_.insert(true_rs[i]);
 			head_statics_[true_rs[i].head_].push_back(statics_.size() - 1);
-		} else {
-			partly_statics_.push_back(true_rs[i]);
 		}
 	}
 	sort(roles_.begin(), roles_.end());
