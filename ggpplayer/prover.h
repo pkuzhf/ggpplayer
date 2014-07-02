@@ -41,6 +41,7 @@ public:
 	Propositions roles_;
 	//vector<int> key_head_;
 	Propositions statics_;
+	Propositions partly_statics_;
 	unordered_set<Proposition, hash_Proposition> statics_set_;
 	map<int, vector<int> > head_statics_;
 	Propositions inits_;

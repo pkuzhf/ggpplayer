@@ -30,7 +30,9 @@ StateMachine::StateMachine(Relations description) :prover_(description) {
 		trues_.push_back(p);		
 	}
 	sort(trues_.begin(), trues_.end());
-	Propositions ps = trues_;
+	Propositions ps;
+	ps.insert(ps.end(), trues_.begin(), trues_.end());
+	ps.insert(ps.end(), prover_.partly_statics_.begin(), prover_.partly_statics_.end());
 	prover_.generateTrueProps(ps, 0, prover_.dpg_.legal_level_);
 	updateLegals(ps);
 }
@@ -100,6 +102,7 @@ void StateMachine::goOneStep(Propositions & move)
 	ps.insert(ps.end(), move.begin(), move.end());	
 	ps.insert(ps.end(), tmps_.begin(), tmps_.end());
 	ps.insert(ps.end(), trues_.begin(), trues_.end());
+	
 	prover_.generateTrueProps(ps, prover_.dpg_.legal_level_ + 1, prover_.dpg_.stra_deriv_.size() - 1);
 	
 	updateState(ps);
@@ -109,7 +112,9 @@ void StateMachine::goOneStep(Propositions & move)
 	}
 	
 	ps.clear();
-	ps.insert(ps.end(), trues_.begin(), trues_.end());		
+	ps.insert(ps.end(), trues_.begin(), trues_.end());
+	ps.insert(ps.end(), prover_.partly_statics_.begin(), prover_.partly_statics_.end());
+	
 	prover_.generateTrueProps(ps, 0, prover_.dpg_.legal_level_);	
 
 	updateLegals(ps);
@@ -149,7 +154,9 @@ void StateMachine::setState(Propositions &current_state)
 	tmps_.clear();
 	is_terminal_ = false;
 	trues_ = current_state;	
-	Propositions ps = trues_;
+	Propositions ps;
+	ps.insert(ps.end(), trues_.begin(), trues_.end());
+	ps.insert(ps.end(), prover_.partly_statics_.begin(), prover_.partly_statics_.end());
 	prover_.generateTrueProps(ps, 0, prover_.dpg_.legal_level_);
 	updateLegals(ps);
 }

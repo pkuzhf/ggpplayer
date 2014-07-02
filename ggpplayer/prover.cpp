@@ -51,6 +51,8 @@ Prover::Prover(Relations relations) {
 			statics_.push_back(true_rs[i]);	
 			statics_set_.insert(true_rs[i]);
 			head_statics_[true_rs[i].head_].push_back(statics_.size() - 1);
+		} else {
+			partly_statics_.push_back(true_rs[i]);
 		}
 	}
 	sort(roles_.begin(), roles_.end());
