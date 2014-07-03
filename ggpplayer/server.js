@@ -142,6 +142,10 @@ http.createServer(function (req, res) {
             }, (request.startclock - 2) * 1000);
             break;
         case 'play' :
+            if (!ggp.exe || ggp.game != request.id) {
+                res.end('busy');
+                break;
+            }
             if (ggp.exe) {
                 //console.log('ggp in: ' + request.move);
                 ggp.msgs.splice(1);
@@ -169,12 +173,18 @@ http.createServer(function (req, res) {
             res.end('done');
             break;
         case 'abort' :
+            if (ggp.exe) {
+                ggp.exe.kill('SIGKILL');
+            }
+            ggp.exe = null;
+            res.end('aborted');
             break;
         };
     });
 }).listen(80);
 
 function receiveExeData(data) {
+    console.log('receiveExeData');
     if (ggp.data_length === null) {
         var space_pos = data.indexOf(' ');
         if (space_pos != -1) {
@@ -202,13 +212,14 @@ function receiveExeData(data) {
 }
 
 function handleExeMessage(message) { 
+    console.log('handleExeMessage');
     var i = message.indexOf(' ');
     var cmd = message.substring(0, i);
     message = message.substring(i + 1);
     if (cmd === 'ready') {
         //ggp.res.end('ready');
     } else if (cmd === 'move') {
-        //console.log('move: ' + message)
+        //console.log('ggp output move: ' + message)
         ggp.move = message;
     } else if (cmd === 'state') {
         //console.log('state: ' + message);
@@ -235,6 +246,7 @@ function handleExeMessage(message) {
 }
 
 function receiveClientData(client, data) {
+    console.log('receiveClientData');
     if (client.data_length === null) {
         var space_pos = data.indexOf(' ');
         if (space_pos != -1) {
@@ -262,6 +274,7 @@ function receiveClientData(client, data) {
 }
 
 function handleClientMessage(client, message) {
+    console.log('handleClientMessage');
     //console.log('From Client ' + client.sock.remotePort + ':' + message);
     var i = message.indexOf(' ');
     var cmd = message.substring(0, i);
@@ -273,6 +286,7 @@ function handleClientMessage(client, message) {
         var update_state = false;
         if (cmd === 'uct') {
             var msg = 'client ' + client.state + ';' + message + '\n';
+//            console.log(message.length);
             if (ggp.msgs.length === 0) {
                 ggp.msgs.push(msg);
                 ggp.exe.stdin.write(ggp.msgs[0]);
