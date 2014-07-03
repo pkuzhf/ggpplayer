@@ -146,7 +146,7 @@ http.createServer(function (req, res) {
                     ggp.timer = null;
                 }                    
             });
-            ggp.exe.stdin.write(request.rule + '\n');
+            //ggp.exe.stdin.write(request.rule + '\n');
             ggp.exe.stdin.write(request.role + '\n');
             for (var i = 0; i < clients.length; ++i) {
                 if (!clients[i].game) {
