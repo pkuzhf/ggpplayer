@@ -80,7 +80,7 @@ void MonteCarloPlayer::setState(Propositions state) {
 Node * MonteCarloPlayer::selectLeafNode(vector<Node *> &path) {
 	Node *node = root_;
 	path.push_back(node);
-	while (node->attemps_ > 0 && !node->is_terminal_) {
+	while (!node->is_terminal_) {
 		if (node->sons_.size() == 0) {
 			state_machine_.setState(node->getState());
 			int move_size = state_machine_.getLegalMoves(role_).size();

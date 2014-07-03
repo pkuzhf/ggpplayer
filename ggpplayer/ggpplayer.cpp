@@ -31,7 +31,7 @@ void run_server() {
 	Relations rs;
 
 #ifdef DEBUG
-	if (!r.readFile("gdl/gt_coordination.kif")) {
+	if (!r.readFile("gdl/checkers.kif")) {
 		cerr << Client::message("debug", "read file failed.");
     }
 	r.getRelations(rs);
