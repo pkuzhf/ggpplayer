@@ -22,7 +22,7 @@ void DependGraph::buildGraph(vector<Derivation> derivations)
 
 	addNode(r_legal, edges_in_, edges_out_, MARK);
 	addNode(r_does, edges_in_, edges_out_, MARK);
-	addNode(r_goal, edges_in_, edges_out_, MARK);
+//	addNode(r_goal, edges_in_, edges_out_, MARK);
 	addNode(r_terminal, edges_in_, edges_out_, MARK);
 	addNode(r_next, edges_in_, edges_out_, MARK);
 	addNode(r_base, edges_in_, edges_out_, MARK);

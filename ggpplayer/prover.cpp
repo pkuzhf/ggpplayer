@@ -33,7 +33,7 @@ Prover::Prover(Relations relations) {
 		if (relations_[i].head_ != r_derivation) {
 			true_rs.push_back(relations_[i].toProposition());
 			if (find(static_heads_.begin(), static_heads_.end(), relations_[i].head_) == static_heads_.end()) {
-//				partly_statics_.push_back(relations_[i].toProposition());
+				partly_statics_.push_back(relations_[i].toProposition());
 			}
 		}
 	}
