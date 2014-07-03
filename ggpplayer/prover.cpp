@@ -318,6 +318,7 @@ vector<int> getCommonKeys(vector<int> &a, vector<int> &b) {
 }
 
 void Prover::uniqCombinations(vector<vector<int> > combinations) {
+	clock_t s4 = clock();
 	vector<vector<int> > new_c;
 	vector<int> idx;
 	vector<int> keys;
@@ -340,6 +341,7 @@ void Prover::uniqCombinations(vector<vector<int> > combinations) {
 		}
 		combinations = new_c;
 	}
+	time[4] += clock() - s4;
 }
 
 vector<vector<int> > & Prover::mergeMultipleCombinations(
@@ -352,6 +354,7 @@ vector<vector<int> > & Prover::mergeMultipleCombinations(
 	int size = multiple_combinations.size();
 	if (size == 0) {
 		multiple_combinations.push_back(vector<vector<int> >());
+		time[2] += clock() - s2;
 		return multiple_combinations[multiple_combinations.size() - 1];
 	}
 	for (int i = 0; i < size; ++i) {
@@ -392,8 +395,8 @@ vector<vector<int> > & Prover::mergeMultipleCombinations(
 			idxes[i][j].second = sortCombinations(b, keys[i][j]);
 			combine_cost[i][j] = calcCombineCost(a, b, keys[i][j], idxes[i][j].first, idxes[i][j].second);
 			if (combine_cost[i][j] == 0) {
-				time[2] += clock() - s2;
 				multiple_combinations.push_back(vector<vector<int> >());
+				time[2] += clock() - s2;
 				return multiple_combinations[multiple_combinations.size() - 1];;
 			}
 		}
@@ -458,6 +461,7 @@ vector<vector<int> > & Prover::mergeMultipleCombinations(
 			combine_cost[x][y] = calcCombineCost(a, b, keys[x][y], idxes[x][y].first, idxes[x][y].second);
 			if (combine_cost[x][y] == 0) {
 				multiple_combinations.push_back(vector<vector<int> >());
+				time[2] += clock() - s2;
 				return multiple_combinations[multiple_combinations.size() - 1];
 			}
 		}
