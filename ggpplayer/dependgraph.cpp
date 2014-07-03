@@ -27,6 +27,7 @@ void DependGraph::buildGraph(vector<Derivation> derivations)
 	addNode(r_next, edges_in_, edges_out_, MARK);
 	addNode(r_base, edges_in_, edges_out_, MARK);
 	addNode(r_input, edges_in_, edges_out_, MARK);
+	addNode(r_init, edges_in_, edges_out_, MARK);
 
 	derivations_ = derivations;
 	for(int i = 0 ; i < derivations_.size(); ++i){
