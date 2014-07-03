@@ -30,27 +30,16 @@ void run_server() {
 	string buf;
 	Relations rs;
 
-#ifdef DEBUG
-	if (!r.readFile("gdl/tic_tac_toe.txt")) {
+	if (!r.readFile("gdl/rule.txt")) {
 		cerr << Client::message("debug", "read file failed.");
     }
 	r.getRelations(rs);
-	cout << clock() << endl;
-	StateMachine machine(rs);
-	machine.randomGo(clock() + 100000);
-	cout << clock() << endl;
+	//StateMachine machine(rs);
+	//machine.randomGo(clock() + 100000);
 
-	for (int i = 0; i < Prover::time.size(); ++i) {
-		cout << "time" << i << ": " << Prover::time[i] << endl;
-	}
-
-	system("pause");
-	return;
-#endif
-
-	getline(cin, buf);
-	r.readLine(buf);
-	r.getRelations(rs);
+	//getline(cin, buf);
+	//r.readLine(buf);
+	//r.getRelations(rs);
 
     getline(cin, buf);
 	string role = buf;
