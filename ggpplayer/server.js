@@ -9,21 +9,25 @@ var controllers = [];
 var ggp = {};
 
 var getFirstString = function(data, i) {
-    while (data[i] === ' ') ++i;
+    while (i < data.length && data[i] === ' ') ++i;
+    if (i === data.length) return null;
     var j = i;
-    while (data[j] !== ' ' && data[j] !== ')') ++j;
+    while (j < data.length && data[j] !== ' ' && data[j] !== ')') ++j;
+    if (j === data.length) return null;
     return [i, j];
 };
 
 var getFirstBracket = function(data, i) {
-    while (data[i] === ' ') ++i;    
+    while (i < data.length && data[i] === ' ') ++i;    
+    if (i === data.length) return null;
     var j = i;
     var cnt = 0;
     do {
         if (data[j] === '(') ++cnt;
         if (data[j] === ')') --cnt;
         ++j;
-    } while (cnt > 0);
+    } while (j < data.length && cnt > 0);
+    if (cnt > 0) return null;
     return [i, j];
 }
 
@@ -31,10 +35,10 @@ var parse = function(data) {
     data = data.toLowerCase();
     var ret = {};
     var i = 0;
-    while (data[i] === ' ' || data[i] === '(') {
-        ++i;
-    }
+    while (i < data.length && data[i] === ' ' || data[i] === '(') ++i;
+    if (i === data.length) return null;
     var s = getFirstString(data, i);
+    if (!s) return null;
     i = s[1];
     ret.cmd = data.substring(s[0], s[1]);
     switch (ret.cmd) {
@@ -42,39 +46,49 @@ var parse = function(data) {
         break;
     case 'start' : 
         s = getFirstString(data, i);
+        if (!s) return null;
         i = s[1];
         ret.id = data.substring(s[0], s[1]);
         s = getFirstString(data, i);
+        if (!s) return null;
         i = s[1];
         ret.role = data.substring(s[0], s[1]);
         s = getFirstBracket(data, i);
+        if (!s) return null;
         i = s[1];
         ret.rule = data.substring(s[0] + 1, s[1] - 1).replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n/g, '\r\n'); // delete outer brachet
         s = getFirstString(data, i);
+        if (!s) return null;
         i = s[1];
         ret.startclock = Number(data.substring(s[0], s[1]));
         s = getFirstString(data, i);
+        if (!s) return null;
         i = s[1];
         ret.playclock = Number(data.substring(s[0], s[1]));
         break;
     case 'play' :
     case 'stop' :
         s = getFirstString(data, i);
+        if (!s) return null;
         i = s[1];
         ret.id = data.substring(s[0], s[1]);
-        while (data[i] === ' ') ++i;
+        while (i < data.length && data[i] === ' ') ++i;
+        if (i === data.length) return null;
         if (data[i] === '(') {
             s = getFirstBracket(data, i);
+            if (!s) return null;
             i = s[1];
             ret.move = data.substring(s[0] + 1, s[1] - 1); // delete outer bracket            
         } else {
             s = getFirstString(data, i);
+            if (!s) return null;
             i = s[1];
             ret.move = data.substring(s[0], s[1]);
         }
         break;
     case 'abort' :
         s = getFirstString(data, i);
+        if (!s) return null;
         i = s[1];
         ret.id = data.substring(s[0], s[1]);
         break;
@@ -85,15 +99,18 @@ var parse = function(data) {
 http.createServer(function (req, res) {
     var body = '';
     req.on('data', function(chunk) {
-        body += chunk;
+        body += String(chunk);
+        console.log(String(chunk));
     });
     req.on('end', function () {
+        log('gamemaster', req.connection.remoteAddress + '|' + body + '\n');
+        console.log('game master ' + req.connection.remoteAddress + ': ' + body);
         res.writeHead(200, {
                 'Content-Type' : 'text/acl'
             ,   'Access-Control-Allow-Origin' : '*'
         });
-        console.log(body);
-        var request = parse(body);    
+        var request = parse(body);   
+        if (!request) return;
         switch (request.cmd) {
         case 'info' :
             res.end('( ( name ailab ) ( status available ) )');
@@ -122,6 +139,7 @@ http.createServer(function (req, res) {
             });
             ggp.exe.on('exit', function(code) {
                 console.log('ggp exit');
+                log(ggp.game, 'ggp exit');
                 ggp.exe = null;
                 if (ggp.timer) {
                     clearTimeout(ggp.timer);
@@ -157,9 +175,11 @@ http.createServer(function (req, res) {
                 ggp.timer = setTimeout(function() {
                     if (ggp.move) {
                         console.log('move: ' + ggp.move);
+                        log(ggp.game, 'move: ' + ggp.move);
                         ggp.res.end(ggp.move);
                     } else {
                         console.log('no move');
+                        log(ggp.game, 'move: ' + ggp.move);
                     }
                     ggp.move = null;
                 }, (ggp.playclock - 2) * 1000);
@@ -180,11 +200,14 @@ http.createServer(function (req, res) {
             res.end('aborted');
             break;
         };
+        if (ggp.game) {
+            log(ggp.game, req.connection.remoteAddress + '|' + body + '\n');
+        }
     });
 }).listen(80);
 
 function receiveExeData(data) {
-    console.log('receiveExeData');
+    //console.log('receiveExeData');
     if (ggp.data_length === null) {
         var space_pos = data.indexOf(' ');
         if (space_pos != -1) {
@@ -212,7 +235,7 @@ function receiveExeData(data) {
 }
 
 function handleExeMessage(message) { 
-    console.log('handleExeMessage');
+    //console.log('handleExeMessage');
     var i = message.indexOf(' ');
     var cmd = message.substring(0, i);
     message = message.substring(i + 1);
@@ -246,7 +269,7 @@ function handleExeMessage(message) {
 }
 
 function receiveClientData(client, data) {
-    console.log('receiveClientData');
+    //console.log('receiveClientData');
     if (client.data_length === null) {
         var space_pos = data.indexOf(' ');
         if (space_pos != -1) {
@@ -274,7 +297,7 @@ function receiveClientData(client, data) {
 }
 
 function handleClientMessage(client, message) {
-    console.log('handleClientMessage');
+    //console.log('handleClientMessage');
     //console.log('From Client ' + client.sock.remotePort + ':' + message);
     var i = message.indexOf(' ');
     var cmd = message.substring(0, i);
@@ -286,7 +309,7 @@ function handleClientMessage(client, message) {
         var update_state = false;
         if (cmd === 'uct') {
             var msg = 'client ' + client.state + ';' + message + '\n';
-//            console.log(message.length);
+            //console.log(message.length);
             if (ggp.msgs.length === 0) {
                 ggp.msgs.push(msg);
                 ggp.exe.stdin.write(ggp.msgs[0]);
@@ -369,7 +392,7 @@ net.createServer(function (sock) {
 }).listen(10001);
 
 function log(file, data) {
-    fs.appendFileSync('log/' + file, data);
+    fs.appendFileSync('log/' + file, Date() + '|' + data);
 }
 
 process.on('uncaughtException', function(err) {
