@@ -77,34 +77,38 @@ void MonteCarloPlayer::setState(Propositions state) {
 	initNode(root_, current_state_, is_terminal_);
 }
 
+void MonteCarloPlayer::expandeNode(Node * node) {
+	state_machine_.setState(node->getState());
+	int move_size = state_machine_.getLegalMoves(role_).size();
+	vector<int> jointmove_sizes;
+	for (int i = 0; i < move_size; ++i) {
+		jointmove_sizes.push_back(state_machine_.getLegalJointMoves(role_, i).size());
+	}
+	for (int i = 0; i < move_size; i++) {
+		vector<Node *> nodes;
+		for (int j = 0; j < jointmove_sizes[i]; ++j) {
+			state_machine_.setState(node->getState());
+			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_, i)[j]);
+			if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
+				Node * used_node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
+				used_node->parent_.push_back(node);
+				nodes.push_back(used_node);
+			} else {
+				Node * new_node = newNode(node);
+				initNode(new_node, state_machine_.trues_, state_machine_.is_terminal_);
+				nodes.push_back(new_node);
+			}
+		}
+		node->sons_.push_back(nodes);
+	}
+}
+
 Node * MonteCarloPlayer::selectLeafNode(vector<Node *> &path) {
 	Node *node = root_;
 	path.push_back(node);
 	while (node->attemps_ > 0 && !node->is_terminal_) {
 		if (node->sons_.size() == 0) {
-			state_machine_.setState(node->getState());
-			int move_size = state_machine_.getLegalMoves(role_).size();
-			vector<int> jointmove_sizes;
-			for (int i = 0; i < move_size; ++i) {
-				jointmove_sizes.push_back(state_machine_.getLegalJointMoves(role_, i).size());
-			}
-			for (int i = 0; i < move_size; i++) {
-				vector<Node *> nodes;
-				for (int j = 0; j < jointmove_sizes[i]; ++j) {
-					state_machine_.setState(node->getState());
-					state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_, i)[j]);
-					if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
-						Node * used_node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
-						used_node->parent_.push_back(node);
-						nodes.push_back(used_node);
-					} else {
-						Node * new_node = newNode(node);
-						initNode(new_node, state_machine_.trues_, state_machine_.is_terminal_);
-						nodes.push_back(new_node);
-					}
-				}
-				node->sons_.push_back(nodes);
-			}
+			expandeNode(node);
 		}
 		pair<int, int> move = node->getMaximinMove();
 		Node * parent = node;

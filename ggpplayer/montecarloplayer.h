@@ -41,6 +41,7 @@ public:
 	void deleteNodes();
 	void getAncients(Node * node, unordered_set<Node *> &ancients);
 	void updateValidNumber(Node * node, int number);
+	void expandeNode(Node * node);
 };
 
 #endif
