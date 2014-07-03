@@ -32,7 +32,7 @@ Prover::Prover(Relations relations) {
 	for(int i = 0 ; i < relations_.size(); ++i){
 		if (relations_[i].head_ != r_derivation) {
 			true_rs.push_back(relations_[i].toProposition());
-			if (find(static_heads_.begin(), static_heads_.end(), true_rs[i].head_) == static_heads_.end()) {
+			if (find(static_heads_.begin(), static_heads_.end(), relations_[i].head_) == static_heads_.end()) {
 				partly_statics_.push_back(relations_[i].toProposition());
 			}
 		}
@@ -172,6 +172,7 @@ void Prover::quickSortCombinations(vector<vector<int> > &combinations, vector<in
 }
 
 vector<int> Prover::sortCombinations(vector<vector<int> > &combinations, vector<int> &keys) {
+	clock_t s1 = clock();
 	vector<int> idx;
 	idx.reserve(combinations.size());
 	for (int i = 0; i < combinations.size(); ++i) {
@@ -180,6 +181,7 @@ vector<int> Prover::sortCombinations(vector<vector<int> > &combinations, vector<
 	if (keys.size() > 0) {
 		quickSortCombinations(combinations, keys, idx, 0, idx.size() - 1);
 	}
+	time[1] += clock() - s1;
 	return idx;
 }
 
@@ -208,6 +210,7 @@ vector<vector<int> > Prover::delNotCombinations(vector<vector<int> > &c, vector<
 }
 
 vector<vector<int> > Prover::mergeTwoCombinations(vector<vector<int> > &a, vector<vector<int> > &b, vector<int> &idx_a, vector<int> &idx_b, vector<int> &keys, int size) {
+	clock_t s3 = clock();
 	vector<vector<int> > ret;
 	ret.reserve(size);
 	int a_begin = 0;
@@ -244,6 +247,7 @@ vector<vector<int> > Prover::mergeTwoCombinations(vector<vector<int> > &a, vecto
 			b_begin = b_end;
 		}
 	}
+	time[3] += clock() - s3;
 	return ret;
 }
 
@@ -525,7 +529,7 @@ void Prover::markNonStatic(int index, vector<int> & mark)
 }
 
 void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end_stra) {
-	clock_t s1 = clock();
+	clock_t s0 = clock();
 	static int true_props_size = true_props.size() * 10;
 	true_props.reserve(true_props_size * 2);		
 	/*vector<string> input;
@@ -710,5 +714,5 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 		output.push_back(true_props[i].toRelation().toString());
 	}	*/
 	true_props_size = true_props.size();	
-	time[1] += clock() - s1;
+	time[0] += clock() - s0;
 }

@@ -26,36 +26,37 @@ void run_client() {
 }
 
 void run_server() {
-	//Reader r;
-	//if (!r.readFile("gdl/checkers.kif")) {
-	//	cerr << Client::message("debug", "read file failed.");
- //   }
-	//Relations rs;
-	//r.getRelations(rs);
-	//cout << clock() << endl;
-	//StateMachine machine(rs);
-	//machine.randomGo(clock() + 100000);
-	//cout << clock() << endl;
-	string buf;
-
 	Reader r;
+	string buf;
+	Relations rs;
+
+#ifdef DEBUG
+	if (!r.readFile("gdl/gt_coordination.kif")) {
+		cerr << Client::message("debug", "read file failed.");
+    }
+	r.getRelations(rs);
+	cout << clock() << endl;
+	StateMachine machine(rs);
+	machine.randomGo(clock() + 100000);
+	cout << clock() << endl;
+
+	for (int i = 0; i < Prover::time.size(); ++i) {
+		cout << "time" << i << ": " << Prover::time[i] << endl;
+	}
+
+	system("pause");
+	return;
+#endif
+
 	getline(cin, buf);
 	r.readLine(buf);
-	Relations rs;
 	r.getRelations(rs);
 
     getline(cin, buf);
 	string role = buf;
 
 	MonteCarloPlayer player(rs, role);   // montecarlo player
-	//for (int i = 0; i < 10000; ++i) {
-	//	player.uct(CLOCKS_PER_SEC * 1, CLOCKS_PER_SEC * 5, 10000000);
-	//}
-	/*for (int i = 0; i < Prover::time.size(); ++i) {
-		ostringstream msg;
-		msg << "time" << i << ": " << Prover::time[i];
-		cerr << Client::message("debug", msg.str());
-	}*/
+
 	cerr << Client::message("ready", "");
 
 	ostringstream s;
