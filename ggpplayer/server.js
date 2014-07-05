@@ -100,10 +100,9 @@ http.createServer(function (req, res) {
     var body = '';
     req.on('data', function(chunk) {
         body += String(chunk);
-        console.log(String(chunk));
     });
     req.on('end', function () {
-        log('gamemaster', req.connection.remoteAddress + '|' + body + '\n');
+        log('gamemaster', req.connection.remoteAddress + '|' + body);
         console.log('game master ' + req.connection.remoteAddress + ': ' + body);
         res.writeHead(200, {
                 'Content-Type' : 'text/acl'
@@ -116,6 +115,7 @@ http.createServer(function (req, res) {
             res.end('( ( name ailab ) ( status available ) )');
             break;
         case 'start' :
+            if (ggp.exe) break;
             for (var i = 0; i < controllers.length; ++i) {
                 controllers[i].write('start');
             }
@@ -157,11 +157,15 @@ http.createServer(function (req, res) {
             }
             ggp.timer = setTimeout(function () {
                 res.end('ready');
+                console.log('ready');
+                log('gamemaster', 'ready');
+                log(ggp.game, 'ready');
             }, (request.startclock - 2) * 1000);
             break;
         case 'play' :
             if (!ggp.exe || ggp.game != request.id) {
                 res.end('busy');
+                log('gamemaster', 'busy');
                 break;
             }
             if (ggp.exe) {
@@ -174,34 +178,41 @@ http.createServer(function (req, res) {
                 }
                 ggp.timer = setTimeout(function() {
                     if (ggp.move) {
-                        console.log('move: ' + ggp.move);
-                        log(ggp.game, 'move: ' + ggp.move);
                         ggp.res.end(ggp.move);
-                    } else {
-                        console.log('no move');
-                        log(ggp.game, 'move: ' + ggp.move);
                     }
+                    var content = 'move: ' + ggp.move;
+                    console.log(content);
+                    log(ggp.game, content);
+                    log('gamemaster', content);
                     ggp.move = null;
                 }, (ggp.playclock - 2) * 1000);
             }
             break;
         case 'stop' :
+            if (ggp.exe && request.id !== ggp.game) {
+                break;
+            }
             if (ggp.exe) {
                 ggp.exe.kill('SIGKILL');
             }
             ggp.exe = null;
             res.end('done');
+            log('gamemaster', 'done');
             break;
         case 'abort' :
+            if (ggp.exe && request.id !== ggp.game) {
+                break;
+            }
             if (ggp.exe) {
                 ggp.exe.kill('SIGKILL');
             }
             ggp.exe = null;
             res.end('aborted');
+            log('gamemaster', 'aborted');
             break;
         };
-        if (ggp.game) {
-            log(ggp.game, req.connection.remoteAddress + '|' + body + '\n');
+        if (request.id && ggp.game && request.id === ggp.game) {
+            log(ggp.game, req.connection.remoteAddress + '|' + body);
         }
     });
 }).listen(80);
@@ -264,7 +275,7 @@ function handleExeMessage(message) {
     } else if (cmd === 'stat') {
         var line = controllers.length + '-' + clients.length + ' msgs: ' + ggp.msgs.length + ' stat: ' + message;
         console.log(line);
-        log(ggp.game, line + '\n');
+        log(ggp.game, line);
     }
 }
 
@@ -392,9 +403,10 @@ net.createServer(function (sock) {
 }).listen(10001);
 
 function log(file, data) {
-    fs.appendFileSync('log/' + file, Date() + '|' + data);
+    fs.appendFileSync('log/' + file, Date() + '|' + data + '\n');
 }
 
 process.on('uncaughtException', function(err) {
     console.log(util.inspect(err));
+    log(util.inspect(err));
 });
