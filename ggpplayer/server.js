@@ -97,6 +97,7 @@ var parse = function(data) {
 };
 
 http.createServer(function (req, res) {
+    log('gamemaster', req.connection.remoteAddress + '|' + 'http connect');
     var body = '';
     req.on('data', function(chunk) {
         body += String(chunk);
@@ -408,5 +409,5 @@ function log(file, data) {
 
 process.on('uncaughtException', function(err) {
     console.log(util.inspect(err));
-    log(util.inspect(err));
+    log('error', util.inspect(err));
 });
