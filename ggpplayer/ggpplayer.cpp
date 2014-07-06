@@ -34,8 +34,9 @@ void run_server() {
 		cerr << Client::message("debug", "read file failed.");
     }
 	r.getRelations(rs);
-	//StateMachine machine(rs);
-	//machine.randomGo(clock() + 100000);
+
+	StateMachine machine(rs);
+	machine.randomGo(clock() + 100000);
 
 	//getline(cin, buf);
 	//r.readLine(buf);
