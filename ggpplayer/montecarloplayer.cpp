@@ -34,10 +34,8 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	if (attemps > 0) {
 		vector<Node *> path = map_state_path_[node];
 		for (int i = 0; i < path.size(); ++i) {
-			//path[i]->points_ += points;
-			//path[i]->attemps_ += attemps;
-			path[i]->points_ += points / attemps;
-			path[i]->attemps_ += 1;
+			path[i]->points_ += points;
+			path[i]->attemps_ += attemps;
 		}
 		//updateParents(node, points, attemps);
 		//cerr << Client::message("debug", "updateTree complete");
