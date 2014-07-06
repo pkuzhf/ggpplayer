@@ -132,7 +132,7 @@ Node * MonteCarloPlayer::selectLeafNodeServer() {
 		pair<int, int> move = node->getMaximinMove();
 		node = node->sons_[move.first][move.second];
 	}
-	if (node->is_terminal_) {
+	if (node->is_terminal_ && node->attemps_ > 0) {
 		for (int i = 0; i < path.size(); ++i) {
 			path[i]->points_ += node->points_ / node->attemps_;
 			++path[i]->attemps_;
@@ -168,7 +168,7 @@ double MonteCarloPlayer::uct(clock_t time_limit, clock_t once_simu_limit, int ma
 		vector<Node *> path;
 		Node *node = selectLeafNode(path);		
 		int point = -1;
-		if (node->is_terminal_) {
+		if (node->is_terminal_ && node->attemps_ > 0) {
 			point = node->points_ / node->attemps_;					
 		} else {
 			state_machine_.setState(node->getState());
