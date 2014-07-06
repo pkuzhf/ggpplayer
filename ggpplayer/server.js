@@ -97,7 +97,6 @@ var parse = function(data) {
 };
 
 http.createServer(function (req, res) {
-    log('gamemaster', req.connection.remoteAddress + '|' + 'http connect');
     var body = '';
     req.on('data', function(chunk) {
         body += String(chunk);
@@ -216,7 +215,7 @@ http.createServer(function (req, res) {
             log(ggp.game, req.connection.remoteAddress + '|' + body);
         }
     });
-}).listen(80);
+}).listen(9147);
 
 function receiveExeData(data) {
     //console.log('receiveExeData');
