@@ -84,7 +84,7 @@ void MonteCarloPlayer::expandeNode(Node * node) {
 	for (int i = 0; i < move_size; ++i) {
 		jointmove_sizes.push_back(state_machine_.getLegalJointMoves(role_, i).size());
 	}
-	for (int i = 0; i < move_size; i++) {
+	for (int i = 0; i < move_size; ++i) {
 		vector<Node *> nodes;
 		for (int j = 0; j < jointmove_sizes[i]; ++j) {
 			state_machine_.setState(node->getState());
@@ -134,7 +134,9 @@ double MonteCarloPlayer::uct(clock_t time_limit, clock_t once_simu_limit, int ma
 	int simu_count = 0;
 	clock_t start = clock();
 	
-	expandeNode(root_);
+	if (!root_->is_terminal_) {
+		expandeNode(root_);
+	}
 	while (clock() < start + time_limit) {
 		if (simu_count >= max_simu_times || root_->toString().size() > 1000000) {
 			continue;
