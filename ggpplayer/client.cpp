@@ -194,7 +194,7 @@ void Client::handleMessage(string msg) {
 			Propositions state;
 			state_reader.getPropositions(state);
 			player_.setState(state);
-			player_.uct(CLOCKS_PER_SEC * 0.1, CLOCKS_PER_SEC * 10, 1000);
+			player_.uct(CLOCKS_PER_SEC * 0.5, CLOCKS_PER_SEC * 10, 1000);
 			sendMessage(message("uct", player_.root_->toString()));
 		}
 	}

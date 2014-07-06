@@ -98,6 +98,10 @@ void MonteCarloPlayer::expandeNode(Node * node) {
 			} else {
 				Node * new_node = newNode(node);
 				initNode(new_node, state_machine_.trues_, state_machine_.is_terminal_);
+				if (new_node->is_terminal_) {
+					new_node->attemps_ = 1000000;
+					new_node->points_ = new_node->attemps_ * state_machine_.getGoal(role_);
+				}
 				nodes.push_back(new_node);
 			}
 		}
@@ -128,6 +132,23 @@ Node * MonteCarloPlayer::selectLeafNodeServer() {
 		pair<int, int> move = node->getMaximinMove();
 		node = node->sons_[move.first][move.second];
 	}
+	if (node->is_terminal_) {
+		for (int i = 0; i < path.size(); ++i) {
+			path[i]->points_ += node->points_ / node->attemps_;
+			++path[i]->attemps_;
+		}
+		path.clear();
+		int try_times = 0;
+		do {
+			node = root_;
+			while (node->sons_.size() > 0) {
+				int first = rand() % node->sons_.size();
+				int second = rand() % node->sons_[first].size();
+				node = node->sons_[first][second];
+			}
+			++try_times;
+		} while (node->is_terminal_ && try_times < 10);
+	}
 	map_state_path_[node] = path;
 	return node;
 }
@@ -147,11 +168,13 @@ double MonteCarloPlayer::uct(clock_t time_limit, clock_t once_simu_limit, int ma
 		vector<Node *> path;
 		Node *node = selectLeafNode(path);		
 		int point = -1;
-		state_machine_.setState(node->getState());
 		if (node->is_terminal_) {
-			point = state_machine_.getGoal(role_);					
-		} else if (state_machine_.randomGo(start + once_simu_limit)) {
-			point = state_machine_.getGoal(role_);
+			point = node->points_ / node->attemps_;					
+		} else {
+			state_machine_.setState(node->getState());
+			if (state_machine_.randomGo(start + once_simu_limit)) {
+				point = state_machine_.getGoal(role_);
+			}
 		}
 		if (point != -1) {
 			for (int i = 0; i < path.size(); ++i) {
