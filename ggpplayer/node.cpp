@@ -35,8 +35,8 @@ double Node::getScore() {
 		times = 1;
 	} else {
 		mean = (double)points_ / attemps_;
-		//times = sqrt((double)attemps_);
-		times = attemps_;
+		times = sqrt((double)attemps_);
+		//times = attemps_;
 	}
 	if (times > 1000) {
 		times = 1000;
