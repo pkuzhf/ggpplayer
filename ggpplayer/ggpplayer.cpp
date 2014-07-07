@@ -30,14 +30,15 @@ void run_server() {
 	string buf;
 	Relations rs;
 
-	if (!r.readFile("gdl/checkers.kif")) {
+	if (!r.readFile("gdl/rule.txt")) {
 		cerr << Client::message("debug", "read file failed.");
     }
 	r.getRelations(rs);
 
+#ifdef DEBUG
 	StateMachine machine(rs);
 	Propositions state = machine.trues_;
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 100; ++i) {
 		clock_t s = clock();
 		machine.setState(state);
 		machine.randomGo(clock() + 100000);
@@ -47,6 +48,7 @@ void run_server() {
 	for (int i = 0; i < Prover::time.size(); ++i) {
 		cout << "time" << i << " " << Prover::time[i] << endl;
 	}
+#endif
 
 	//getline(cin, buf);
 	//r.readLine(buf);

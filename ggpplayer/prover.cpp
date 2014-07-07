@@ -626,6 +626,8 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 		vector<Derivation> derivations;
 		vector<vector<vector<vector<int> > > > der_multiple_combinations;
 		vector<vector<vector<vector<int> > > > der_multiple_not_combinations;
+		vector<vector<vector<vector<int> > > > der_multiple_combinations_indexes;
+		vector<vector<vector<int> > > der_multiple_not_combinations_indexes;
 		vector<vector<pair<int, int> > > der_constant_distincts;
 		vector<vector<pair<int, int> > > der_variable_distincts;		
 		Propositions current_stratum_props;
@@ -740,6 +742,8 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 				derivations.push_back(d2);
 				der_multiple_combinations.push_back(multiple_combinations);
 				der_multiple_not_combinations.push_back(multiple_not_combinations);
+				der_multiple_combinations_indexes.push_back(der_multiple_combinations_indexes_[der_id]);
+				der_multiple_not_combinations_indexes.push_back(der_multiple_not_combinations_indexes_[der_id]);
 				der_constant_distincts.push_back(constant_distincts);
 				der_variable_distincts.push_back(variable_distincts);
 			}
@@ -762,7 +766,7 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 						new_multiple_combinations.push_back(vector<vector<int> >(1, c));
 						if (d.subgoals_.size() == 1) {
 							vector<vector<int>> new_combinations = mergeMultipleCombinations(new_multiple_combinations, der_multiple_not_combinations[k], 
-								der_multiple_combinations_indexes_[k], der_multiple_not_combinations_indexes_[k], der_variable_distincts[k], der_constant_distincts[k]);							
+								der_multiple_combinations_indexes[k], der_multiple_not_combinations_indexes[k], der_variable_distincts[k], der_constant_distincts[k]);							
 							for (int ii = 0; ii < new_combinations.size(); ++ii) {
 								Proposition p = d.target_;
 								p.replaceVariables(d.variables_, new_combinations[ii]);
