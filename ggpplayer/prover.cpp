@@ -14,7 +14,7 @@
 #include "time.h"
 using namespace std;
 
-vector<clock_t> Prover::time = vector<clock_t>(6);
+vector<clock_t> Prover::time = vector<clock_t>(16, 0);
 
 Prover::Prover(Relations relations) {
 	relations_ = relations;
@@ -622,15 +622,18 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 		true_props_set.insert(true_props[i]);		
 	}
 	
-	for (int i = start_stra; i <= end_stra; ++i) {		
+	for (int i = start_stra; i <= end_stra; ++i) {
 		vector<Derivation> derivations;
 		vector<vector<vector<vector<int> > > > der_multiple_combinations;
 		vector<vector<vector<vector<int> > > > der_multiple_not_combinations;
 		vector<vector<pair<int, int> > > der_constant_distincts;
 		vector<vector<pair<int, int> > > der_variable_distincts;		
-		Propositions current_stratum_props;		
-		current_stratum_props.reserve(true_props_size / 5);			
+		Propositions current_stratum_props;
+		current_stratum_props.reserve(true_props_size / 5);
+		clock_t s5 = clock();
 		for (int j = 0; j < dpg_.stra_deriv_[i].size(); ++j) {
+			//clock_t s8 = clock();
+			//clock_t s6 = clock();
 			int der_id = dpg_.stra_deriv_[i][j];
 			Derivation &d = dpg_.derivations_[der_id];
 			vector<int> current_stratum_subgoals;
@@ -691,17 +694,20 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 						}						
 					}
 					if (combinations.size() == 0) { // size of combinations should be greater than 0
-						impossible = true;						
+						impossible = true;	
 						break;
 					}					
 					multiple_combinations.push_back(combinations);					
 				} else {
 					current_stratum_subgoals.push_back(k);
 				}
-			}			
+			}
+			//time[6] += clock() - s6;
+			//clock_t s7 = clock();
 			if (impossible) {
+				//time[8] += clock() - s8;
 				continue;
-			}			
+			}
 			if (multiple_combinations.size() == 0) {
 				multiple_combinations.push_back(vector<vector<int> >(1, vector<int>())); // in case there are only 'not' subgoals
 			}
@@ -720,9 +726,7 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 					if (true_props_set.find(p) == true_props_set.end()) {																	
 						head_propositions[p.head_].push_back(true_props.size());												
 						true_props.push_back(p);
-						clock_t s5 = clock();
 						true_props_set.insert(p);						
-						time[5] += clock() - s5;
 						current_stratum_props.push_back(p);						
 					}
 				}				
@@ -738,8 +742,12 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 				der_multiple_not_combinations.push_back(multiple_not_combinations);
 				der_constant_distincts.push_back(constant_distincts);
 				der_variable_distincts.push_back(variable_distincts);
-			}			
+			}
+			//time[7] += clock() - s7;
+			//time[8] += clock() - s8;
+			
 		}
+		time[5] += clock() - s5;
 		for (int j = 0; j < current_stratum_props.size(); ++j) { // size of current_stratum_props would be changed in the loop
 			Proposition true_p = current_stratum_props[j];			
 			for (int k = 0; k < derivations.size(); ++k) {
