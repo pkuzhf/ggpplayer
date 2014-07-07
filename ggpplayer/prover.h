@@ -56,9 +56,13 @@ private:
 	vector<Derivation> derivations_;
 	vector<Derivation> static_derivations_;
 	vector<Derivation> nonstatic_derivations_;	
-	vector<vector<vector<vector<int> > > > der_multiple_combinations_;	
-	vector<vector<vector<vector<int> > > > der_multiple_not_combinations_;	
+	vector<vector<vector<vector<int> > > > der_multiple_combinations_;
+	vector<vector<vector<vector<int> > > > der_multiple_not_combinations_;
+	vector<vector<vector<vector<int> > > > der_multiple_combinations_indexes_;
+	vector<vector<vector<int> > > der_multiple_not_combinations_indexes_;
 	void getSubgoalSequence(vector<vector<vector<pair<int, int> > > > & var_candidates);
+	vector<vector<vector<int> > > getStaticCombinationsIndexes(vector<vector<vector<int> > > &multiple_combinations);
+	vector<vector<int> > getStaticNotCombinationsIndexes(vector<vector<vector<int> > > &multiple_not_combinations);
 	vector<int> static_heads_; // get by DPG
 
 	void prepareStaticRelation();
@@ -73,7 +77,9 @@ private:
 	vector<vector<int> > mergeTwoCombinations(vector<vector<int> > &a, vector<vector<int> > &b, vector<int> &idx_a, vector<int> &idx_b, vector<int> &keys, int size);
 	vector<vector<int> > delNotCombinations(vector<vector<int> > &c, vector<vector<int> > &not_c, vector<int> &idx_c, vector<int> &idx_not_c, vector<int> &keys);
 	long long calcCombineCost(vector<vector<int> > &a, vector<vector<int> > &b, vector<int> &keys, vector<int> &idx_a, vector<int> &idx_b);
+	vector<int> getCommonKeys(vector<int> &a, vector<int> &b, int &idxa, int &idxb);
 	vector<vector<int> > & mergeMultipleCombinations(vector<vector<vector<int> > > &multiple_combinations, vector<vector<vector<int> > > &multiple_not_combinations, 
+		vector<vector<vector<int> > > &multiple_combinations_indexes, vector<vector<int> > &multiple_not_combinations_indexes, 
 		vector<pair<int, int> > &variable_distincts, vector<pair<int, int> > &constant_distincts);
 };
 
