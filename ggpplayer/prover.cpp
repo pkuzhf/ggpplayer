@@ -634,7 +634,7 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 		current_stratum_props.reserve(true_props_size / 5);
 		clock_t s5 = clock();
 		for (int j = 0; j < dpg_.stra_deriv_[i].size(); ++j) {
-			//clock_t s8 = clock();
+			clock_t s8 = clock();
 			//clock_t s6 = clock();
 			int der_id = dpg_.stra_deriv_[i][j];
 			Derivation &d = dpg_.derivations_[der_id];
@@ -707,7 +707,7 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 			//time[6] += clock() - s6;
 			//clock_t s7 = clock();
 			if (impossible) {
-				//time[8] += clock() - s8;
+				time[8] += clock() - s8;
 				continue;
 			}
 			if (multiple_combinations.size() == 0) {
@@ -748,8 +748,7 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 				der_variable_distincts.push_back(variable_distincts);
 			}
 			//time[7] += clock() - s7;
-			//time[8] += clock() - s8;
-			
+			time[8] += clock() - s8;
 		}
 		time[5] += clock() - s5;
 		for (int j = 0; j < current_stratum_props.size(); ++j) { // size of current_stratum_props would be changed in the loop
