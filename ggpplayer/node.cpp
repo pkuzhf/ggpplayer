@@ -117,7 +117,7 @@ Propositions & Node::getState() {
 }
 
 void Node::updatePoints(int point, int attemps) {
-	static double factor = 0.99;
+	static double factor = 0.999;
 	static vector<double> factors(1001);
 	static bool init = false;
 	if (!init) {
