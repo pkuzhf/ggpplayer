@@ -177,8 +177,7 @@ double MonteCarloPlayer::uct(clock_t time_limit, clock_t once_simu_limit, int ma
 		}
 		if (point != -1) {
 			for (int i = 0; i < path.size(); ++i) {
-				path[i]->points_ += point;
-				++path[i]->attemps_;
+				path[i]->updatePoints(point);
 			}
 		}
 	}
