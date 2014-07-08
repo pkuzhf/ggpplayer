@@ -115,3 +115,13 @@ Propositions & Node::getState() {
 	}
 	return state_;
 }
+
+void Node::updatePoints(int point) {
+	int factor = 0.95;
+	if (attemps_ == 0) {
+		points_ = point;
+	} else {
+		points_ = (double)points_ * factor + (double)point * (1 - factor);
+	}
+	++attemps_;
+}

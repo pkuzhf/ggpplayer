@@ -25,17 +25,16 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	//cerr << Client::message("debug", node->toString());
 	//state_machine_.setState(state);
 	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_)));
-	long long old_points = node->points_;
-	long long old_attemps = node->attemps_;
-	updateNode(node, tree);
+	pair<long long, long long> update = updateNode(node, tree);
 	//cerr << Client::message("debug", "updateNode complete");
-	long long points = node->points_ - old_points;
-	long long attemps = node->attemps_ - old_attemps;
+	long long point = update.first;
+	long long attemps = update.second;
 	if (attemps > 0) {
 		vector<Node *> path = map_state_path_[node];
 		for (int i = 0; i < path.size(); ++i) {
-			path[i]->points_ += points;
-			path[i]->attemps_ += attemps;
+			for (int j = 0; j < attemps; ++j) {
+				path[i]->updatePoints(point);
+			}
 		}
 		//updateParents(node, points, attemps);
 		//cerr << Client::message("debug", "updateTree complete");
@@ -239,17 +238,28 @@ void MonteCarloPlayer::deleteNodes() {
 	map_state_node_.clear();
 }
 
-void MonteCarloPlayer::updateNode(Node * node, string s) {	
+pair<long long, long long> MonteCarloPlayer::updateNode(Node * node, string s) {	
 	
 	//cerr << Client::message("debug s: ", s);
 	//cerr << Client::message("debug node: ", node->toString());
-	
+	pair<long long, long long> ret;
+
 	int start = 2;
 	int end = s.find(")", start);
-	node->points_ += atoi(s.substr(start, end - start).c_str());
+	ret.first = atoi(s.substr(start, end - start).c_str());
+
 	start = end + 2;
 	end = s.find(")", start);
-	node->attemps_ += atoi(s.substr(start, end - start).c_str());
+	ret.second = atoi(s.substr(start, end - start).c_str());
+	
+	if (ret.second > 0) {
+		ret.first /= ret.second;
+	}
+
+	for (int i = 0; i < ret.second; ++i) {
+		node->updatePoints(ret.first);
+	}
+
 	start = end + 2; // skip ")("
 	end = s.find(" ", start);
 	int state_length = atoi(s.substr(start, end - start).c_str());
@@ -287,7 +297,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	//cerr << Client::message("debug", s.substr(start));
 	if (s[start] == ')') {
 		//cerr << Client::message("debug ~s: ", s);
-		return;
+		return ret;
 	}
 	bool check = false;
 	if (node->sons_.size() == 0) {
@@ -327,6 +337,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 		}
 		++start;
 	}
+	return ret;
 	//cerr << Client::message("debug ~s: ", s);
 }
 
