@@ -124,4 +124,8 @@ void Node::updatePoints(int point) {
 	} else {
 		points_ = (points_ * factor + point * (1 - factor)) * attemps_;
 	}
+	ostringstream o;
+	o << "point " << point << " points_" << points_ << " factor " << factor << endl;
+	cerr << Client::message("stat", o.str());
+
 }
