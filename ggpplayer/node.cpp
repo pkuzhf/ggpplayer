@@ -119,12 +119,9 @@ Propositions & Node::getState() {
 void Node::updatePoints(int point) {
 	double factor = 0.9;
 	++attemps_;
-	ostringstream o;
-	o << "points_ " << points_ << " point " << point << " attemps_ " << attemps_ << " result " << (points_ * factor + point * (1 - factor)) * attemps_;
-	cerr << Client::message("stat", o.str());
 	if (attemps_ == 1) {
 		points_ = point;
 	} else {
-		points_ = (points_ * factor + point * (1 - factor)) * attemps_;
+		points_ = ((points_ / (attemps_ - 1) * factor + point * (1 - factor)) * attemps_;
 	}
 }

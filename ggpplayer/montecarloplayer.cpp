@@ -253,11 +253,11 @@ pair<int, int> MonteCarloPlayer::updateNode(Node * node, string s) {
 	if (ret.second > 0) {
 		ret.first /= ret.second;
 	}
-	if (ret.first < 0) {
-		ostringstream o;
-		o << "points " << ret.first << " s " << s;
-		cerr << Client::message("stat", o.str());
-	}
+	//if (ret.first < 0) {
+	//	ostringstream o;
+	//	o << "points " << ret.first << " s " << s;
+	//	cerr << Client::message("stat", o.str());
+	//}
 	for (int i = 0; i < ret.second; ++i) {
 		node->updatePoints(ret.first);
 	}
