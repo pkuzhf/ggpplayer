@@ -118,7 +118,7 @@ Propositions & Node::getState() {
 
 void Node::updatePoints(int point, int attemps) {
 	static double factor = 0.99;
-	static vector<double> factors(1001, -1);
+	static vector<double> factors(1001);
 	static bool init = false;
 	if (!init) {
 		factors[0] = 1;
@@ -128,14 +128,12 @@ void Node::updatePoints(int point, int attemps) {
 		init = true;
 	}
 
+	points_ /= attemps_;
 	attemps_ += attemps;
-	if (attemps > 1000) {
-		attemps = 1000;
-	}
-	double f = factors[attemps];
+	double f = factors[attemps > 1000 ? 1000 : attemps];
 	if (attemps_ == 1) {
 		points_ = point;
 	} else {
-		points_ = (points_ / (attemps_ - 1) * f + point * (1 - f)) * attemps_;
+		points_ = (points_ * f + point * (1 - f)) * attemps_;
 	}
 }
