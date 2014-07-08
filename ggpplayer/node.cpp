@@ -122,7 +122,7 @@ void Node::updatePoints(int point) {
 	if (attemps_ == 1) {
 		points_ = point;
 	} else {
-		points_ = ((double)points_ * factor + (double)point * (1 - factor)) * attemps_;
+		points_ = (long long)(((double)points_ * factor + (double)point * (1 - factor)) * attemps_);
 	}
 	
 }
