@@ -135,6 +135,7 @@ void Node::updatePoints(int point, int attemps) {
 		points_ /= attemps_;
 		attemps_ += attemps;
 		double f = factors[attemps > 1000 ? 1000 : attemps];
+		f = (double)(attemps_ - attemps) / attepms_ < f ? (double)(attemps_ - attemps) / attepms_ : f;
 		points_ = (points_ * f + point * (1 - f)) * attemps_;
 	}
 }
