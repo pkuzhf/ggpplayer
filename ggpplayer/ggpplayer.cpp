@@ -128,7 +128,7 @@ void run_server() {
 			}
 			o << player.map_state_node_.size();
 			o << " | " << io_time / (double)total_time << " | " << update_time / (double)total_time;
-			cerr << Client::message("stat", o.str());
+			//cerr << Client::message("stat", o.str());
 			cerr << Client::message("move", player.getBestMove().items_[1].toString());
 			clock_t s_update = clock();
 			Node * node = player.selectLeafNodeServer();
