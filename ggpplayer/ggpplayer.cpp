@@ -118,7 +118,7 @@ void run_server() {
 			state_reader.getPropositions(state);
 			player.updateTree(state, s_tree);
 			ostringstream o;
-			o << "(" << player.root_->points_ / (player.root_->attemps_ + 1) << "/" << player.root_->attemps_ << ") ";
+			o << "(" << player.root_->points_ << "/" << player.root_->attemps_ << ") ";
 			for (int i = 0; i < player.root_->sons_.size(); ++i) {
 				o << "{ ";
 				for (int j = 0; j < player.root_->sons_[i].size(); j++) {
