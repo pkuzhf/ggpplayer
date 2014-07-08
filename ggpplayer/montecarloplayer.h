@@ -35,7 +35,7 @@ public:
 	Proposition getRandomMove();
 	Proposition getBestMove();
 	Node * newNode(Node * parent = NULL);
-	pair<int, int> updateNode(Node * node, string s);
+	void updateNode(Node * node, string s);
 	void initNode(Node * node, Propositions & state, bool is_terminal);
 	void initNode(Node * node, string & state, bool is_terminal);
 	void deleteNodes();

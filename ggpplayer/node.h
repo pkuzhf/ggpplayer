@@ -31,7 +31,6 @@ public:
 	void init(Propositions &state, bool is_terminal);
 	bool inited();
 	Propositions & getState();
-	void updatePoints(int point, int attemps);
 };
 
 #endif

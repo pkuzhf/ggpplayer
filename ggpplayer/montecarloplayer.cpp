@@ -25,14 +25,17 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	//cerr << Client::message("debug", node->toString());
 	//state_machine_.setState(state);
 	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_)));
-	pair<int, int> update = updateNode(node, tree);
+	long long old_points = node->points_;
+	long long old_attemps = node->attemps_;
+	updateNode(node, tree);
 	//cerr << Client::message("debug", "updateNode complete");
-	int point = update.first;
-	int attemps = update.second;
+	long long points = node->points_ - old_points;
+	long long attemps = node->attemps_ - old_attemps;
 	if (attemps > 0) {
 		vector<Node *> path = map_state_path_[node];
 		for (int i = 0; i < path.size(); ++i) {
-			path[i]->updatePoints(point, attemps);
+			path[i]->points_ += points;
+			path[i]->attemps_ += attemps;
 		}
 		//updateParents(node, points, attemps);
 		//cerr << Client::message("debug", "updateTree complete");
@@ -131,7 +134,8 @@ Node * MonteCarloPlayer::selectLeafNodeServer() {
 	}
 	if (node->is_terminal_ && node->attemps_ > 0) {
 		for (int i = 0; i < path.size(); ++i) {
-			path[i]->updatePoints(node->points_ / node->attemps_, 1000);
+			path[i]->points_ += node->points_ / node->attemps_ * 1000;
+			path[i]->attemps_ += 1000;
 		}
 		path.clear();
 		int try_times = 0;
@@ -174,7 +178,8 @@ double MonteCarloPlayer::uct(clock_t time_limit, clock_t once_simu_limit, int ma
 		}
 		if (point != -1) {
 			for (int i = 0; i < path.size(); ++i) {
-				path[i]->updatePoints(point, 1);
+				path[i]->points_ += point;
+				++path[i]->attemps_;
 			}
 		}
 	}
@@ -234,30 +239,17 @@ void MonteCarloPlayer::deleteNodes() {
 	map_state_node_.clear();
 }
 
-pair<int, int> MonteCarloPlayer::updateNode(Node * node, string s) {	
+void MonteCarloPlayer::updateNode(Node * node, string s) {	
 	
 	//cerr << Client::message("debug s: ", s);
 	//cerr << Client::message("debug node: ", node->toString());
-	pair<int, int> ret;
-
+	
 	int start = 2;
 	int end = s.find(")", start);
-	ret.first = atoi(s.substr(start, end - start).c_str());
-
+	node->points_ += atoi(s.substr(start, end - start).c_str());
 	start = end + 2;
 	end = s.find(")", start);
-	ret.second = atoi(s.substr(start, end - start).c_str());
-	
-	if (ret.second > 0) {
-		ret.first /= ret.second;
-		node->updatePoints(ret.first, ret.second);
-	}
-	//if (ret.first < 0) {
-	//	ostringstream o;
-	//	o << "points " << ret.first << " s " << s;
-	//	cerr << Client::message("stat", o.str());
-	//}
-	
+	node->attemps_ += atoi(s.substr(start, end - start).c_str());
 	start = end + 2; // skip ")("
 	end = s.find(" ", start);
 	int state_length = atoi(s.substr(start, end - start).c_str());
@@ -295,7 +287,7 @@ pair<int, int> MonteCarloPlayer::updateNode(Node * node, string s) {
 	//cerr << Client::message("debug", s.substr(start));
 	if (s[start] == ')') {
 		//cerr << Client::message("debug ~s: ", s);
-		return ret;
+		return;
 	}
 	bool check = false;
 	if (node->sons_.size() == 0) {
@@ -335,7 +327,6 @@ pair<int, int> MonteCarloPlayer::updateNode(Node * node, string s) {
 		}
 		++start;
 	}
-	return ret;
 	//cerr << Client::message("debug ~s: ", s);
 }
 
