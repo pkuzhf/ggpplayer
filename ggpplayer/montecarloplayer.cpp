@@ -249,7 +249,8 @@ pair<int, int> MonteCarloPlayer::updateNode(Node * node, string s) {
 	ret.second = atoi(s.substr(start, end - start).c_str());
 	
 	if (ret.second > 0) {
-		node->updatePoints(ret.first / ret.second, ret.second);
+		ret.first /= ret.second;
+		node->updatePoints(ret.first, ret.second);
 	}
 	//if (ret.first < 0) {
 	//	ostringstream o;
