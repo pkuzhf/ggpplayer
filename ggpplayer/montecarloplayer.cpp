@@ -25,10 +25,10 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 	//cerr << Client::message("debug", node->toString());
 	//state_machine_.setState(state);
 	//cerr << Client::message("debug", Proposition::propsToStr(state_machine_.getLegalMoves(role_)));
-	pair<long long, long long> update = updateNode(node, tree);
+	pair<int, int> update = updateNode(node, tree);
 	//cerr << Client::message("debug", "updateNode complete");
-	long long point = update.first;
-	long long attemps = update.second;
+	int point = update.first;
+	int attemps = update.second;
 	if (attemps > 0) {
 		vector<Node *> path = map_state_path_[node];
 		for (int i = 0; i < path.size(); ++i) {
@@ -236,11 +236,11 @@ void MonteCarloPlayer::deleteNodes() {
 	map_state_node_.clear();
 }
 
-pair<long long, long long> MonteCarloPlayer::updateNode(Node * node, string s) {	
+pair<int, int> MonteCarloPlayer::updateNode(Node * node, string s) {	
 	
 	//cerr << Client::message("debug s: ", s);
 	//cerr << Client::message("debug node: ", node->toString());
-	pair<long long, long long> ret;
+	pair<int, int> ret;
 
 	int start = 2;
 	int end = s.find(")", start);
@@ -253,11 +253,11 @@ pair<long long, long long> MonteCarloPlayer::updateNode(Node * node, string s) {
 	if (ret.second > 0) {
 		ret.first /= ret.second;
 	}
-	//if (ret.first < 0) {
-	//	ostringstream o;
-	//	o << "points " << ret.first << " s " << s;
-	//	cerr << Client::message("stat", o.str());
-	//}
+	if (ret.first < 0) {
+		ostringstream o;
+		o << "points " << ret.first << " s " << s;
+		cerr << Client::message("stat", o.str());
+	}
 	for (int i = 0; i < ret.second; ++i) {
 		node->updatePoints(ret.first);
 	}
