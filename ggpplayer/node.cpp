@@ -117,7 +117,7 @@ Propositions & Node::getState() {
 }
 
 void Node::updatePoints(int point) {
-	int factor = 0.95;
+	int factor = 0.99;
 	++attemps_;
 	if (attemps_ == 1) {
 		points_ = point;
