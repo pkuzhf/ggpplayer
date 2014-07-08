@@ -122,6 +122,6 @@ void Node::updatePoints(int point) {
 	if (attemps_ == 1) {
 		points_ = point;
 	} else {
-		points_ = ((points_ / (attemps_ - 1) * factor + point * (1 - factor)) * attemps_;
+		points_ = (points_ / (attemps_ - 1) * factor + point * (1 - factor)) * attemps_;
 	}
 }
