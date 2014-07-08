@@ -131,7 +131,7 @@ Node * MonteCarloPlayer::selectLeafNodeServer() {
 	}
 	if (node->is_terminal_ && node->attemps_ > 0) {
 		for (int i = 0; i < path.size(); ++i) {
-			path[i]->updatePoints(node->points_, 1000);
+			path[i]->updatePoints(node->points_ / node->attemps_, 1000);
 		}
 		path.clear();
 		int try_times = 0;
