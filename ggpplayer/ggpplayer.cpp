@@ -30,7 +30,7 @@ void run_server() {
 	string buf;
 	Relations rs;
 
-	if (!r.readFile("gdl/checkers.kif")) {
+	if (!r.readFile("gdl/rule.txt")) {
 		cerr << Client::message("debug", "read file failed.");
     }
 	r.getRelations(rs);

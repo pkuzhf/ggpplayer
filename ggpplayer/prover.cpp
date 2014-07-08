@@ -102,6 +102,7 @@ Prover::Prover(Relations relations) {
 					}
 				}
 				if (not_combinations.size() > 0) {
+					uniqCombinations(not_combinations);
 					multiple_not_combinations.push_back(not_combinations);
 				}
 			} else if (subgoal.head_ != r_distinct) {				
@@ -118,6 +119,7 @@ Prover::Prover(Relations relations) {
 					}
 				}
 				if (combinations.size() > 0) {
+					uniqCombinations(combinations);
 					multiple_combinations.push_back(combinations);
 				}
 			}
@@ -412,29 +414,6 @@ vector<vector<int> > & Prover::mergeMultipleCombinations(
 		time[2] += clock() - s2;
 		return multiple_combinations[multiple_combinations.size() - 1];
 	}
-	for (int i = 0; i < size; ++i) {
-		vector<vector<int> > &c = multiple_combinations[i];		
-		for (vector<vector<int> >::iterator j = c.begin(); j != c.end(); ) {
-			bool deleted = false;
-			for (int k = 0; k < constant_distincts.size() && !deleted; ++k) {
-				pair<int, int> d = constant_distincts[k];
-				if ((*j)[d.first] != -1 && (*j)[d.first] == d.second) {
-					deleted = true;					
-				}
-			}
-			for (int k = 0; k < variable_distincts.size() && !deleted; ++k) {
-				pair<int, int> d = variable_distincts[k];
-				if ((*j)[d.first] != -1 && (*j)[d.second] != -1 && (*j)[d.first] == (*j)[d.second]) {
-					deleted = true;
-				}
-			}
-			if (deleted) {
-				j = c.erase(j);
-			} else {
-				++j;
-			}
-		}
-	}
 	
 	vector<vector<long long> > combine_cost(size, vector<long long>(size, -1));
 	vector<vector<vector<int> > > keys(size, vector<vector<int> >(size, vector<int>()));
@@ -574,6 +553,29 @@ vector<vector<int> > & Prover::mergeMultipleCombinations(
 			++j;
 		}
 	}
+	for (int i = 0; i < size; ++i) {
+		vector<vector<int> > &c = multiple_combinations[i];		
+		for (vector<vector<int> >::iterator j = c.begin(); j != c.end(); ) {
+			bool deleted = false;
+			for (int k = 0; k < constant_distincts.size() && !deleted; ++k) {
+				pair<int, int> d = constant_distincts[k];
+				if ((*j)[d.first] != -1 && (*j)[d.first] == d.second) {
+					deleted = true;					
+				}
+			}
+			for (int k = 0; k < variable_distincts.size() && !deleted; ++k) {
+				pair<int, int> d = variable_distincts[k];
+				if ((*j)[d.first] != -1 && (*j)[d.second] != -1 && (*j)[d.first] == (*j)[d.second]) {
+					deleted = true;
+				}
+			}
+			if (deleted) {
+				j = c.erase(j);
+			} else {
+				++j;
+			}
+		}
+	}
 	time[2] += clock() - s2;
 	return ret;
 }
@@ -660,6 +662,7 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 						}
 					}
 					if (not_combinations.size() > 0) {
+						uniqCombinations(not_combinations);
 						multiple_not_combinations.push_back(not_combinations);
 					}														
 				} else if (subgoal.head_ == r_distinct) {					
@@ -698,7 +701,8 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 					if (combinations.size() == 0) { // size of combinations should be greater than 0
 						impossible = true;	
 						break;
-					}					
+					}
+					uniqCombinations(combinations);
 					multiple_combinations.push_back(combinations);					
 				} else {
 					current_stratum_subgoals.push_back(k);
@@ -713,12 +717,12 @@ void Prover::generateTrueProps(Propositions &true_props, int start_stra, int end
 			if (multiple_combinations.size() == 0) {
 				multiple_combinations.push_back(vector<vector<int> >(1, vector<int>())); // in case there are only 'not' subgoals
 			}
-			for (int k = der_multiple_combinations_[der_id].size(); k < multiple_combinations.size(); ++k) {
-				uniqCombinations(multiple_combinations[k]);
-			}
-			for (int k = der_multiple_not_combinations_[der_id].size(); k < multiple_not_combinations.size(); ++k) {
-				uniqCombinations(multiple_not_combinations[k]);
-			}						
+			//for (int k = der_multiple_combinations_[der_id].size(); k < multiple_combinations.size(); ++k) {
+			//	uniqCombinations(multiple_combinations[k]);
+			//}
+			//for (int k = der_multiple_not_combinations_[der_id].size(); k < multiple_not_combinations.size(); ++k) {
+			//	uniqCombinations(multiple_not_combinations[k]);
+			//}						
 			if (current_stratum_subgoals.size() == 0) {				
 				vector<vector<int> > new_combinations = mergeMultipleCombinations(multiple_combinations, 
 					multiple_not_combinations, der_multiple_combinations_indexes_[der_id], der_multiple_not_combinations_indexes_[der_id], variable_distincts, constant_distincts);				
