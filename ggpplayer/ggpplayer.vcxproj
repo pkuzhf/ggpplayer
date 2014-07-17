@@ -76,10 +76,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="client.h" />
+    <ClInclude Include="component.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="dependgraph.h" />
     <ClInclude Include="montecarloplayer.h" />
     <ClInclude Include="node.h" />
+    <ClInclude Include="propnet.h" />
     <ClInclude Include="prover.h" />
     <ClInclude Include="reader.h" />
     <ClInclude Include="relation.h" />
