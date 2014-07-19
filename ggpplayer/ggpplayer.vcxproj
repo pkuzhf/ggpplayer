@@ -93,6 +93,7 @@
     <ClCompile Include="ggpplayer.cpp" />
     <ClCompile Include="montecarloplayer.cpp" />
     <ClCompile Include="node.cpp" />
+    <ClCompile Include="propnet.cpp" />
     <ClCompile Include="prover.cpp" />
     <ClCompile Include="reader.cpp" />
     <ClCompile Include="relation.cpp" />
