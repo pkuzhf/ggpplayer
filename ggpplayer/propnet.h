@@ -10,7 +10,7 @@ class Propnet {
 public:
 	vector<Component *> components_;
 	
-	void init(Relations ps);
+	void init(Relations rs);
 };
 
 #endif
