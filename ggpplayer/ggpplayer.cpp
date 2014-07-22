@@ -17,6 +17,7 @@
 #include "montecarloplayer.h"
 #include "client.h"
 #include "config.h"
+#include "propnet.h"
 
 using namespace std;
 
@@ -30,12 +31,15 @@ void run_server() {
 	string buf;
 	Relations rs;
 
-	if (!r.readFile("gdl/rule.txt")) {
+	if (!r.readFile("gdl/connectFour.kif")) {
 		cerr << Client::message("debug", "read file failed.");
     }
 	r.getRelations(rs);
 
 #ifdef DEBUG
+	Propnet propnet;
+	propnet.init(rs);
+
 	StateMachine machine(rs);
 	Propositions state = machine.trues_;
 	for (int i = 0; i < 5; ++i) {
