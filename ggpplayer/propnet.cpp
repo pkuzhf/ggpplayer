@@ -41,4 +41,5 @@ void Propnet::init(Relations rs) {
 	for (int i = 0; i < trues.size(); ++i) {
 		scans.push_back(trues[i].toString());
 	}
+
 }
