@@ -31,7 +31,7 @@ void run_server() {
 	string buf;
 	Relations rs;
 
-	if (!r.readFile("gdl/2pffa_zerosum.kif")) {
+	if (!r.readFile("gdl/ticTacToe.kif")) {
 		cerr << Client::message("debug", "read file failed.");
     }
 	r.getRelations(rs);

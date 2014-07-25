@@ -7,6 +7,7 @@
 
 using namespace std;
 
+const int c_uninit = -1;
 const int c_and = 0;
 const int c_or = 1;
 const int c_not = 2;

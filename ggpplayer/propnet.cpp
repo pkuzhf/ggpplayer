@@ -40,6 +40,7 @@ void Propnet::init(Relations rs) {
 	vector<string> scans;
 	for (int i = 0; i < trues.size(); ++i) {
 		scans.push_back(trues[i].toString());
+		components_.push_back(new Component());
 	}
-
+	
 }
