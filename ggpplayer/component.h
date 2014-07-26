@@ -22,6 +22,7 @@ public:
 	int trues_;
 
 	Component();
+	Component(int type);
 };
 
 #endif

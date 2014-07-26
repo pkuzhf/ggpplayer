@@ -7,3 +7,9 @@ Component::Component() {
 	value_ = false;
 	trues_ = 0;
 }
+
+Component::Component(int type) {
+	type_ = type;
+	value_ = false;
+	trues_ = 0;
+}

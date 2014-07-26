@@ -40,7 +40,15 @@ void Propnet::init(Relations rs) {
 	vector<string> scans;
 	for (int i = 0; i < trues.size(); ++i) {
 		scans.push_back(trues[i].toString());
-		components_.push_back(new Component());
+		components_.push_back(new Component(c_or));
 	}
 	
+	for (int i = 0; i < rs.size(); ++i) {
+		if (rs[i].head_ == r_derivation) {
+			Proposition target = rs[i].items_[0].toProposition();
+			for (int j = 0; j < trues.size(); ++j) {
+
+			}
+		}
+	}
 }
