@@ -47,7 +47,22 @@ void Propnet::init(Relations rs) {
 		if (rs[i].head_ == r_derivation) {
 			Proposition target = rs[i].items_[0].toProposition();
 			for (int j = 0; j < trues.size(); ++j) {
-
+				vector<int> variables;
+				vector<int> values;
+				if (target.matches(trues[j], variables, values)) {
+					Component *and = new Component(c_and);
+					components_.push_back(and);
+					components_[j]->inputs_.push_back(and);
+					and->outputs_.push_back(components_[j]);
+					for (int k = 1; k < rs[i].items_.size(); ++k) {
+						Proposition subgoal = rs[i].items_[k].toProposition();
+						subgoal.replaceVariables(variables, values);
+						if (
+						for (int ii = 0; ii < trues.size(); ++ii) {
+							if (
+						}
+					}
+				}
 			}
 		}
 	}
