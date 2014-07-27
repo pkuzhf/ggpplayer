@@ -76,6 +76,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="client.h" />
+    <ClInclude Include="combination.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="dependgraph.h" />
@@ -89,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client.cpp" />
+    <ClCompile Include="combination.cpp" />
     <ClCompile Include="component.cpp" />
     <ClCompile Include="dependgraph.cpp" />
     <ClCompile Include="ggpplayer.cpp" />

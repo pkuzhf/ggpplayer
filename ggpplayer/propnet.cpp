@@ -1,9 +1,11 @@
 #include <vector>
+#include <algorithm>
 
 #include "propnet.h"
 #include "component.h"
 #include "relation.h" 
 #include "prover.h"
+#include "combination.h"
 
 using namespace std;
 
@@ -45,23 +47,39 @@ void Propnet::init(Relations rs) {
 	
 	for (int i = 0; i < rs.size(); ++i) {
 		if (rs[i].head_ == r_derivation) {
-			Proposition target = rs[i].items_[0].toProposition();
+			Derivation d = rs[i].toDerivation();
+			d.prepareVariables();
+			Proposition &target = d.target_;
 			for (int j = 0; j < trues.size(); ++j) {
-				vector<int> variables;
-				vector<int> values;
-				if (target.matches(trues[j], variables, values)) {
-					Component *and = new Component(c_and);
-					components_.push_back(and);
-					components_[j]->inputs_.push_back(and);
-					and->outputs_.push_back(components_[j]);
-					for (int k = 1; k < rs[i].items_.size(); ++k) {
-						Proposition subgoal = rs[i].items_[k].toProposition();
-						subgoal.replaceVariables(variables, values);
-						if (
-						for (int ii = 0; ii < trues.size(); ++ii) {
-							if (
+				vector<int> target_variables;
+				vector<int> target_values;
+				if (target.matches(trues[j], target_variables, target_values)) {
+					vector<int> undetermined_vars;
+					for (int k = 0; k < d.variables_.size(); ++k) {
+						if (find(target_variables.begin(), target_variables.end(), d.variables_[k]) == target_variables.end()) {
+							undetermined_vars.push_back(d.variables_[k]);
 						}
 					}
+					Component *or = new Component(c_or);
+					components_.push_back(or);
+					components_[j]->inputs_.push_back(or);
+					or->outputs_.push_back(components_[j]);
+					vector<vector<vector<int> > > multiple_combinations;
+					for (int k = 0; k < d.subgoals_.size(); ++k) {
+						Proposition &subgoal = d.subgoals_[k];
+						subgoal.replaceVariables(target_variables, target_values);
+						vector<int> subgoal_variables;
+						vector<int> subgoal_values;
+						vector<vector<int> > combinations;
+						for (int ii = 0; ii < trues.size(); ++ii) {
+							if (subgoal.matches(trues[ii], subgoal_variables, subgoal_values)) {
+								vector<int> combination = getCombination(undetermined_vars, subgoal_variables, subgoal_values);
+								combinations.push_back(combination);
+							}
+						}
+						multiple_combinations.push_back(combinations);
+					}
+					vector<vector<int> > combinations = mergeMultipleCombinations(multiple_combinations, vector<vector<vector<int> > >(), 
 				}
 			}
 		}
