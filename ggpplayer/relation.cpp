@@ -242,12 +242,15 @@ void Proposition::getVariables(vector<int> &variables) {
 
 void Proposition::replaceVariables(vector<int> &variables, vector<int> &values) {
 	if (is_variable_) {
-		int value;
+		int value = -1;
 		for (int i = 0; i < variables.size(); ++i) {
 			if (variables[i] == head_) {
 				value = values[i];
 				break;
 			}
+		}
+		if (value == -1) {
+			return;
 		}
 		if (value < Relation::symbol_table_size) {
 			head_ = value;

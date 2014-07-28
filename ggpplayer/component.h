@@ -23,6 +23,7 @@ public:
 
 	Component();
 	Component(int type);
+	Component * getNotOutput();
 };
 
 #endif
