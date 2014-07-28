@@ -49,6 +49,12 @@ void Propnet::init(Relations rs) {
 		if (rs[i].head_ == r_derivation) {
 			Derivation d = rs[i].toDerivation();
 			d.prepareVariables();
+			vector<int> distincts;
+			for (int j = 0; j < d.subgoals_.size(); ++j) {
+				if (d.subgoals_[j].head_ == r_distinct) {
+					distincts.push_back(j);
+				}
+			}
 			Proposition &target = d.target_;
 			for (int j = 0; j < trues.size(); ++j) {
 				vector<int> target_variables;
@@ -60,12 +66,44 @@ void Propnet::init(Relations rs) {
 							undetermined_vars.push_back(d.variables_[k]);
 						}
 					}
+					vector<pair<int, int> > constant_distincts;
+					vector<pair<int, int> > variable_distincts;
+					bool distinct_fail = false;
+					for (int k = 0; k < distincts.size(); ++k) {
+						Proposition distinct = d.subgoals_[distincts[k]];
+						distinct.replaceVariables(target_variables, target_values);
+						int v0 = distinct.items_[0].head_;
+						int v1 = distinct.items_[1].head_;	
+						if (distinct.items_[0].is_variable_ && distinct.items_[1].is_variable_) {
+							int p0 = find(undetermined_vars.begin(), undetermined_vars.end(), v0) - undetermined_vars.begin();
+							int p1 = find(undetermined_vars.begin(), undetermined_vars.end(), v1) - undetermined_vars.begin();
+							variable_distincts.push_back(pair<int, int>(p0, p1));
+						} else if (distinct.items_[0].is_variable_ && !distinct.items_[1].is_variable_) {
+							int p0 = find(undetermined_vars.begin(), undetermined_vars.end(), v0) - undetermined_vars.begin();
+							int p1 = v1;
+							constant_distincts.push_back(pair<int, int>(p0, p1));
+						} else if (!distinct.items_[0].is_variable_ && distinct.items_[1].is_variable_) {
+							int p0 = find(undetermined_vars.begin(), undetermined_vars.end(), v1) - undetermined_vars.begin();
+							int p1 = v0;
+							constant_distincts.push_back(pair<int, int>(p0, p1));
+						} else if (!distinct.items_[0].is_variable_ && !distinct.items_[1].is_variable_) {
+							if (distinct.items_[0].head_ == distinct.items_[1].head_) {
+								distinct_fail = true;
+							}
+						}
+					}
+					if (distinct_fail) {
+						continue;
+					}
 					Component *or = new Component(c_or);
 					components_.push_back(or);
 					components_[j]->inputs_.push_back(or);
 					or->outputs_.push_back(components_[j]);
 					vector<vector<vector<int> > > multiple_combinations;
 					for (int k = 0; k < d.subgoals_.size(); ++k) {
+						if (d.subgoals_[k].head_ == r_distinct) {
+							continue;
+						}
 						Proposition &subgoal = d.subgoals_[k];
 						subgoal.replaceVariables(target_variables, target_values);
 						vector<int> subgoal_variables;
@@ -79,7 +117,14 @@ void Propnet::init(Relations rs) {
 						}
 						multiple_combinations.push_back(combinations);
 					}
-					vector<vector<int> > combinations = mergeMultipleCombinations(multiple_combinations, vector<vector<vector<int> > >(), 
+					vector<vector<int> > combinations = mergeMultipleCombinations(
+						multiple_combinations, 
+						vector<vector<vector<int> > >(), 
+						vector<vector<vector<int> > >(),
+						vector<vector<int> >(),
+						variable_distincts,
+						constant_distincts
+					);
 				}
 			}
 		}
