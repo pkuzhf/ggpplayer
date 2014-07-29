@@ -166,13 +166,13 @@ void Propnet::init(Relations rs) {
 					}
 					vector<vector<int> > combinations = mergeMultipleCombinations(multiple_combinations, variable_distincts, constant_distincts);
 					if (combinations.size() > 0) {
-						Component *or = new Component(c_or);
-						components_.push_back(or);
-						or->addOutput(components_[map_head_ps_[target.head_][j]]);
+						Component *tmp_or = new Component(c_or);
+						components_.push_back(tmp_or);
+						tmp_or->addOutput(components_[map_head_ps_[target.head_][j]]);
 						for (int k = 0; k < combinations.size(); ++k) {
-							Component *and = new Component(c_and);
-							components_.push_back(and);
-							and->addOutput(or);
+							Component *tmp_and = new Component(c_and);
+							components_.push_back(tmp_and);
+							tmp_and->addOutput(tmp_or);
 							for (int ii = 0; ii < d.subgoals_.size(); ++ii) {
 								if (d.subgoals_[ii].head_ == r_distinct) {
 									continue;
@@ -188,17 +188,17 @@ void Propnet::init(Relations rs) {
 										} else {
 											c = components_[map_string_p_[subgoal.items_[0].toString()]];
 										}
-										Component *not = c->getNotOutput();
-										if (not == NULL){
-											not = new Component(c_not);
-											components_.push_back(not);
-											c->addOutput(not);
+										Component *tmp_not = c->getNotOutput();
+										if (tmp_not == NULL){
+											tmp_not = new Component(c_not);
+											components_.push_back(tmp_not);
+											c->addOutput(tmp_not);
 										}
-										not->addOutput(and);
+										tmp_not->addOutput(tmp_and);
 									} else {
 										//cout << subgoal.toString() << endl;
 										Component *c = components_[map_string_p_[subgoal.toString()]];
-										c->addOutput(and);
+										c->addOutput(tmp_and);
 										//if (components_[map_head_ps_[r_legal][0]]->value_) {
 										//	cout << ps_[map_head_ps_[r_legal][0]].toString() << endl;
 										//}
