@@ -72,7 +72,7 @@ int Client::connectServer() {
 
 void Client::sendMessage(string msg) {
 	send(socket_, msg.c_str(), msg.size(), 0);
-	cerr << "send: " + msg << endl;
+	//cerr << "send: " + msg << endl;
 }
 
 #else

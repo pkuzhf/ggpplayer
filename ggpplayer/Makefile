@@ -1,4 +1,4 @@
-objs = ggpplayer.o client.o dependgraph.o montecarloplayer.o node.o prover.o reader.o relation.o statemachine.o
+objs = ggpplayer.o client.o dependgraph.o montecarloplayer.o node.o prover.o reader.o relation.o statemachine.o component.o combination.o propnet.o
 ggp : $(objs) 
 	g++ -o ggp $(objs)
 ggpplayer.o : ggpplayer.cpp reader.h relation.h prover.h dependgraph.h statemachine.h montecarloplayer.h client.h config.h

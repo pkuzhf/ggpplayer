@@ -21,4 +21,6 @@ vector<vector<int> > mergeMultipleCombinations(vector<vector<vector<int> > > mul
 vector<vector<int> > mergeMultipleCombinations(vector<vector<vector<int> > > multiple_combinations, 
 	vector<pair<int, int> > variable_distincts, vector<pair<int, int> > constant_distincts);
 
+
+
 #endif
