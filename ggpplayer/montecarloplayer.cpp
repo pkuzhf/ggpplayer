@@ -330,7 +330,7 @@ void MonteCarloPlayer::updateNode(Node * node, string s) {
 	//cerr << Client::message("debug ~s: ", s);
 }
 
-void MonteCarloPlayer::initNode(Node * node, Propositions & state, bool is_terminal) {
+void MonteCarloPlayer::initNode(Node * node, Propositions state, bool is_terminal) {
 	node->init(state, is_terminal);
 	map_state_node_[Proposition::propsToStr(state)] = node;
 }
