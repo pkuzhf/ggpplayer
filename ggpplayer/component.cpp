@@ -2,6 +2,8 @@
 
 #include "component.h"
 
+using namespace std;
+
 Component::Component(int type) {
 	init(type);
 }
