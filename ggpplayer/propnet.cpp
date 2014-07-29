@@ -9,7 +9,21 @@
 
 using namespace std;
 
-Propositions getPropositions(Relations rs) {
+Propositions getInits(Relations rs) {
+	Propositions ret;
+	for (int i = 0; i < rs.size(); ++i) {
+		if (rs[i].head_ == r_init) {
+			ret.push_back(rs[i].toProposition());
+		}
+	}
+	return ret;
+}
+
+void Propnet::init(Relations rs) {
+	for (int i = 0; i < rs.size(); ++i) {
+		rs[i].s_ = rs[i].toString();
+	}
+
 	Prover p(rs);
 	Propositions bases = p.bases_;
 	Propositions inputs = p.inputs_;
@@ -24,53 +38,54 @@ Propositions getPropositions(Relations rs) {
 			}
 		}
 	}
-	for (int i = 0; i < rs.size(); ++i) {
-		rs[i].s_ = rs[i].toString();
-	}
+	
 	Prover p2(rs);
-	Propositions trues;
 	for (int i = 0; i < bases.size(); ++i) {
 		bases[i].head_ = r_true;
 	}
 	for (int i = 0; i < inputs.size(); ++i) {
 		inputs[i].head_ = r_does;
 	}
-	trues.insert(trues.end(), bases.begin(), bases.end());
-	trues.insert(trues.end(), inputs.begin(), inputs.end());
-	p2.generateTrueProps(trues, 0, p2.dpg_.stra_deriv_.size() - 1);
-	trues.insert(trues.end(), p2.statics_.begin(), p2.statics_.end());
-	return trues;
-}
-
-Propositions getInits(Relations rs) {
-	Propositions ret;
-	for (int i = 0; i < rs.size(); ++i) {
-		if (rs[i].head_ == r_init) {
-			ret.push_back(rs[i].toProposition());
+	ps_.insert(ps_.end(), bases.begin(), bases.end());
+	ps_.insert(ps_.end(), inputs.begin(), inputs.end());
+	p2.generateTrueProps(ps_, 0, p2.dpg_.stra_deriv_.size() - 1);
+	ps_.insert(ps_.end(), p2.statics_.begin(), p2.statics_.end());
+	for (int i = 0; i < ps_.size(); ++i) {
+		if (ps_[i].head_ != r_next) {
+			components_.push_back(new Component(c_or));
+		} else {
+			components_.push_back(new Component(c_transition));
 		}
 	}
-	return ret;
-}
 
-void Propnet::init(Relations rs) {
-	ps_ = getPropositions(rs);
 	map<int, vector<int> > map_head_ps;
 	map<string, int> map_string_p;
 	for (int i = 0; i < ps_.size(); ++i) {
 		map_head_ps[ps_[i].head_].push_back(i);
 		map_string_p[ps_[i].toString()] = i;
 	}
-	
+
+	for (int i = 0; i < p.statics_.size(); ++i) {
+		Component *c = components_[map_string_p[p.statics_[i].toString()]];
+		c->value_ = true;
+		c->last_value_ = true;
+	}
+
 	vector<string> scans;
 	for (int i = 0; i < ps_.size(); ++i) {
 		scans.push_back(ps_[i].toString());
-		if (ps_[i].head_ != r_true) {
-			components_.push_back(new Component(c_or));
-		} else {
-			components_.push_back(new Component(c_transition));
-		}
 	}
 	
+	Propositions inits = getInits(rs);
+	for (int i = 0; i < inits.size(); ++i) {
+		Proposition p = inits[i];
+		p.head_ = r_next;
+		components_[map_string_p[p.toString()]]->last_value_ = true;
+		p.head_ = r_true;
+		components_[map_string_p[p.toString()]]->value_ = true;
+		components_[map_string_p[p.toString()]]->last_value_ = true;
+	}
+
 	for (int i = 0; i < rs.size(); ++i) {
 		if (rs[i].head_ == r_derivation) {
 			Derivation d = rs[i].toDerivation();
@@ -82,6 +97,9 @@ void Propnet::init(Relations rs) {
 				}
 			}
 			Proposition &target = d.target_;
+			if (target.head_ == r_goal) {
+				//cout << "1" << endl;
+			}
 			for (int j = 0; j < map_head_ps[target.head_].size(); ++j) {
 				vector<int> target_variables;
 				vector<int> target_values;
@@ -130,11 +148,11 @@ void Propnet::init(Relations rs) {
 						if (subgoal.head_ == r_not) {
 							subgoal = subgoal.items_[0];
 						}
-						subgoal.replaceVariables(target_variables, target_values);
-						vector<int> subgoal_variables;
-						vector<int> subgoal_values;
+						subgoal.replaceVariables(target_variables, target_values);						
 						vector<vector<int> > combinations;
 						for (int ii = 0; ii < map_head_ps[subgoal.head_].size(); ++ii) {
+							vector<int> subgoal_variables;
+							vector<int> subgoal_values;
 							if (subgoal.matches(ps_[map_head_ps[subgoal.head_][ii]], subgoal_variables, subgoal_values)) {
 								vector<int> combination = getCombination(undetermined_vars, subgoal_variables, subgoal_values);
 								combinations.push_back(combination);
@@ -146,31 +164,35 @@ void Propnet::init(Relations rs) {
 					if (combinations.size() > 0) {
 						Component *or = new Component(c_or);
 						components_.push_back(or);
-						components_[j]->inputs_.push_back(or);
-						or->outputs_.push_back(components_[j]);
+						or->addOutput(components_[map_head_ps[target.head_][j]]);
 						for (int k = 0; k < combinations.size(); ++k) {
 							Component *and = new Component(c_and);
 							components_.push_back(and);
-							or->inputs_.push_back(and);
-							and->outputs_.push_back(or);
+							and->addOutput(or);
 							for (int ii = 0; ii < d.subgoals_.size(); ++ii) {
 								if (d.subgoals_[ii].head_ == r_distinct) {
 									continue;
-								} else if (d.subgoals_[ii].head_ == r_not) {
-									Component *c = components_[map_string_p[d.subgoals_[ii].items_[0].toString()]];
-									Component *not = c->getNotOutput();
-									if (not == NULL){
-										not = new Component(c_not);
-										components_.push_back(not);
-										c->outputs_.push_back(not);
-										not->inputs_.push_back(c);
-									}
-									and->inputs_.push_back(not);
-									not->outputs_.push_back(and);
 								} else {
-									Component *c = components_[map_string_p[d.subgoals_[ii].toString()]];
-									and->inputs_.push_back(c);
-									c->outputs_.push_back(and);
+									Proposition subgoal = d.subgoals_[ii];
+									subgoal.replaceVariables(target_variables, target_values);
+									subgoal.replaceVariables(undetermined_vars, combinations[k]);
+									if (d.subgoals_[ii].head_ == r_not) {
+										Component *c = components_[map_string_p[subgoal.items_[0].toString()]];
+										Component *not = c->getNotOutput();
+										if (not == NULL){
+											not = new Component(c_not);
+											components_.push_back(not);
+											c->addOutput(not);
+										}
+										not->addOutput(and);
+									} else {
+										//cout << subgoal.toString() << endl;
+										Component *c = components_[map_string_p[subgoal.toString()]];
+										c->addOutput(and);
+										if (components_[map_head_ps[r_goal][0]]->value_) {
+											cout << ps_[map_head_ps[r_goal][0]].toString() << endl;
+										}
+									}
 								}
 							}
 						}
@@ -187,14 +209,13 @@ void Propnet::init(Relations rs) {
 		true_p.head_ = r_true;
 		Component *n = components_[map_string_p[next_p.toString()]];
 		Component *t = components_[map_string_p[true_p.toString()]];
-		n->outputs_.push_back(t);
-		t->inputs_.push_back(n);
+		n->addOutput(t);
 	}
-	Propositions inits = getInits(rs);
-	for (int i = 0; i < inits.size(); ++i) {
-		Proposition next_p = inits[i];
-		next_p.head_ = r_next;
-		components_[map_string_p[next_p.toString()]]->value_ = true;
+	
+	for (int i = 0; i < ps_.size(); ++i) {
+		if (components_[i]->value_) {
+			cout << ps_[i].toString() << endl;
+			system("pause");
+		}
 	}
-
 }

@@ -79,7 +79,11 @@ void Component::propagate() {
 void Component::addOutput(Component * c) {
 	outputs_.push_back(c);
 	c->inputs_.push_back(this);
-	if (value_) {
+	if (c->type_ == c_and && c->value_) {
+		c->value_ = false;
+		c->propagate();
+	}
+	if (type_ != c_transition && value_) {
 		c->add();
 	}
 }

@@ -16,12 +16,12 @@ const int c_transition = 3;
 class Component {
 public:
 	int type_;
+	bool value_;
+	bool last_value_;
+	int trues_;
 	vector<Component *> inputs_;
 	vector<Component *> outputs_;
-	int value_;
-	int trues_;
-	bool last_value_;
-
+	
 	Component(int type);
 	void init(int type);
 	Component * getNotOutput();
