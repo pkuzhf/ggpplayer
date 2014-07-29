@@ -9,16 +9,6 @@
 
 using namespace std;
 
-Propositions getInits(Relations rs) {
-	Propositions ret;
-	for (int i = 0; i < rs.size(); ++i) {
-		if (rs[i].head_ == r_init) {
-			ret.push_back(rs[i].toProposition());
-		}
-	}
-	return ret;
-}
-
 void Propnet::init(Relations rs) {
 	for (int i = 0; i < rs.size(); ++i) {
 		rs[i].s_ = rs[i].toString();
@@ -27,11 +17,13 @@ void Propnet::init(Relations rs) {
 	Prover p(rs);
 	Propositions bases = p.bases_;
 	Propositions inputs = p.inputs_;
-	for (int i = 0; i < rs.size(); ++i) {
-		if (rs[i].head_ == r_derivation) {
-			for (vector<Relation>::iterator j = rs[i].items_.begin() + 1; j != rs[i].items_.end(); ) {
+
+	Relations rs_remove_not = rs;
+	for (int i = 0; i < rs_remove_not.size(); ++i) {
+		if (rs_remove_not[i].head_ == r_derivation) {
+			for (vector<Relation>::iterator j = rs_remove_not[i].items_.begin() + 1; j != rs_remove_not[i].items_.end(); ) {
 				if (j->head_ == r_not) {
-					j = rs[i].items_.erase(j);
+					j = rs_remove_not[i].items_.erase(j);
 				} else {
 					++j;
 				}
@@ -39,7 +31,7 @@ void Propnet::init(Relations rs) {
 		}
 	}
 	
-	Prover p2(rs);
+	Prover p2(rs_remove_not);
 	for (int i = 0; i < bases.size(); ++i) {
 		bases[i].head_ = r_true;
 	}
@@ -51,22 +43,21 @@ void Propnet::init(Relations rs) {
 	p2.generateTrueProps(ps_, 0, p2.dpg_.stra_deriv_.size() - 1);
 	ps_.insert(ps_.end(), p2.statics_.begin(), p2.statics_.end());
 	for (int i = 0; i < ps_.size(); ++i) {
-		if (ps_[i].head_ != r_next) {
-			components_.push_back(new Component(c_or));
-		} else {
-			components_.push_back(new Component(c_transition));
+		Component * c = new Component(c_or);
+		components_.push_back(c);
+		if (ps_[i].head_ == r_does) {
+			inputs_.push_back(c);
 		}
 	}
 
-	map<int, vector<int> > map_head_ps;
-	map<string, int> map_string_p;
+	
 	for (int i = 0; i < ps_.size(); ++i) {
-		map_head_ps[ps_[i].head_].push_back(i);
-		map_string_p[ps_[i].toString()] = i;
+		map_head_ps_[ps_[i].head_].push_back(i);
+		map_string_p_[ps_[i].toString()] = i;
 	}
 
 	for (int i = 0; i < p.statics_.size(); ++i) {
-		Component *c = components_[map_string_p[p.statics_[i].toString()]];
+		Component *c = components_[map_string_p_[p.statics_[i].toString()]];
 		c->value_ = true;
 		c->last_value_ = true;
 	}
@@ -76,14 +67,30 @@ void Propnet::init(Relations rs) {
 		scans.push_back(ps_[i].toString());
 	}
 	
-	Propositions inits = getInits(rs);
+	for (int i = 0; i < map_head_ps_[r_next].size(); ++i) {
+		Proposition next_p = ps_[map_head_ps_[r_next][i]];
+		Proposition true_p = next_p;
+		true_p.head_ = r_true;
+		Component *n = components_[map_string_p_[next_p.toString()]];
+		Component *t = components_[map_string_p_[true_p.toString()]];
+		Component *transition = new Component(c_transition);
+		components_.push_back(transition);
+		transitions_.push_back(transition);
+		n->addOutput(transition);
+		transition->addOutput(t);
+	}
+
+	Propositions inits = p.inits_;
 	for (int i = 0; i < inits.size(); ++i) {
 		Proposition p = inits[i];
 		p.head_ = r_next;
-		components_[map_string_p[p.toString()]]->last_value_ = true;
+		if (map_string_p_.find(p.toString()) != map_string_p_.end()) {
+			components_[map_string_p_[p.toString()]]->outputs_[0]->last_value_ = true;
+		}
 		p.head_ = r_true;
-		components_[map_string_p[p.toString()]]->value_ = true;
-		components_[map_string_p[p.toString()]]->last_value_ = true;
+		components_[map_string_p_[p.toString()]]->value_ = true;
+		components_[map_string_p_[p.toString()]]->last_value_ = true;
+		components_[map_string_p_[p.toString()]]->trues_ = 1;
 	}
 
 	for (int i = 0; i < rs.size(); ++i) {
@@ -97,13 +104,13 @@ void Propnet::init(Relations rs) {
 				}
 			}
 			Proposition &target = d.target_;
-			if (target.head_ == r_goal) {
-				//cout << "1" << endl;
+			if (target.head_ == r_next) {
+//				cout << "1" << endl;
 			}
-			for (int j = 0; j < map_head_ps[target.head_].size(); ++j) {
+			for (int j = 0; j < map_head_ps_[target.head_].size(); ++j) {
 				vector<int> target_variables;
 				vector<int> target_values;
-				if (target.matches(ps_[map_head_ps[target.head_][j]], target_variables, target_values)) {
+				if (target.matches(ps_[map_head_ps_[target.head_][j]], target_variables, target_values)) {
 					vector<int> undetermined_vars;
 					for (int k = 0; k < d.variables_.size(); ++k) {
 						if (find(target_variables.begin(), target_variables.end(), d.variables_[k]) == target_variables.end()) {
@@ -139,21 +146,18 @@ void Propnet::init(Relations rs) {
 					if (distinct_fail) {
 						continue;
 					}
-					vector<vector<vector<int> > > multiple_combinations;
+					vector<vector<vector<int> > > multiple_combinations(1, vector<vector<int> >(1, vector<int>(undetermined_vars.size(), -1)));
 					for (int k = 0; k < d.subgoals_.size(); ++k) {
 						Proposition subgoal = d.subgoals_[k];
-						if (subgoal.head_ == r_distinct) {
+						if (subgoal.head_ == r_distinct || subgoal.head_ == r_not) {
 							continue;
-						}
-						if (subgoal.head_ == r_not) {
-							subgoal = subgoal.items_[0];
 						}
 						subgoal.replaceVariables(target_variables, target_values);						
 						vector<vector<int> > combinations;
-						for (int ii = 0; ii < map_head_ps[subgoal.head_].size(); ++ii) {
+						for (int ii = 0; ii < map_head_ps_[subgoal.head_].size(); ++ii) {
 							vector<int> subgoal_variables;
 							vector<int> subgoal_values;
-							if (subgoal.matches(ps_[map_head_ps[subgoal.head_][ii]], subgoal_variables, subgoal_values)) {
+							if (subgoal.matches(ps_[map_head_ps_[subgoal.head_][ii]], subgoal_variables, subgoal_values)) {
 								vector<int> combination = getCombination(undetermined_vars, subgoal_variables, subgoal_values);
 								combinations.push_back(combination);
 							}
@@ -164,7 +168,7 @@ void Propnet::init(Relations rs) {
 					if (combinations.size() > 0) {
 						Component *or = new Component(c_or);
 						components_.push_back(or);
-						or->addOutput(components_[map_head_ps[target.head_][j]]);
+						or->addOutput(components_[map_head_ps_[target.head_][j]]);
 						for (int k = 0; k < combinations.size(); ++k) {
 							Component *and = new Component(c_and);
 							components_.push_back(and);
@@ -176,8 +180,14 @@ void Propnet::init(Relations rs) {
 									Proposition subgoal = d.subgoals_[ii];
 									subgoal.replaceVariables(target_variables, target_values);
 									subgoal.replaceVariables(undetermined_vars, combinations[k]);
-									if (d.subgoals_[ii].head_ == r_not) {
-										Component *c = components_[map_string_p[subgoal.items_[0].toString()]];
+									if (subgoal.head_ == r_not) {
+										Component *c;
+										if (map_string_p_.find(subgoal.items_[0].toString()) == map_string_p_.end()) {
+											c = new Component(c_or);
+											components_.push_back(c);
+										} else {
+											c = components_[map_string_p_[subgoal.items_[0].toString()]];
+										}
 										Component *not = c->getNotOutput();
 										if (not == NULL){
 											not = new Component(c_not);
@@ -187,11 +197,14 @@ void Propnet::init(Relations rs) {
 										not->addOutput(and);
 									} else {
 										//cout << subgoal.toString() << endl;
-										Component *c = components_[map_string_p[subgoal.toString()]];
+										Component *c = components_[map_string_p_[subgoal.toString()]];
 										c->addOutput(and);
-										if (components_[map_head_ps[r_goal][0]]->value_) {
-											cout << ps_[map_head_ps[r_goal][0]].toString() << endl;
-										}
+										//if (components_[map_head_ps_[r_legal][0]]->value_) {
+										//	cout << ps_[map_head_ps_[r_legal][0]].toString() << endl;
+										//}
+										//if (components_[map_head_ps_[r_legal][1]]->value_) {
+										//	cout << ps_[map_head_ps_[r_legal][1]].toString() << endl;
+										//}
 									}
 								}
 							}
@@ -203,19 +216,103 @@ void Propnet::init(Relations rs) {
 			//cout << components_.size() << endl;
 		}
 	}
-	for (int i = 0; i < map_head_ps[r_next].size(); ++i) {
-		Proposition next_p = ps_[map_head_ps[r_next][i]];
-		Proposition true_p = next_p;
-		true_p.head_ = r_true;
-		Component *n = components_[map_string_p[next_p.toString()]];
-		Component *t = components_[map_string_p[true_p.toString()]];
-		n->addOutput(t);
+
+	printTrues();
+
+}
+
+void Propnet::setState(Propositions state) {
+	for (int i = 0; i < map_head_ps_[r_true].size(); ++i) {
+		Component * c = components_[map_head_ps_[r_true][i]];
+		c->value_ = false;
+		c->trues_ = 0;
+		Component * t = c->getTransitionInput();
+		if (t) {
+			t->last_value_ = false;
+		}
 	}
-	
+	for (int i = 0; i < state.size(); ++i) {
+		Component * c = components_[map_string_p_[state[i].toString()]];
+		c->value_ = true;
+		c->trues_ = 1;
+		Component * t = c->getTransitionInput();
+		if (t) {
+			t->last_value_ = true;
+		}
+	}
+	for (int i = 0; i < map_head_ps_[r_true].size(); ++i) {
+		components_[map_head_ps_[r_true][i]]->propagate();
+	}
+}
+
+void Propnet::setMove(Propositions move) {
+	for (int i = 0; i < move.size(); ++i) {
+		components_[map_string_p_[move[i].toString()]]->value_ = true;
+		components_[map_string_p_[move[i].toString()]]->propagate();
+	}
+	vector<int> add;
+	vector<int> minus;
+	for (int i = 0; i < transitions_.size(); ++i) {
+		if (transitions_[i]->value_ && !transitions_[i]->last_value_) {
+			add.push_back(i);
+		}
+		if (!transitions_[i]->value_ && transitions_[i]->last_value_) {
+			minus.push_back(i);
+		}
+		transitions_[i]->last_value_ = transitions_[i]->value_;
+	}
+	for (int i = 0; i < add.size(); ++i) {
+		Component * t = transitions_[add[i]];
+		for (int i = 0; i < t->outputs_.size(); ++i) {
+			t->outputs_[i]->add();
+		}
+	}
+	for (int i = 0; i < minus.size(); ++i) {
+		Component * t = transitions_[minus[i]];
+		for (int i = 0; i < t->outputs_.size(); ++i) {
+			t->outputs_[i]->minus();
+		}
+	}
+	for (int i = 0; i < move.size(); ++i) {
+		components_[map_string_p_[move[i].toString()]]->value_ = false;
+		components_[map_string_p_[move[i].toString()]]->propagate();
+	}
+}
+
+Propositions Propnet::get(int head) {
+	Propositions ps;
+	for (int i = 0; i < map_head_ps_[head].size(); ++i) {
+		if (components_[map_head_ps_[head][i]]->value_) {
+			ps.push_back(ps_[map_head_ps_[head][i]]);
+		}
+	}
+	sort(ps.begin(), ps.end());
+	return ps;
+}
+
+Propositions Propnet::getState() {
+	return get(r_true);
+}
+
+Propositions Propnet::getLegals() {
+	return get(r_legal);
+}
+
+Propositions Propnet::getGoals() {
+	return get(r_goal);
+}
+
+bool Propnet::isTerminal() {
+	return components_[map_head_ps_[r_terminal][0]]->value_;
+}
+
+void Propnet::printTrues() {
+	int count = 0;
 	for (int i = 0; i < ps_.size(); ++i) {
 		if (components_[i]->value_) {
 			cout << ps_[i].toString() << endl;
-			system("pause");
+			++count;
 		}
 	}
+	cout << count << endl;
 }

@@ -25,6 +25,7 @@ public:
 	Component(int type);
 	void init(int type);
 	Component * getNotOutput();
+	Component * getTransitionInput();
 	void add();
 	void minus();
 	void propagate();

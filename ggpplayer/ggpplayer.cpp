@@ -31,17 +31,14 @@ void run_server() {
 	string buf;
 	Relations rs;
 
-	if (!r.readFile("gdl/reversi.kif")) {
+	if (!r.readFile("gdl/rule.txt")) {
 		cerr << Client::message("debug", "read file failed.");
     }
 	r.getRelations(rs);
 
 #ifdef DEBUG
-	Propnet propnet;
-	propnet.init(rs);
-
 	StateMachine machine(rs);
-	Propositions state = machine.trues_;
+	Propositions state = machine.getState();
 	for (int i = 0; i < 5; ++i) {
 		clock_t s = clock();
 		machine.setState(state);
@@ -49,9 +46,9 @@ void run_server() {
 		cout << clock() - s << endl;
 	}
 
-	for (int i = 0; i < Prover::time.size(); ++i) {
-		cout << "time" << i << " " << Prover::time[i] << endl;
-	}
+	//for (int i = 0; i < Prover::time.size(); ++i) {
+	//	cout << "time" << i << " " << Prover::time[i] << endl;
+	//}
 #endif
 
 	//getline(cin, buf);
@@ -97,7 +94,7 @@ void run_server() {
 			for (int i = 0; i < joint_move.size(); ++i) {
 				Relation does;
 				does.head_ = r_does;						
-				does.items_.push_back(player.state_machine_.prover_.roles_[i].toRelation().items_[0]);
+				does.items_.push_back(player.state_machine_.getRoles()[i].toRelation().items_[0]);
 				does.items_.push_back(joint_move[i].toRelation());
 				joint_move[i] = does.toProposition();
 			}		

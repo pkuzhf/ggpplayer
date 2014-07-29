@@ -27,6 +27,15 @@ Component * Component::getNotOutput() {
 	return NULL;
 }
 
+Component * Component::getTransitionInput() {
+	for (int i = 0; i < inputs_.size(); ++i) {
+		if (inputs_[i]->type_ == c_transition) {
+			return inputs_[i];
+		}
+	}
+	return NULL;
+}
+
 void Component::add() {
 	++trues_;
 	if (type_ == c_and) {

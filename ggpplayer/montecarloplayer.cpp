@@ -44,11 +44,11 @@ void MonteCarloPlayer::updateTree(Propositions state, string tree) {
 
 MonteCarloPlayer::MonteCarloPlayer(){}
 MonteCarloPlayer::MonteCarloPlayer(Relations rs, string role):state_machine_(rs) {
-	current_state_ = state_machine_.trues_;
-	is_terminal_ = state_machine_.is_terminal_;
+	current_state_ = state_machine_.getState();
+	is_terminal_ = state_machine_.isTerminal();
 	int role_code = Relation::symbol2code[string(role)];
-	for (int i = 0; i < state_machine_.prover_.roles_.size(); ++i) {
-		if (state_machine_.prover_.roles_[i].items_[0].head_ == role_code) {
+	for (int i = 0; i < state_machine_.getRoles().size(); ++i) {
+		if (state_machine_.getRoles()[i].items_[0].head_ == role_code) {
 			role_ = i;
 			break;
 		}
@@ -73,7 +73,7 @@ Proposition MonteCarloPlayer::getBestMove() {
 void MonteCarloPlayer::setState(Propositions state) {
 	state_machine_.setState(state);
 	current_state_ = state;
-	is_terminal_ = state_machine_.is_terminal_;
+	is_terminal_ = state_machine_.isTerminal();
 	deleteNodes();
 	root_ = newNode();
 	initNode(root_, current_state_, is_terminal_);
@@ -91,13 +91,13 @@ void MonteCarloPlayer::expandeNode(Node * node) {
 		for (int j = 0; j < jointmove_sizes[i]; ++j) {
 			state_machine_.setState(node->getState());
 			state_machine_.goOneStep(state_machine_.getLegalJointMoves(role_, i)[j]);
-			if (map_state_node_.find(Proposition::propsToStr(state_machine_.trues_)) != map_state_node_.end()) {
-				Node * used_node = map_state_node_[Proposition::propsToStr(state_machine_.trues_)];
+			if (map_state_node_.find(Proposition::propsToStr(state_machine_.getState())) != map_state_node_.end()) {
+				Node * used_node = map_state_node_[Proposition::propsToStr(state_machine_.getState())];
 				used_node->parent_.push_back(node);
 				nodes.push_back(used_node);
 			} else {
 				Node * new_node = newNode(node);
-				initNode(new_node, state_machine_.trues_, state_machine_.is_terminal_);
+				initNode(new_node, state_machine_.getState(), state_machine_.isTerminal());
 				if (new_node->is_terminal_) {
 					new_node->attemps_ = 1000000;
 					new_node->points_ = new_node->attemps_ * state_machine_.getGoal(role_);
@@ -204,8 +204,8 @@ void MonteCarloPlayer::goOneStep(Propositions moves) {
 	sort(moves.begin(), moves.end());
 	state_machine_.setState(current_state_);	
 	state_machine_.goOneStep(moves);
-	current_state_ = state_machine_.trues_;
-	is_terminal_ = state_machine_.is_terminal_;
+	current_state_ = state_machine_.getState();
+	is_terminal_ = state_machine_.isTerminal();
 	
 	if (map_state_node_.find(Proposition::propsToStr(current_state_)) != map_state_node_.end()) {
 		root_ = map_state_node_[Proposition::propsToStr(current_state_)];
