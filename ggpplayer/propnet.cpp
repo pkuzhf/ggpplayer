@@ -64,7 +64,11 @@ void Propnet::init(Relations rs) {
 	vector<string> scans;
 	for (int i = 0; i < ps_.size(); ++i) {
 		scans.push_back(ps_[i].toString());
-		components_.push_back(new Component(c_or));
+		if (ps_[i].head_ != r_true) {
+			components_.push_back(new Component(c_or));
+		} else {
+			components_.push_back(new Component(c_transition));
+		}
 	}
 	
 	for (int i = 0; i < rs.size(); ++i) {
@@ -138,14 +142,7 @@ void Propnet::init(Relations rs) {
 						}
 						multiple_combinations.push_back(combinations);
 					}
-					vector<vector<int> > combinations = mergeMultipleCombinations(
-						multiple_combinations, 
-						vector<vector<vector<int> > >(), 
-						vector<vector<vector<int> > >(),
-						vector<vector<int> >(),
-						variable_distincts,
-						constant_distincts
-					);
+					vector<vector<int> > combinations = mergeMultipleCombinations(multiple_combinations, variable_distincts, constant_distincts);
 					if (combinations.size() > 0) {
 						Component *or = new Component(c_or);
 						components_.push_back(or);
@@ -180,6 +177,8 @@ void Propnet::init(Relations rs) {
 					}
 				}
 			}
+			//cout << rs[i].toString() << endl;
+			//cout << components_.size() << endl;
 		}
 	}
 	for (int i = 0; i < map_head_ps[r_next].size(); ++i) {
@@ -188,7 +187,6 @@ void Propnet::init(Relations rs) {
 		true_p.head_ = r_true;
 		Component *n = components_[map_string_p[next_p.toString()]];
 		Component *t = components_[map_string_p[true_p.toString()]];
-		t->type_ = c_transition;
 		n->outputs_.push_back(t);
 		t->inputs_.push_back(n);
 	}
@@ -198,4 +196,5 @@ void Propnet::init(Relations rs) {
 		next_p.head_ = r_next;
 		components_[map_string_p[next_p.toString()]]->value_ = true;
 	}
+
 }

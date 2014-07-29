@@ -217,18 +217,35 @@ void uniqCombinations(vector<vector<int> > combinations) {
 	}
 }
 
-vector<vector<int> > & mergeMultipleCombinations(
-	vector<vector<vector<int> > > &multiple_combinations, 
-	vector<vector<vector<int> > > &multiple_not_combinations,
-	vector<vector<vector<int> > > &multiple_combinations_indexes,
-	vector<vector<int> > &multiple_not_combinations_indexes,
-	vector<pair<int, int> > &variable_distincts,
-	vector<pair<int, int> > &constant_distincts) {	
+vector<vector<int> > mergeMultipleCombinations(
+	vector<vector<vector<int> > > multiple_combinations, 
+	vector<pair<int, int> > variable_distincts,
+	vector<pair<int, int> > constant_distincts) {	
+	
+	vector<vector<vector<int> > > multiple_not_combinations;
+	vector<vector<vector<int> > > multiple_combinations_indexes;
+	vector<vector<int> > multiple_not_combinations_indexes;
+	return mergeMultipleCombinations(
+		multiple_combinations,
+		multiple_not_combinations,
+		multiple_combinations_indexes,
+		multiple_not_combinations_indexes,
+		variable_distincts,
+		constant_distincts
+	);
+}
+
+vector<vector<int> > mergeMultipleCombinations(
+	vector<vector<vector<int> > > multiple_combinations, 
+	vector<vector<vector<int> > > multiple_not_combinations,
+	vector<vector<vector<int> > > multiple_combinations_indexes,
+	vector<vector<int> > multiple_not_combinations_indexes,
+	vector<pair<int, int> > variable_distincts,
+	vector<pair<int, int> > constant_distincts) {	
 		
 	int size = multiple_combinations.size();
-	if (size == 0) {
-		multiple_combinations.push_back(vector<vector<int> >());
-		return multiple_combinations[multiple_combinations.size() - 1];
+	if (size == 0) {		
+		return vector<vector<int> >();
 	}
 	for (int i = 0; i < size; ++i) {
 		if (multiple_combinations[i].size() == 0) {
@@ -259,8 +276,7 @@ vector<vector<int> > & mergeMultipleCombinations(
 			}
 			combine_cost[i][j] = calcCombineCost(a, b, keys[i][j], idxes[i][j].first, idxes[i][j].second);
 			if (combine_cost[i][j] == 0) {
-				multiple_combinations.push_back(vector<vector<int> >());
-				return multiple_combinations[multiple_combinations.size() - 1];;
+				return vector<vector<int> >();
 			}
 		}
 	}

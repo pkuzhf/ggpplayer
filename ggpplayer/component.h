@@ -20,10 +20,15 @@ public:
 	vector<Component *> outputs_;
 	int value_;
 	int trues_;
+	bool last_value_;
 
-	Component();
 	Component(int type);
+	void init(int type);
 	Component * getNotOutput();
+	void add();
+	void minus();
+	void propagate();
+	void addOutput(Component * c);
 };
 
 #endif
