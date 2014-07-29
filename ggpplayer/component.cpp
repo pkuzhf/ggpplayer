@@ -1,6 +1,7 @@
 #include <vector>
 
 #include "component.h"
+#include <cstddef>
 
 using namespace std;
 
